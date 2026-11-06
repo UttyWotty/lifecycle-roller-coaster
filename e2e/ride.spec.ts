@@ -83,6 +83,13 @@ test("the draw-in animation runs by default", async ({ page }) => {
 test.describe("with reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 
+  test("the cart stays parked at the end of the track", async ({ page }) => {
+    await openRide(page);
+    await expect(page.getByTestId("ride-cart-parked")).toBeVisible();
+    await expect(page.getByTestId("ride-cart-moving")).toBeHidden();
+    await expect(button(page, "Ride again")).toBeHidden();
+  });
+
   test("the draw-in animation is off", async ({ page }) => {
     await openRide(page);
     const name = await page.getByTestId("ride-path").evaluate((path) => getComputedStyle(path).animationName);
@@ -121,4 +128,132 @@ test("a failed export shows a friendly message and can be retried", async ({ pag
   await button(page, "Download image").click();
   await expect(page.getByText("could not create your image")).toBeVisible();
   await expect(button(page, "Download image")).toBeEnabled();
+});
+
+test.describe("ride styles and titles", () => {
+  test("the coaster is the default style", async ({ page }) => {
+    await openRide(page);
+    await expect(page.getByRole("radio", { name: /Coaster/ })).toBeChecked();
+  });
+
+  test("loop-the-loops redraws the rail and keeps every stop", async ({ page }) => {
+    await openRide(page);
+    const path = page.getByTestId("ride-path");
+    const coaster = await path.getAttribute("d");
+    await page.getByRole("radio", { name: /Loop-the-loops/ }).check();
+    await expect(path).not.toHaveAttribute("d", coaster ?? "");
+    await expect(page.locator('svg g[role="button"]')).toHaveCount(4);
+    await expect(page.getByRole("group", { name: /with loops/ })).toBeVisible();
+  });
+
+  test("the metro map names one line for each category, and stops stay editable", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    const lines = page.getByTestId("ride-path");
+    await expect(lines).toHaveCount(4);
+    const map = page.getByRole("group", { name: "Your life as a metro map" });
+    await expect(map.getByText("Career", { exact: true })).toBeVisible();
+    const original = await lines.first().getAttribute("d");
+    await rideStop(page, "Started university").click();
+    await page.getByRole("region", { name: "Selected stop" }).getByLabel("How it felt").selectOption("negative");
+    await expect(lines.first()).not.toHaveAttribute("d", original ?? "");
+  });
+
+  test("the title shows in the drawing and adds height to the image", async ({ page }) => {
+    await openRide(page);
+    const drawing = page.getByRole("group", { name: "Your life as a roller coaster" });
+    const before = await drawing.getAttribute("viewBox");
+    await page.getByLabel("Name your ride").fill("My 20s Roller Coaster");
+    await expect(drawing.getByText("My 20s Roller Coaster")).toBeVisible();
+    await expect(drawing).not.toHaveAttribute("viewBox", before ?? "");
+    await page.getByLabel("Name your ride").fill("");
+    await expect(drawing).toHaveAttribute("viewBox", before ?? "");
+  });
+
+  test("the title stops at the maximum length", async ({ page }) => {
+    await openRide(page);
+    await page.getByLabel("Name your ride").pressSequentially("x".repeat(60));
+    await expect(page.getByLabel("Name your ride")).toHaveValue("x".repeat(50));
+  });
+
+  test("style and title survive leaving the ride", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    await page.getByLabel("Name your ride").fill("Kept");
+    await button(page, "Edit my events").click();
+    await button(page, "See my ride").click();
+    await expect(page.getByRole("radio", { name: /Metro map/ })).toBeChecked();
+    await expect(page.getByLabel("Name your ride")).toHaveValue("Kept");
+  });
+
+  test("the drawing starts as an illustrated scene, and Simple removes it", async ({ page }) => {
+    await openRide(page);
+    await expect(page.getByRole("radio", { name: "Sunny day" })).toBeChecked();
+    await expect(page.getByTestId("scene-sky")).toHaveCount(1);
+    await expect(page.getByTestId("trestle")).toHaveCount(1);
+    await page.getByRole("radio", { name: "Simple" }).check();
+    await expect(page.getByTestId("scene-sky")).toHaveCount(0);
+    await expect(page.getByTestId("trestle")).toHaveCount(0);
+    await expect(page.locator('svg g[role="button"]')).toHaveCount(4);
+  });
+
+  test("themes change only the look, and survive leaving the ride", async ({ page }) => {
+    await openRide(page);
+    const sky = page.getByTestId("scene-sky");
+    const path = await page.getByTestId("ride-path").getAttribute("d");
+    await page.getByRole("radio", { name: "Starry night" }).check();
+    await expect(page.getByTestId("ride-path")).toHaveAttribute("d", path ?? "");
+    await button(page, "Edit my events").click();
+    await button(page, "See my ride").click();
+    await expect(page.getByRole("radio", { name: "Starry night" })).toBeChecked();
+    await expect(sky).toHaveCount(1);
+  });
+
+  test("the cart rides the real rail, and only coasters have one", async ({ page }) => {
+    await openRide(page);
+    const motion = page.locator("animateMotion");
+    await expect(motion).toHaveAttribute("path", (await page.getByTestId("ride-path").getAttribute("d")) ?? "");
+    await expect(page.getByTestId("ride-cart-moving")).toBeVisible();
+    await expect(page.getByTestId("ride-cart-parked")).toBeHidden();
+    await expect(button(page, "Ride again")).toBeVisible();
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    await expect(motion).toHaveCount(0);
+    await expect(button(page, "Ride again")).toHaveCount(0);
+  });
+
+  test("Ride again restarts the ride without changing it", async ({ page }) => {
+    await openRide(page);
+    const motion = page.locator("animateMotion");
+    await motion.evaluate((element) => element.setAttribute("data-first", "yes"));
+    await button(page, "Ride again").click();
+    await expect(page.locator('animateMotion[data-first="yes"]')).toHaveCount(0);
+    await expect(page.locator('svg g[role="button"]')).toHaveCount(4);
+  });
+
+  for (const theme of ["Sunny day", "Golden sunset", "Starry night", "Simple"]) {
+    test(`a ${theme} ride downloads as a PNG`, async ({ page }) => {
+      await openRide(page);
+      await page.getByRole("radio", { name: theme }).check();
+      const downloading = page.waitForEvent("download");
+      await button(page, "Download image").click();
+      const file = await readFile(await (await downloading).path());
+      expect(file.subarray(1, 4).toString()).toBe(PNG_SIGNATURE);
+    });
+  }
+
+  for (const style of [/Coaster/, /Loop-the-loops/, /Metro map/]) {
+    test(`a titled ride in the ${style.source} style downloads at the right size`, async ({ page }) => {
+      await openRide(page);
+      await page.getByRole("radio", { name: style }).check();
+      await page.getByLabel("Name your ride").fill("A long and winding ride");
+      expect(await hasPageOverflow(page)).toBe(false);
+      const downloading = page.waitForEvent("download");
+      await button(page, "Download image").click();
+      const file = await readFile(await (await downloading).path());
+      const viewBox = await page.locator("svg[viewBox]").first().getAttribute("viewBox");
+      const [, , width, height] = (viewBox ?? "").split(" ").map(Number);
+      expect(file.readUInt32BE(PNG_WIDTH_OFFSET)).toBe(width * EXPORT_SCALE);
+      expect(file.readUInt32BE(PNG_HEIGHT_OFFSET)).toBe(height * EXPORT_SCALE);
+    });
+  }
 });

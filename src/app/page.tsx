@@ -18,13 +18,21 @@ export default function Home(): ReactElement {
           coaster. No account needed.
         </p>
       </header>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <Link
+          href="/story"
+          className="inline-flex min-h-11 items-center rounded-full bg-accent px-8 py-3 text-lg font-semibold text-on-accent"
+        >
+          Start your ride
+        </Link>
+        <Link
+          href="/sample"
+          className="inline-flex min-h-11 items-center rounded-full border border-muted px-8 py-3 text-lg font-semibold"
+        >
+          Try a sample life
+        </Link>
+      </div>
       <ExampleRide />
-      <Link
-        href="/story"
-        className="inline-flex min-h-11 items-center rounded-full bg-accent px-8 py-3 text-lg font-semibold text-on-accent"
-      >
-        Start your ride
-      </Link>
     </main>
   );
 }

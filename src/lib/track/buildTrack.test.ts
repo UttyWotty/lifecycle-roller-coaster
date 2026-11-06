@@ -11,7 +11,7 @@ import {
   MAX_LABEL_LENGTH,
   TRACK_HEIGHT,
   buildTrack,
-  cumulativeLevels,
+  eventLevels,
   shortenLabel,
 } from "./buildTrack";
 import { CATEGORY_COLORS } from "./categoryColors";
@@ -36,19 +36,64 @@ function makeEvents(overrides: readonly Partial<LifeEvent>[]): LifeEvent[] {
 
 const PATH_NUMBER = /-?\d+(\.\d+)?/g;
 
-describe("cumulativeLevels", () => {
-  it("rises for positive, falls for negative and stays flat for neutral", () => {
+describe("eventLevels", () => {
+  it("uses each event's own points, and keeps the last level for neutral", () => {
     const events = makeEvents([
       { sentiment: "positive", impact: 7 },
       { sentiment: "negative", impact: 3 },
       { sentiment: "neutral", impact: 10 },
       { sentiment: "negative", impact: 9 },
     ]);
-    expect(cumulativeLevels(events)).toEqual([7, 4, 4, -5]);
+    expect(eventLevels(events)).toEqual([7, -3, -3, -9]);
   });
 
   it("is empty for no events", () => {
-    expect(cumulativeLevels([])).toEqual([]);
+    expect(eventLevels([])).toEqual([]);
+  });
+});
+
+/** The steepest part of the rail between the first two stops, as height changed per unit across. */
+function steepestSlope(events: LifeEvent[]): number {
+  const { profile, stops } = buildTrack(events);
+  const between = profile.filter(({ x }) => x >= stops[0].x && x <= stops[1].x);
+  const slopes = between.slice(1).map((point, index) => {
+    const previous = between[index];
+    return Math.abs((point.y - previous.y) / (point.x - previous.x));
+  });
+  return Math.max(...slopes);
+}
+
+describe("buildTrack moves", () => {
+  it("drops from a 10 to a 1, even when both felt good", () => {
+    const { stops } = buildTrack(makeEvents([{ impact: 10 }, { impact: 1 }]));
+    expect(stops[1].y).toBeGreaterThan(stops[0].y);
+    expect(stops[1].labelSide).toBe("below");
+  });
+
+  it("climbs from a 1 to a 10", () => {
+    const { stops } = buildTrack(makeEvents([{ impact: 1 }, { impact: 10 }]));
+    expect(stops[1].y).toBeLessThan(stops[0].y);
+  });
+
+  it("makes a bigger gap steeper than a smaller one", () => {
+    const small = steepestSlope(makeEvents([{ impact: 6 }, { impact: 5 }]));
+    const medium = steepestSlope(makeEvents([{ impact: 8 }, { impact: 4 }]));
+    const large = steepestSlope(makeEvents([{ impact: 10 }, { impact: 1 }]));
+    const hardest = steepestSlope(makeEvents([{ impact: 10 }, { sentiment: "negative", impact: 10 }]));
+    expect(medium).toBeGreaterThan(small);
+    expect(large).toBeGreaterThan(medium);
+    expect(hardest).toBeGreaterThan(large);
+  });
+
+  it("uses most of the canvas for the biggest move", () => {
+    const { stops } = buildTrack(makeEvents([{ impact: 10 }, { sentiment: "negative", impact: 10 }]));
+    expect(stops[1].y - stops[0].y).toBeGreaterThan(TRACK_HEIGHT / 2);
+  });
+
+  it("keeps small points looking small", () => {
+    const gentle = buildTrack(makeEvents([{ impact: 3 }, { impact: 1 }]));
+    const strong = buildTrack(makeEvents([{ impact: 10 }, { impact: 1 }]));
+    expect(gentle.stops[1].y - gentle.stops[0].y).toBeLessThan(strong.stops[1].y - strong.stops[0].y);
   });
 });
 
@@ -104,7 +149,7 @@ describe("buildTrack bounds", () => {
 
   it.each(extremes)("stays inside the canvas for %s", (_label, overrides) => {
     const track = buildTrack(makeEvents(overrides));
-    const numbers = (track.path.match(PATH_NUMBER) ?? []).map(Number);
+    const numbers = (track.lines[0].path.match(PATH_NUMBER) ?? []).map(Number);
     expect(numbers.length).toBeGreaterThan(0);
     expect(numbers.every(Number.isFinite)).toBe(true);
     expect(Math.min(...numbers)).toBeGreaterThanOrEqual(0);

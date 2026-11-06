@@ -1,78 +1,70 @@
 /**
- * Holds the story and events, and moves the user from their story straight to the ride.
+ * Moves the user from their story, or a sample life, straight to the ride.
  * Editing events by hand is an optional stage, and stages stay separate so no edits are lost.
- * All of this state lives in React only and disappears when the page closes.
+ * The state and its rules live in useRideState, and this component only chooses what to show.
  */
 "use client";
 
-import { useState, type ReactElement } from "react";
+import type { ReactElement } from "react";
 import { EventReview } from "@/components/EventReview/EventReview";
 import { RideResult } from "@/components/RollerCoaster/RideResult";
 import { StoryEditor } from "@/components/StoryEditor/StoryEditor";
-import type { ExtractionResult } from "@/lib/ai/extraction";
-import { addBlankEvent, findInvalidFields } from "@/lib/events/editing";
-import type { LifeEvent } from "@/lib/events/schema";
+import { useRideState } from "./useRideState";
 
-type Stage = "story" | "review" | "ride";
+interface RideFlowProps {
+  /** Opens on a random sample life instead of the empty story box. */
+  startWithSample?: boolean;
+}
 
-export function RideFlow(): ReactElement {
-  const [stage, setStage] = useState<Stage>("story");
-  const [story, setStory] = useState("");
-  const [events, setEvents] = useState<LifeEvent[]>([]);
-  const [clarifications, setClarifications] = useState<readonly string[]>([]);
-  const [isDemo, setIsDemo] = useState(false);
+export function RideFlow({ startWithSample = false }: RideFlowProps): ReactElement {
+  const ride = useRideState(startWithSample);
 
-  function showResult(result: ExtractionResult): void {
-    setEvents(result.events);
-    setClarifications(result.clarifications);
-    setIsDemo(result.isDemo);
-    setStage(result.events.length > 0 ? "ride" : "review");
-  }
-
-  function returnToEvents(): void {
-    const hasInvalidEvents = Object.keys(findInvalidFields(events)).length > 0;
-    setStage(hasInvalidEvents ? "review" : "ride");
-  }
-
-  if (stage === "ride") {
+  if (ride.stage === "ride") {
     return (
       <RideResult
-        events={events}
-        clarifications={clarifications}
-        isDemo={isDemo}
-        onEventsChange={setEvents}
-        onEditEvents={() => setStage("review")}
-        onBackToStory={() => setStage("story")}
+        key={ride.sampleId}
+        events={ride.events}
+        clarifications={ride.clarifications}
+        isDemo={ride.isDemo}
+        isSample={ride.sampleId !== null}
+        title={ride.rideTitle}
+        rideStyle={ride.rideStyle}
+        rideTheme={ride.rideTheme}
+        onTitleChange={ride.setRideTitle}
+        onRideStyleChange={ride.setRideStyle}
+        onRideThemeChange={ride.setRideTheme}
+        onEventsChange={ride.setEvents}
+        onEditEvents={() => ride.setStage("review")}
+        onBackToStory={() => ride.setStage("story")}
+        onShowAnotherSample={ride.showSample}
       />
     );
   }
 
-  if (stage === "review") {
+  if (ride.stage === "review") {
     return (
       <EventReview
-        events={events}
-        clarifications={clarifications}
-        isDemo={isDemo}
-        onEventsChange={setEvents}
-        onBack={() => setStage("story")}
-        onContinue={() => setStage("ride")}
+        events={ride.events}
+        clarifications={ride.clarifications}
+        isDemo={ride.isDemo}
+        isSample={ride.sampleId !== null}
+        onEventsChange={ride.setEvents}
+        onBack={() => ride.setStage("story")}
+        onContinue={() => ride.setStage("ride")}
       />
     );
   }
 
   return (
     <StoryEditor
-      story={story}
-      hasEvents={events.length > 0}
-      onStoryChange={setStory}
-      onExtracted={showResult}
-      onReturnToEvents={returnToEvents}
-      onAddManually={() => {
-        setEvents(addBlankEvent([]));
-        setClarifications([]);
-        setIsDemo(false);
-        setStage("review");
-      }}
+      story={ride.story}
+      hasEvents={ride.events.length > 0}
+      isSample={ride.sampleId !== null}
+      onStoryChange={ride.setStory}
+      onExtracted={ride.showResult}
+      onReturnToEvents={ride.returnToEvents}
+      onAddManually={ride.addManually}
+      onShowSample={ride.showSample}
     />
   );
 }

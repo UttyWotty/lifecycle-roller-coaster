@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-All essential roadmap phases (1 to 5) are released: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export.
+All essential roadmap phases (1 to 5) are released: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export. v0.3.0 added ride styles, illustrated themes, custom titles and sample lives.
 
 `docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
 
@@ -28,7 +28,7 @@ This Next.js version differs from older releases. Read the guide in `node_module
 
 Lifecycle Roller Coaster is an open-source web app that turns a free-text life story into a playful roller-coaster timeline. The v0.1 flow is: write story, AI extracts events, user reviews and edits them, app renders the ride, user exports it as an image. No account is required.
 
-v0.1 excludes accounts, payments, social networking, complex analytics, and a database. Themes, life statistics, and public share links are later phases (blueprint sections 9 and 11). Keep the tone playful: this is not a life-coaching or assessment product, and the graph is a creative representation rather than a measurement.
+v0.1 excludes accounts, payments, social networking, complex analytics, and a database. Life statistics and public share links are later phases (blueprint sections 9 and 11). Keep the tone playful: this is not a life-coaching or assessment product, and the graph is a creative representation rather than a measurement.
 
 ## Architecture Constraints
 
@@ -36,11 +36,15 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 - **The LLM sits behind a provider-agnostic adapter.** `src/lib/ai/extractor.ts` is the interface, and `src/lib/ai/anthropicExtractor.ts` is the only module that imports the SDK or reads its settings. `extractRequest.ts` takes the extractor as an argument, so tests use a fake and never call the API.
 - **Read the stop reason before the output.** Use `beta.messages.create` with `readModelOutput`, not `parse`: the SDK parser throws on truncated output before `stop_reason` can be read, and its error text can contain story fragments.
 - **Stack:** Next.js + TypeScript and Tailwind CSS, with zod validating data at the boundaries. Server logic lives in Next.js route handlers rather than a separate backend. Planned additions are SVG (optionally D3.js) track generation, SVG-to-PNG export, and browser local storage.
-- **Module layout:** `src/app` holds routes and `src/components` holds UI. `src/lib/events` is the shared contract and its editing logic, and stays pure. `RideFlow` owns the story and events and switches between the writing, ride and review stages. Generate goes straight to the ride, and the review stage is optional, reached through Edit my events. Stages stay separate so editing the story cannot wipe event edits. Anything the user must see, such as the demo notice, belongs in `ReadingNotes`, which both stages show. AI code is in `src/lib/ai` and track generation goes in `src/lib/track`; each may import `src/lib/events` but never the other. `eslint.config.mjs` enforces these boundaries.
+- **Module layout:** `src/app` holds routes and `src/components` holds UI. `src/lib/events` is the shared contract and its editing logic, and stays pure. `RideFlow` owns the story and events and switches between the writing, ride and review stages. Generate goes straight to the ride, and the review stage is optional, reached through Edit my events. Stages stay separate so editing the story cannot wipe event edits. `useRideState` holds this state and its rules. Sample lives in `src/lib/samples` are built-in events that never call an AI provider: a sample must not overwrite text the user wrote, and its button is hidden once a real ride exists, so a paid extraction cannot be replaced by accident. Anything the user must see, such as the demo notice, belongs in `ReadingNotes`, which both stages show. AI code is in `src/lib/ai` and track generation goes in `src/lib/track`; each may import `src/lib/events` but never the other. `eslint.config.mjs` enforces these boundaries.
 
 ## Track Model
 
-`buildTrack` in `src/lib/track` returns geometry only. Height is cumulative: positive events add their impact, negative events subtract it, and neutral events stay flat. Stops sit in list order at even spacing, not on a true time scale, so the user's order is respected and undated events have a place.
+`buildTrack` in `src/lib/track` returns geometry only. Height is not a running total: each event sits at the level of its own signed impact, and a neutral event keeps the level before it. So 10 then 1 is a sharp drop even when both are positive, curves sharpen with the size of the move, and `MIN_LEVEL_SPAN` keeps small moves looking small. Stops sit in list order at even spacing, not on a true time scale, so the user's order is respected and undated events have a place.
+
+Every ride style is a generator that returns the same `Track` type from `src/lib/track/types.ts`, registered in `rideStyles.ts`, so `RideTrack` and image export need no per-style code paths. Styles change only how events are drawn, never the events. Loop-the-loops adds a circle at each major stop. The metro map gives each category a full-width line, brings all lines through major stops, and returns them to their lanes between distant stops. `addTitle` runs last and shifts the ride down with `contentOffset`; style and title live in `RideFlow` so they survive stage changes.
+
+Themes are separate from styles. `src/lib/scene` holds palettes and scenery, and `composeRide` is the one place that builds a style, adds headroom, a title and scenery. Scenery uses a fixed seed, never `Math.random`, so redraws do not flicker. All art is original and drawn in code. Scene colours are fixed hex values, so they export unchanged. The moving cart is hidden from exports with `EXPORT_HIDDEN_ATTRIBUTE`, and page CSS shows it instead of the parked cart, which is all an exported image sees.
 
 Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites its markup with a fixed light palette, and `downloadRideImage.ts` converts it to PNG in the browser, so nothing is uploaded.
 

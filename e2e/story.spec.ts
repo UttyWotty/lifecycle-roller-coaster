@@ -3,7 +3,7 @@
  * They cover the path into the app, prompts, the length limit and manual entry.
  * They also confirm the privacy promises: nothing is sent early, stored or kept after a reload.
  */
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { SECRET, STORY, button, hasPageOverflow, openReview, storyBox } from "./helpers";
 
 test("landing page leads to the story editor", async ({ page }) => {
@@ -116,4 +116,92 @@ test("returning to the story keeps the events", async ({ page }) => {
   await button(page, "Return to my ride").click();
   await page.getByRole("heading", { name: "Your ride" }).waitFor();
   await expect(page.locator('svg g[role="button"]').first()).toContainText("Changed title");
+});
+
+test.describe("sample lives", () => {
+  const rideHeading = (page: Page) => page.getByRole("heading", { name: "Your ride" });
+  const notice = (page: Page) => page.getByText("This is a sample life");
+
+  test("the landing page opens a full ride in one click, with no AI call", async ({ page }) => {
+    const extractions: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes("/api/extract")) {
+        extractions.push(request.url());
+      }
+    });
+    await page.goto("/");
+    await page.getByRole("link", { name: "Try a sample life" }).click();
+    await expect(rideHeading(page)).toBeVisible();
+    await expect(notice(page)).toBeVisible();
+    await expect(page.locator('svg g[role="button"]')).toHaveCount(14);
+    await expect(page.getByLabel("Name your ride")).not.toHaveValue("");
+    expect(extractions).toEqual([]);
+  });
+
+  test("Show me another life always changes the ride", async ({ page }) => {
+    await page.goto("/sample");
+    const title = page.getByLabel("Name your ride");
+    let previous = await title.inputValue();
+    for (let click = 0; click < 12; click += 1) {
+      await button(page, "Show me another life").click();
+      await expect(title).not.toHaveValue(previous);
+      previous = await title.inputValue();
+    }
+  });
+
+  test("a selected stop does not carry over to the next life", async ({ page }) => {
+    await page.goto("/sample");
+    await page.locator('svg g[role="button"]').first().click();
+    await expect(page.getByRole("region", { name: "Selected stop" })).toBeVisible();
+    await button(page, "Show me another life").click();
+    await expect(page.getByRole("region", { name: "Selected stop" })).toHaveCount(0);
+  });
+
+  test("the story page button fills an empty story box", async ({ page }) => {
+    await page.goto("/story");
+    await button(page, "Try a sample life").click();
+    await expect(rideHeading(page)).toBeVisible();
+    await button(page, "Back to my story").click();
+    await expect(storyBox(page)).not.toHaveValue("");
+  });
+
+  test("a sample never overwrites what the user wrote", async ({ page }) => {
+    await page.goto("/story");
+    await storyBox(page).fill(STORY);
+    await button(page, "Try a sample life").click();
+    await button(page, "Back to my story").click();
+    await expect(storyBox(page)).toHaveValue(STORY);
+  });
+
+  test("the notice also shows while editing a sample's events", async ({ page }) => {
+    await page.goto("/sample");
+    await button(page, "Edit my events").click();
+    await expect(page.getByRole("heading", { name: "Review your events" })).toBeVisible();
+    await expect(notice(page)).toBeVisible();
+  });
+
+  test("a real ride cannot be replaced by a sample", async ({ page }) => {
+    await page.goto("/story");
+    await storyBox(page).fill(STORY);
+    await button(page, "Generate my ride").click();
+    await expect(rideHeading(page)).toBeVisible();
+    await expect(button(page, "Show me another life")).toHaveCount(0);
+    await button(page, "Back to my story").click();
+    await expect(button(page, "Try a sample life")).toHaveCount(0);
+  });
+
+  test("generating after a sample clears its notice and title", async ({ page }) => {
+    await page.goto("/sample");
+    await button(page, "Back to my story").click();
+    await button(page, "Generate my ride").click();
+    await expect(rideHeading(page)).toBeVisible();
+    await expect(notice(page)).toHaveCount(0);
+    await expect(page.getByLabel("Name your ride")).toHaveValue("");
+  });
+
+  test("every style still fits a sample on a phone", async ({ page }) => {
+    await page.goto("/sample");
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    expect(await hasPageOverflow(page)).toBe(false);
+  });
 });

@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-06
+
+### Changed
+
+- Track height now comes from each event's own points, so a big gap between two events makes a sharp drop or climb.
+
+### Added
+
+- Ride styles: choose the classic Coaster, Loop-the-loops with a full loop at every big moment, or a Metro map with one line for each part of your life.
+- Custom ride titles, shown on the ride and in the downloaded image.
+- Illustrated themes: Sunny day, Golden sunset and Starry night scenes with clouds, a city skyline, a steel lattice, flags and label pills, plus the original look as Simple.
+- A cart that rides the track through every loop, with Ride again to replay it, and a balloon and parachute that mark the best and hardest moments.
+- Sample lives: eight made-up stories that open as a finished ride in one click, for free, with nothing to write.
+
 ## [0.2.0] - 2026-11-06
 
 ### Changed

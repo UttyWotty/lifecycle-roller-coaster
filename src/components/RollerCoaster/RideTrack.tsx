@@ -1,16 +1,25 @@
 /**
- * SVG drawing of a generated roller-coaster track.
- * Markers can be selected when a handler is given, and major events are drawn larger.
+ * SVG drawing of a generated ride, in any style and theme.
+ * It draws whatever the generators returned, with a full scene when the theme has one.
  * The same drawing serves the landing page, the ride stage and image export, so they always match.
  */
-import type { KeyboardEvent, ReactElement, Ref } from "react";
-import { EXPORT_HIDDEN_ATTRIBUTE } from "@/lib/export/rideImage";
+import type { ReactElement, Ref } from "react";
+import { toLabel } from "@/components/EventReview/fieldStyles";
+import { RideCart } from "@/components/Scene/RideCart";
+import { SceneBackdrop } from "@/components/Scene/SceneBackdrop";
+import { SkyMarkers } from "@/components/Scene/SkyMarkers";
+import { Trestle } from "@/components/Scene/Trestle";
+import type { Scene } from "@/lib/scene/composeRide";
+import type { ScenePalette } from "@/lib/scene/themes";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
-import type { Track, TrackStop } from "@/lib/track/buildTrack";
+import type { Track, TrackLine } from "@/lib/track/types";
+import { LABEL_HALO, StopMarker } from "./StopMarker";
 
 interface RideTrackProps {
   track: Track;
   label: string;
+  /** Null draws the simple page-coloured ride. */
+  scene: Scene | null;
   selectedId?: string | null;
   /** Without a handler the track is a plain picture that scales to fit its container. */
   onSelect?: (id: string) => void;
@@ -19,82 +28,87 @@ interface RideTrackProps {
 
 /** Smallest allowed drawing scale. Below this the track scrolls instead, so labels stay readable. */
 const MIN_TRACK_SCALE = 0.9;
-const MARKER_RADIUS = 9;
-const MAJOR_MARKER_RADIUS = 15;
-const SELECTED_RING_GAP = 6;
-const HIT_RADIUS = 26;
 const RAIL_WIDTH = 7;
 const TIE_WIDTH = 3;
 const TIE_PATTERN = "2 14";
+const METRO_LINE_WIDTH = 6;
+const METRO_CASING_WIDTH = 4;
 const SUPPORT_WIDTH = 2;
 const SUPPORT_OPACITY = 0.3;
-const TITLE_SIZE = 15;
-const DATE_SIZE = 13;
-const LABEL_GAP = 26;
-const DATE_LINE_GAP = 17;
-const LABEL_HALO_WIDTH = 6;
-const ACTIVATION_KEYS = ["Enter", " "];
-const UNKNOWN_DATE = "Date unknown";
+const LINE_NAME_SIZE = 13;
+const LINE_NAME_GAP = 10;
+const LINE_NAME_DROP = 4;
+const DRAW_TEST_ID = "ride-path";
 
-/** Paints a background-coloured outline behind text, so support posts never run through a label. */
-const LABEL_HALO = {
-  paintOrder: "stroke",
-  stroke: "var(--background)",
-  strokeWidth: LABEL_HALO_WIDTH,
-  strokeLinejoin: "round",
-} as const;
-
-function StopMarker(props: { stop: TrackStop; isSelected: boolean; onSelect?: () => void }): ReactElement {
-  const { stop, isSelected, onSelect } = props;
-  const radius = stop.isMajor ? MAJOR_MARKER_RADIUS : MARKER_RADIUS;
-  const isAbove = stop.labelSide === "above";
-  const titleY = isAbove ? stop.y - radius - LABEL_GAP : stop.y + radius + LABEL_GAP;
-  const date = stop.date ?? UNKNOWN_DATE;
-
-  function handleKeyDown(event: KeyboardEvent<SVGGElement>): void {
-    if (ACTIVATION_KEYS.includes(event.key)) {
-      event.preventDefault();
-      onSelect?.();
-    }
-  }
-
-  const interactiveProps = onSelect && {
-    role: "button",
-    tabIndex: 0,
-    "aria-label": `${stop.title}, ${date}, ${stop.sentiment}, impact ${stop.impact}`,
-    "aria-pressed": isSelected,
-    onClick: onSelect,
-    onKeyDown: handleKeyDown,
-    className: "cursor-pointer",
-  };
-
+function Rail({ path, palette }: { path: string; palette: ScenePalette | null }): ReactElement {
   return (
-    <g {...interactiveProps}>
-      <circle cx={stop.x} cy={stop.y} r={HIT_RADIUS} fill="transparent" />
-      {isSelected && (
-        <circle
-          cx={stop.x}
-          cy={stop.y}
-          r={radius + SELECTED_RING_GAP}
-          {...{ [EXPORT_HIDDEN_ATTRIBUTE]: true }}
+    <>
+      <path
+        d={path}
+        pathLength={1}
+        fill="none"
+        stroke={palette?.rail ?? "var(--accent)"}
+        strokeWidth={RAIL_WIDTH}
+        strokeLinecap="round"
+        className="ride-track-draw"
+        data-testid={DRAW_TEST_ID}
+      />
+      <path d={path} fill="none" stroke={palette?.pill ?? "var(--background)"} strokeWidth={TIE_WIDTH} strokeDasharray={TIE_PATTERN} className="ride-track-ties" />
+    </>
+  );
+}
+
+function MetroLine(props: {
+  line: TrackLine;
+  category: NonNullable<TrackLine["category"]>;
+  palette: ScenePalette | null;
+}): ReactElement {
+  const { line, category, palette } = props;
+  const nameHalo = palette ? { ...LABEL_HALO, stroke: palette.pill } : LABEL_HALO;
+  return (
+    <>
+      {palette && (
+        <path
+          d={line.path}
           fill="none"
-          stroke="currentColor"
-          strokeWidth={SUPPORT_WIDTH}
+          stroke={palette.pill}
+          strokeWidth={METRO_LINE_WIDTH + METRO_CASING_WIDTH}
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       )}
-      <circle cx={stop.x} cy={stop.y} r={radius} fill={CATEGORY_COLORS[stop.category]} stroke="var(--background)" strokeWidth={SUPPORT_WIDTH} />
-      <text x={stop.x} y={titleY} textAnchor="middle" fontSize={TITLE_SIZE} fontWeight={600} fill="currentColor" {...LABEL_HALO}>
-        {stop.title}
+      <path
+        d={line.path}
+        pathLength={1}
+        fill="none"
+        stroke={CATEGORY_COLORS[category]}
+        strokeWidth={METRO_LINE_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="ride-track-draw"
+        data-testid={DRAW_TEST_ID}
+      />
+      <text
+        x={line.start.x - LINE_NAME_GAP}
+        y={line.start.y + LINE_NAME_DROP}
+        textAnchor="end"
+        fontSize={LINE_NAME_SIZE}
+        fontWeight={600}
+        fill={palette?.ink ?? "var(--muted)"}
+        {...nameHalo}
+      >
+        {toLabel(category)}
       </text>
-      <text x={stop.x} y={titleY + DATE_LINE_GAP} textAnchor="middle" fontSize={DATE_SIZE} fill="var(--muted)" {...LABEL_HALO}>
-        {date}
-      </text>
-    </g>
+    </>
   );
 }
 
 export function RideTrack(props: RideTrackProps): ReactElement {
-  const { track, label, selectedId = null, onSelect, svgRef } = props;
+  const { track, label, scene, selectedId = null, onSelect, svgRef } = props;
+  const palette = scene?.palette ?? null;
+  const rail = track.lines.find(({ category }) => category === null);
+  const railEnd = track.profile.at(-1);
+  const isStation = track.style === "metro";
   return (
     <svg
       ref={svgRef}
@@ -102,45 +116,51 @@ export function RideTrack(props: RideTrackProps): ReactElement {
       role={onSelect ? "group" : "img"}
       aria-label={label}
       style={onSelect && { minWidth: track.width * MIN_TRACK_SCALE }}
-      className="h-auto w-full"
+      className={palette ? "h-auto w-full rounded-2xl" : "h-auto w-full"}
     >
-      {track.supports.map(({ x, y }) => (
-        <line
-          key={`${x}-${y}`}
-          x1={x}
-          y1={y}
-          x2={x}
-          y2={track.groundY}
-          stroke="currentColor"
-          strokeOpacity={SUPPORT_OPACITY}
-          strokeWidth={SUPPORT_WIDTH}
-        />
-      ))}
-      <path
-        d={track.path}
-        pathLength={1}
-        fill="none"
-        stroke="var(--accent)"
-        strokeWidth={RAIL_WIDTH}
-        strokeLinecap="round"
-        className="ride-track-draw"
-        data-testid="ride-path"
-      />
-      <path
-        d={track.path}
-        fill="none"
-        stroke="var(--background)"
-        strokeWidth={TIE_WIDTH}
-        strokeDasharray={TIE_PATTERN}
-      />
-      {track.stops.map((stop) => (
-        <StopMarker
-          key={stop.id}
-          stop={stop}
-          isSelected={stop.id === selectedId}
-          onSelect={onSelect && (() => onSelect(stop.id))}
-        />
-      ))}
+      {scene && <SceneBackdrop scene={scene} width={track.width} height={track.height} />}
+      {track.title && (
+        <text x={track.title.x} y={track.title.y} fontSize={track.title.fontSize} fontWeight={700} fill={palette ? palette.title : "currentColor"}>
+          {track.title.text}
+        </text>
+      )}
+      <g transform={`translate(0 ${track.contentOffset})`}>
+        {scene && <SkyMarkers scenery={scene.scenery} palette={scene.palette} />}
+        {palette && <Trestle track={track} palette={palette} />}
+        {!palette && track.supports.map(({ x, y }) => (
+          <line
+            key={`${x}-${y}`}
+            x1={x}
+            y1={y}
+            x2={x}
+            y2={track.groundY}
+            stroke="currentColor"
+            strokeOpacity={SUPPORT_OPACITY}
+            strokeWidth={SUPPORT_WIDTH}
+          />
+        ))}
+        {track.lines.map((line) =>
+          line.category === null ? (
+            <Rail key="rail" path={line.path} palette={palette} />
+          ) : (
+            <MetroLine key={line.category} line={line} category={line.category} palette={palette} />
+          ),
+        )}
+        {track.stops.map((stop, index) => (
+          <StopMarker
+            key={stop.id}
+            stop={stop}
+            isStation={isStation}
+            isTall={index % 2 === 0 || index === track.stops.length - 1}
+            palette={palette}
+            isSelected={stop.id === selectedId}
+            onSelect={onSelect && (() => onSelect(stop.id))}
+          />
+        ))}
+        {palette && rail && railEnd && (
+          <RideCart path={rail.path} parkedAt={railEnd} stopCount={track.stops.length} color={palette.cart} />
+        )}
+      </g>
     </svg>
   );
 }
