@@ -73,5 +73,7 @@ export const lifeEventListSchema = z
     });
   });
 
+export type EventCategory = (typeof EVENT_CATEGORIES)[number];
+export type EventSentiment = (typeof EVENT_SENTIMENTS)[number];
 export type LifeEvent = z.infer<typeof lifeEventSchema>;
 export type LifeEventList = z.infer<typeof lifeEventListSchema>;

@@ -25,6 +25,7 @@ interface EventReviewProps {
   clarifications: readonly string[];
   onEventsChange: (events: LifeEvent[]) => void;
   onBack: () => void;
+  onContinue: () => void;
 }
 
 interface RemovedEvent {
@@ -36,7 +37,7 @@ const NO_EVENTS_MESSAGE = "No events yet. Add what happened and roughly when.";
 const UNTITLED = "Untitled event";
 
 export function EventReview(props: EventReviewProps): ReactElement {
-  const { events, clarifications, onEventsChange, onBack } = props;
+  const { events, clarifications, onEventsChange, onBack, onContinue } = props;
   const [removed, setRemoved] = useState<RemovedEvent | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const invalidFields = findInvalidFields(events);
@@ -55,7 +56,7 @@ export function EventReview(props: EventReviewProps): ReactElement {
   }
 
   return (
-    <section className="flex flex-col gap-6 wrap-anywhere">
+    <section className="mx-auto flex w-full max-w-2xl flex-col gap-6 wrap-anywhere">
       <header className="flex flex-col gap-3">
         <h1 ref={heading} tabIndex={-1} className="text-3xl font-bold outline-none">
           Review your events
@@ -107,6 +108,14 @@ export function EventReview(props: EventReviewProps): ReactElement {
           Sort by date
         </button>
       </div>
+      <button
+        type="button"
+        disabled={events.length === 0 || invalidCount > 0}
+        onClick={onContinue}
+        className="min-h-11 self-start rounded-full bg-accent px-6 py-2 font-semibold text-on-accent disabled:opacity-50"
+      >
+        See my ride
+      </button>
       <div role="status" className="flex flex-wrap items-center gap-2 text-sm">
         {removed && <span>Removed {removed.event.title || UNTITLED}.</span>}
         {removed && (

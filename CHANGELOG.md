@@ -21,6 +21,8 @@ All notable changes to this project are documented in this file. The format foll
 - Server logs record the token count of each extraction.
 - Event review stage with editing, add, delete with undo, reorder, sort by date and best-guess confirmation.
 - Option to skip AI and add events by hand.
+- Roller-coaster track generated from events, with cumulative height, category colours and large markers for major events.
+- Ride stage where selecting a stop lets users change its sentiment and impact and see the track update at once.
 
 ### Changed
 
