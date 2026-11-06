@@ -104,7 +104,7 @@ describe("buildTrack bounds", () => {
 
   it.each(extremes)("stays inside the canvas for %s", (_label, overrides) => {
     const track = buildTrack(makeEvents(overrides));
-    const numbers = (track.path.match(PATH_NUMBER) ?? []).map(Number);
+    const numbers = (track.lines[0].path.match(PATH_NUMBER) ?? []).map(Number);
     expect(numbers.length).toBeGreaterThan(0);
     expect(numbers.every(Number.isFinite)).toBe(true);
     expect(Math.min(...numbers)).toBeGreaterThanOrEqual(0);

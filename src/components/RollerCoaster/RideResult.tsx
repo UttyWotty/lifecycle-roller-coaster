@@ -10,9 +10,12 @@ import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import { ReadingNotes } from "@/components/RideFlow/ReadingNotes";
 import { updateEvent } from "@/lib/events/editing";
 import type { LifeEvent } from "@/lib/events/schema";
-import { buildTrack } from "@/lib/track/buildTrack";
+import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
+import { addTitle } from "@/lib/track/rideTitle";
+import type { RideStyle } from "@/lib/track/types";
 import { CategoryLegend } from "./CategoryLegend";
 import { ExportButton } from "./ExportButton";
+import { RideControls } from "./RideControls";
 import { RideTrack } from "./RideTrack";
 import { StopDetails } from "./StopDetails";
 
@@ -20,6 +23,10 @@ interface RideResultProps {
   events: readonly LifeEvent[];
   clarifications: readonly string[];
   isDemo: boolean;
+  title: string;
+  rideStyle: RideStyle;
+  onTitleChange: (title: string) => void;
+  onRideStyleChange: (style: RideStyle) => void;
   onEventsChange: (events: LifeEvent[]) => void;
   onEditEvents: () => void;
   onBackToStory: () => void;
@@ -29,11 +36,13 @@ const SELECT_PROMPT = "Select a stop on the track to adjust how it felt and how 
 const CREATIVE_NOTE = "This ride is a creative picture of your story, not a measurement of your life.";
 
 export function RideResult(props: RideResultProps): ReactElement {
-  const { events, clarifications, isDemo, onEventsChange, onEditEvents, onBackToStory } = props;
+  const { events, clarifications, isDemo, title, rideStyle } = props;
+  const { onTitleChange, onRideStyleChange, onEventsChange, onEditEvents, onBackToStory } = props;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const svg = useRef<SVGSVGElement>(null);
-  const track = useMemo(() => buildTrack(events), [events]);
+  const styleDetails = RIDE_STYLE_DETAILS[rideStyle];
+  const track = useMemo(() => addTitle(styleDetails.build(events), title), [styleDetails, events, title]);
   const selected = events.find((event) => event.id === selectedId);
 
   useEffect(() => heading.current?.focus(), []);
@@ -54,6 +63,12 @@ export function RideResult(props: RideResultProps): ReactElement {
         </div>
       </header>
       <ReadingNotes isDemo={isDemo} clarifications={clarifications} />
+      <RideControls
+        title={title}
+        style={rideStyle}
+        onTitleChange={onTitleChange}
+        onStyleChange={onRideStyleChange}
+      />
       <div
         tabIndex={0}
         role="region"
@@ -62,7 +77,7 @@ export function RideResult(props: RideResultProps): ReactElement {
       >
         <RideTrack
           track={track}
-          label="Your life as a roller coaster"
+          label={styleDetails.drawingLabel}
           selectedId={selectedId}
           onSelect={setSelectedId}
           svgRef={svg}

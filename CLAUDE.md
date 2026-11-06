@@ -42,6 +42,8 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 
 `buildTrack` in `src/lib/track` returns geometry only. Height is cumulative: positive events add their impact, negative events subtract it, and neutral events stay flat. Stops sit in list order at even spacing, not on a true time scale, so the user's order is respected and undated events have a place.
 
+Every ride style is a generator that returns the same `Track` type from `src/lib/track/types.ts`, registered in `rideStyles.ts`, so `RideTrack` and image export need no per-style code paths. Styles change only how events are drawn, never the events. Loop-the-loops adds a circle at each major stop. The metro map gives each category a full-width line, brings all lines through major stops, and returns them to their lanes between distant stops. `addTitle` runs last and shifts the ride down with `contentOffset`; style and title live in `RideFlow` so they survive stage changes.
+
 Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites its markup with a fixed light palette, and `downloadRideImage.ts` converts it to PNG in the browser, so nothing is uploaded.
 
 ## Event Data Model
