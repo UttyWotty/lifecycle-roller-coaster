@@ -230,6 +230,52 @@ test.describe("ride styles and titles", () => {
     await expect(page.locator('svg g[role="button"]')).toHaveCount(4);
   });
 
+  test("fit to screen is optional, and shows the whole ride without scrolling", async ({ page }) => {
+    await page.goto("/sample");
+    const region = page.getByRole("region", { name: /Roller coaster/ });
+    const fit = button(page, "Fit to screen");
+    const scrolls = () => region.evaluate((element) => element.scrollWidth > element.clientWidth);
+    await expect(fit).toHaveAttribute("aria-pressed", "false");
+    expect(await scrolls()).toBe(true);
+    await fit.click();
+    await expect(fit).toHaveAttribute("aria-pressed", "true");
+    await expect.poll(scrolls).toBe(false);
+    expect(await hasPageOverflow(page)).toBe(false);
+    await fit.click();
+    await expect.poll(scrolls).toBe(true);
+  });
+
+  test("fit to screen is kept after editing, and does not change the image size", async ({ page }) => {
+    await openRide(page);
+    const viewBox = await page.locator("svg[viewBox]").first().getAttribute("viewBox");
+    await button(page, "Fit to screen").click();
+    await expect(page.locator("svg[viewBox]").first()).toHaveAttribute("viewBox", viewBox ?? "");
+    await button(page, "Edit my events").click();
+    await button(page, "See my ride").click();
+    await expect(button(page, "Fit to screen")).toHaveAttribute("aria-pressed", "true");
+    const [, , width, height] = (viewBox ?? "").split(" ").map(Number);
+    const downloading = page.waitForEvent("download");
+    await button(page, "Download image").click();
+    const file = await readFile(await (await downloading).path());
+    expect(file.readUInt32BE(PNG_WIDTH_OFFSET)).toBe(width * EXPORT_SCALE);
+    expect(file.readUInt32BE(PNG_HEIGHT_OFFSET)).toBe(height * EXPORT_SCALE);
+  });
+
+  test("the balloon sits in front of the steel and behind the stops", async ({ page }) => {
+    await openRide(page);
+    const order = await page.locator("svg[viewBox]").first().evaluate((svg) => {
+      const position = (selector: string) =>
+        Array.from(svg.querySelectorAll("*")).findIndex((element) => element.matches(selector));
+      return {
+        steel: position('[data-testid="trestle"]'),
+        balloon: position('[data-testid="sky-balloon"]'),
+        stop: position('g[role="button"]'),
+      };
+    });
+    expect(order.balloon).toBeGreaterThan(order.steel);
+    expect(order.stop).toBeGreaterThan(order.balloon);
+  });
+
   for (const theme of ["Sunny day", "Golden sunset", "Starry night", "Simple"]) {
     test(`a ${theme} ride downloads as a PNG`, async ({ page }) => {
       await openRide(page);

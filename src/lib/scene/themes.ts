@@ -54,11 +54,11 @@ const SUNNY: ScenePalette = {
 };
 
 const SUNSET: ScenePalette = {
-  skyTop: "#f7797d",
-  skyBottom: "#fbd786",
-  cloud: "#ffe3c9",
-  skylineFar: "#f6b085",
-  skylineNear: "#e5907f",
+  skyTop: "#ffb59a",
+  skyBottom: "#ffedc7",
+  cloud: "#fff5e6",
+  skylineFar: "#ffd7ae",
+  skylineNear: "#f7bc95",
   steel: "#4c2a6e",
   steelDark: "#351c52",
   rail: "#2a1442",

@@ -4,6 +4,19 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- Fit to screen, an optional toggle that shows a whole long ride without scrolling.
+
+### Changed
+
+- The metro map has more room between stops, so its lines fan out less steeply.
+- Golden sunset has a lighter sky, so lines and steel stand out more.
+
+### Fixed
+
+- The balloon and parachute now sit in front of the steel instead of behind it.
+
 ## [0.3.0] - 2026-11-06
 
 ### Changed

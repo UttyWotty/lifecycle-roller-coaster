@@ -27,12 +27,14 @@ export interface RideState {
   rideTitle: string;
   rideStyle: RideStyle;
   rideTheme: RideTheme;
+  fitToScreen: boolean;
   setStage: (stage: Stage) => void;
   setStory: (story: string) => void;
   setEvents: (events: LifeEvent[]) => void;
   setRideTitle: (title: string) => void;
   setRideStyle: (style: RideStyle) => void;
   setRideTheme: (theme: RideTheme) => void;
+  setFitToScreen: (fitToScreen: boolean) => void;
   showResult: (result: ExtractionResult) => void;
   showSample: () => void;
   returnToEvents: () => void;
@@ -52,6 +54,7 @@ export function useRideState(startWithSample: boolean): RideState {
   const [rideTitle, setRideTitle] = useState(opening?.title ?? "");
   const [rideStyle, setRideStyle] = useState<RideStyle>(opening?.rideStyle ?? DEFAULT_RIDE_STYLE);
   const [rideTheme, setRideTheme] = useState<RideTheme>(opening?.rideTheme ?? DEFAULT_RIDE_THEME);
+  const [fitToScreen, setFitToScreen] = useState(false);
 
   /** Drops what belongs to a sample, so its title never ends up on the user's own ride. */
   function leaveSample(): void {
@@ -108,12 +111,14 @@ export function useRideState(startWithSample: boolean): RideState {
     rideTitle,
     rideStyle,
     rideTheme,
+    fitToScreen,
     setStage,
     setStory,
     setEvents,
     setRideTitle,
     setRideStyle,
     setRideTheme,
+    setFitToScreen,
     showResult,
     showSample,
     returnToEvents,
