@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Changed
+
+- README rewritten for open-source readers, with an example ride image.
+
 ## [0.1.0] - 2026-11-06
 
 ### Added
