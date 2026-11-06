@@ -18,6 +18,9 @@ export const RIDE_THEMES = [
 ] as const;
 export type RideTheme = (typeof RIDE_THEMES)[number];
 
+export const RIDE_THEME_GROUPS = ["Art modes", "Scenes"] as const;
+export type RideThemeGroup = (typeof RIDE_THEME_GROUPS)[number];
+
 export const DEFAULT_RIDE_THEME: RideTheme = "sunny";
 
 /** Which landmarks a scene is built from. */
@@ -48,8 +51,7 @@ export interface ScenePalette {
 
 interface RideThemeDetails {
   name: string;
-  /** Colours for the small preview in the picker. */
-  swatch: readonly [string, string];
+  group: RideThemeGroup;
   /** Null means no scene, which draws the simple page-coloured ride. */
   palette: ScenePalette | null;
 }
@@ -244,14 +246,14 @@ const POSTER: ScenePalette = {
 };
 
 export const RIDE_THEME_DETAILS: Readonly<Record<RideTheme, RideThemeDetails>> = {
-  classic: { name: "Classic Ride", swatch: [CLASSIC.skyTop, CLASSIC.steel], palette: CLASSIC },
-  nightmare: { name: "Nightmare Mode", swatch: [NIGHTMARE.rail, NIGHTMARE.cart], palette: NIGHTMARE },
-  minimal: { name: "Minimal Mode", swatch: ["#ffffff", "#111111"], palette: MINIMAL },
-  poster: { name: "Retro Mode", swatch: [POSTER.skyTop, POSTER.steel], palette: POSTER },
-  sunny: { name: "Sunny day", swatch: [SUNNY.skyTop, SUNNY.steel], palette: SUNNY },
-  sunset: { name: "Golden sunset", swatch: [SUNSET.skyBottom, SUNSET.skyTop], palette: SUNSET },
-  night: { name: "Starry night", swatch: [NIGHT.skyTop, NIGHT.steel], palette: NIGHT },
-  retro: { name: "Retro fairground", swatch: [RETRO.skyTop, RETRO.steel], palette: RETRO },
-  haunted: { name: "Haunted night", swatch: [HAUNTED.skyTop, HAUNTED.skyBottom], palette: HAUNTED },
-  plain: { name: "Simple", swatch: ["#ffffff", "#e11d48"], palette: null },
+  classic: { name: "Classic Ride", group: "Art modes", palette: CLASSIC },
+  nightmare: { name: "Nightmare Mode", group: "Art modes", palette: NIGHTMARE },
+  minimal: { name: "Minimal Mode", group: "Art modes", palette: MINIMAL },
+  poster: { name: "Retro Mode", group: "Art modes", palette: POSTER },
+  sunny: { name: "Sunny day", group: "Scenes", palette: SUNNY },
+  sunset: { name: "Golden sunset", group: "Scenes", palette: SUNSET },
+  night: { name: "Starry night", group: "Scenes", palette: NIGHT },
+  retro: { name: "Retro fairground", group: "Scenes", palette: RETRO },
+  haunted: { name: "Haunted night", group: "Scenes", palette: HAUNTED },
+  plain: { name: "Simple", group: "Scenes", palette: null },
 };

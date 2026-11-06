@@ -18,6 +18,7 @@ import type { RideStyle } from "@/lib/track/types";
 import { CategoryLegend } from "./CategoryLegend";
 import { ExportButton } from "./ExportButton";
 import { RideControls } from "./RideControls";
+import { RideLookBar } from "./RideLookBar";
 import { RideTrack } from "./RideTrack";
 import { StopDetails } from "./StopDetails";
 
@@ -63,7 +64,7 @@ export function RideResult(props: RideResultProps): ReactElement {
   useEffect(() => heading.current?.focus(), []);
 
   return (
-    <section className="flex flex-col gap-6">
+    <section className="flex flex-col gap-4">
       <header className="flex flex-col gap-3">
         <h1 ref={heading} tabIndex={-1} className="text-3xl font-bold outline-none">
           Your ride
@@ -83,22 +84,17 @@ export function RideResult(props: RideResultProps): ReactElement {
         </div>
       </header>
       <ReadingNotes isDemo={isDemo} isSample={isSample} clarifications={clarifications} />
-      <RideControls
-        title={title}
+      <RideLookBar
         style={rideStyle}
         theme={rideTheme}
-        rider={rider}
-        hasCart={hasCart}
-        onTitleChange={onTitleChange}
         onStyleChange={onRideStyleChange}
         onThemeChange={onRideThemeChange}
-        onRiderChange={onRiderChange}
       />
       <div
         tabIndex={0}
         role="region"
         aria-label="Roller coaster, scrolls sideways on small screens"
-        className="overflow-x-auto"
+        className="overflow-x-auto lg:scroll-mt-56"
       >
         <RideTrack
           key={`${rideStyle}-${rideNumber}`}
@@ -139,6 +135,13 @@ export function RideResult(props: RideResultProps): ReactElement {
       ) : (
         <p className="text-sm">{SELECT_PROMPT}</p>
       )}
+      <RideControls
+        title={title}
+        rider={rider}
+        hasCart={hasCart}
+        onTitleChange={onTitleChange}
+        onRiderChange={onRiderChange}
+      />
       <ExportButton svg={svg} width={track.width} height={track.height} />
       <p className="text-sm text-muted">{CREATIVE_NOTE}</p>
     </section>

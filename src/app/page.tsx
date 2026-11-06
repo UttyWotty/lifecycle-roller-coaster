@@ -6,6 +6,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { ExampleRide } from "@/components/Landing/ExampleRide";
+import { ThemeGallery } from "@/components/Landing/ThemeGallery";
 
 export default function Home(): ReactElement {
   return (
@@ -33,6 +34,7 @@ export default function Home(): ReactElement {
         </Link>
       </div>
       <ExampleRide />
+      <ThemeGallery />
     </main>
   );
 }
