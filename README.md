@@ -6,7 +6,7 @@ Lifecycle Roller Coaster is an open-source web app that turns a free-text life s
 
 ## Status
 
-Early development: you can write a story and see the events AI finds in it. Event review, track rendering and export are not built yet. See the roadmap in the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md).
+Early development: you can write a story, have AI find the events, and review and correct them, or add events by hand. Track rendering and export are not built yet. See the roadmap in the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md).
 
 ## Getting Started
 

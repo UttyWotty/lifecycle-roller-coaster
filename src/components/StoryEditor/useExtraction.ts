@@ -1,7 +1,7 @@
 /**
  * React hook that tracks one extraction request at a time.
  * Starting or resetting cancels any request in flight, so a stale answer can never appear.
- * Results live only in component state and are gone when the page closes.
+ * A successful result goes straight to the caller, which decides where it lives.
  */
 "use client";
 
@@ -12,12 +12,11 @@ import { requestExtraction } from "./requestExtraction";
 export type ExtractionState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "done"; result: ExtractionResult }
   | { status: "error"; message: string };
 
 interface UseExtraction {
   state: ExtractionState;
-  extract: (story: string) => Promise<void>;
+  extract: (story: string, onResult: (result: ExtractionResult) => void) => Promise<void>;
   reset: () => void;
 }
 
@@ -33,7 +32,7 @@ export function useExtraction(): UseExtraction {
     setState(IDLE);
   }, []);
 
-  const extract = useCallback(async (story: string): Promise<void> => {
+  const extract = useCallback<UseExtraction["extract"]>(async (story, onResult) => {
     inFlight.current?.abort();
     const controller = new AbortController();
     inFlight.current = controller;
@@ -42,11 +41,12 @@ export function useExtraction(): UseExtraction {
     if (controller.signal.aborted) {
       return;
     }
-    setState(
-      outcome.ok
-        ? { status: "done", result: outcome.result }
-        : { status: "error", message: outcome.message },
-    );
+    if (outcome.ok) {
+      setState(IDLE);
+      onResult(outcome.result);
+    } else {
+      setState({ status: "error", message: outcome.message });
+    }
   }, []);
 
   useEffect(() => () => inFlight.current?.abort(), []);
