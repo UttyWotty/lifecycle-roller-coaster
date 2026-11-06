@@ -1,5 +1,5 @@
 # Continuous integration for the application.
-# It runs lint, typecheck, tests and a production build.
+# It runs lint, typecheck, unit tests, a production build and browser tests.
 # It triggers on pushes to the long-lived branches and on every pull request.
 name: CI
 
@@ -25,3 +25,5 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test

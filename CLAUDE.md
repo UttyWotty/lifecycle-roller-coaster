@@ -18,6 +18,8 @@ npm run typecheck            # generate route types, then tsc
 npm test                     # all tests once
 npx vitest run src/lib/events/schema.test.ts   # one test file
 npx vitest run -t "rejects duplicate ids"      # one test by name
+npm run test:e2e             # build, then run the browser tests in e2e/
+npx playwright test e2e/ride.spec.ts           # one browser spec, after a build
 ```
 
 This Next.js version differs from older releases. Read the guide in `node_modules/next/dist/docs/` before using framework APIs. `AGENTS.md` is written by `next dev`, so keep it committed.
@@ -60,7 +62,7 @@ Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites it
 
 ## Token Use
 
-Real extraction spends the owner's money, so ask before any live API call and keep runs few. Unit tests use fake extractors, and CI has no key. For manual and browser testing, use `EXTRACTOR_MODE=fixture`, which returns labelled demo events for free. Server logs record the token count of each real extraction.
+Real extraction spends the owner's money, so ask before any live API call and keep runs few. Unit tests use fake extractors, and CI has no key. `playwright.config.ts` forces `EXTRACTOR_MODE=fixture` and an empty key, so browser tests can never spend tokens. For manual testing, use `EXTRACTOR_MODE=fixture`, which returns labelled demo events for free. Server logs record the token count of each real extraction.
 
 ## Privacy Requirements
 
