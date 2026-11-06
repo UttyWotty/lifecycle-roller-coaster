@@ -23,6 +23,7 @@ This is a playful, creative picture of a story. It is not a psychological assess
 - **Illustrated themes:** a full scene with sky, skyline, steel lattice and flags, in Sunny day, Golden sunset or Starry night. A cart rides the track, and a balloon and parachute mark your best and hardest moments.
 - **Sample lives:** try a random made-up life in one click, with nothing to write and no API key.
 - **Your title:** name your ride, and the title appears on the drawing and in the image.
+- **Choose your character:** pick who rides your cart, from six original characters.
 - **Fit to screen:** an optional toggle that shows a whole long ride at once, instead of scrolling sideways.
 - **Image export:** download a PNG that is created on your device.
 

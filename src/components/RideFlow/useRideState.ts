@@ -11,6 +11,7 @@ import { addBlankEvent, findInvalidFields } from "@/lib/events/editing";
 import type { LifeEvent } from "@/lib/events/schema";
 import { pickSample } from "@/lib/samples/pickSample";
 import { sampleStory, type SampleLife } from "@/lib/samples/sampleLives";
+import { DEFAULT_RIDER, type Rider } from "@/lib/scene/riders";
 import { DEFAULT_RIDE_THEME, type RideTheme } from "@/lib/scene/themes";
 import { DEFAULT_RIDE_STYLE } from "@/lib/track/rideStyles";
 import type { RideStyle } from "@/lib/track/types";
@@ -27,6 +28,7 @@ export interface RideState {
   rideTitle: string;
   rideStyle: RideStyle;
   rideTheme: RideTheme;
+  rider: Rider;
   fitToScreen: boolean;
   setStage: (stage: Stage) => void;
   setStory: (story: string) => void;
@@ -34,6 +36,7 @@ export interface RideState {
   setRideTitle: (title: string) => void;
   setRideStyle: (style: RideStyle) => void;
   setRideTheme: (theme: RideTheme) => void;
+  setRider: (rider: Rider) => void;
   setFitToScreen: (fitToScreen: boolean) => void;
   showResult: (result: ExtractionResult) => void;
   showSample: () => void;
@@ -54,6 +57,7 @@ export function useRideState(startWithSample: boolean): RideState {
   const [rideTitle, setRideTitle] = useState(opening?.title ?? "");
   const [rideStyle, setRideStyle] = useState<RideStyle>(opening?.rideStyle ?? DEFAULT_RIDE_STYLE);
   const [rideTheme, setRideTheme] = useState<RideTheme>(opening?.rideTheme ?? DEFAULT_RIDE_THEME);
+  const [rider, setRider] = useState<Rider>(opening?.rider ?? DEFAULT_RIDER);
   const [fitToScreen, setFitToScreen] = useState(false);
 
   /** Drops what belongs to a sample, so its title never ends up on the user's own ride. */
@@ -77,6 +81,7 @@ export function useRideState(startWithSample: boolean): RideState {
     setRideTitle(next.title);
     setRideStyle(next.rideStyle);
     setRideTheme(next.rideTheme);
+    setRider(next.rider);
     setStage("ride");
   }
 
@@ -111,6 +116,7 @@ export function useRideState(startWithSample: boolean): RideState {
     rideTitle,
     rideStyle,
     rideTheme,
+    rider,
     fitToScreen,
     setStage,
     setStory,
@@ -118,6 +124,7 @@ export function useRideState(startWithSample: boolean): RideState {
     setRideTitle,
     setRideStyle,
     setRideTheme,
+    setRider,
     setFitToScreen,
     showResult,
     showSample,

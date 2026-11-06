@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- Choose your character: Smiley, Cat, Robot, Astronaut, Dino or Ghost rides your cart.
 - Fit to screen, an optional toggle that shows a whole long ride without scrolling.
 
 ### Changed

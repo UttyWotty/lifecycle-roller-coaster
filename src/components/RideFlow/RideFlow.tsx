@@ -30,10 +30,12 @@ export function RideFlow({ startWithSample = false }: RideFlowProps): ReactEleme
         title={ride.rideTitle}
         rideStyle={ride.rideStyle}
         rideTheme={ride.rideTheme}
+        rider={ride.rider}
         fitToScreen={ride.fitToScreen}
         onTitleChange={ride.setRideTitle}
         onRideStyleChange={ride.setRideStyle}
         onRideThemeChange={ride.setRideTheme}
+        onRiderChange={ride.setRider}
         onFitToScreenChange={ride.setFitToScreen}
         onEventsChange={ride.setEvents}
         onEditEvents={() => ride.setStage("review")}

@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import type { LifeEvent } from "@/lib/events/schema";
 import { RIDE_STYLES } from "@/lib/track/types";
 import { SKY_HEADROOM, composeRide } from "./composeRide";
+import { DEFAULT_RIDER } from "./riders";
 import { RIDE_THEMES, RIDE_THEME_DETAILS } from "./themes";
 
 function makeEvents(overrides: Partial<LifeEvent>[]): LifeEvent[] {
@@ -48,6 +49,12 @@ describe("composeRide", () => {
   it("gives the same scene for the same ride", () => {
     const choices = { style: "loops", theme: "night", title: "Same" } as const;
     expect(composeRide(MIXED, choices)).toEqual(composeRide(MIXED, choices));
+  });
+
+  it("uses the chosen rider, and the default when none is chosen", () => {
+    const choices = { style: "coaster", theme: "sunny", title: "" } as const;
+    expect(composeRide(MIXED, { ...choices, rider: "robot" }).scene?.rider).toBe("robot");
+    expect(composeRide(MIXED, choices).scene?.rider).toBe(DEFAULT_RIDER);
   });
 
   it("draws stars only at night", () => {

@@ -230,6 +230,52 @@ test.describe("ride styles and titles", () => {
     await expect(page.locator('svg g[role="button"]')).toHaveCount(4);
   });
 
+  test("the character starts as Smiley, and choosing one changes both carts", async ({ page }) => {
+    await openRide(page);
+    await expect(page.getByRole("radio", { name: "Smiley" })).toBeChecked();
+    await page.getByRole("radio", { name: "Robot" }).check();
+    const moving = page.getByTestId("ride-cart-moving").locator("[data-rider]");
+    const parked = page.getByTestId("ride-cart-parked").locator("[data-rider]");
+    await expect(moving).toHaveAttribute("data-rider", "robot");
+    await expect(parked).toHaveAttribute("data-rider", "robot");
+  });
+
+  test("the character picker shows only when there is a cart", async ({ page }) => {
+    await openRide(page);
+    const picker = page.getByRole("group", { name: "Choose your character" });
+    await expect(picker).toBeVisible();
+    await page.getByRole("radio", { name: /Loop-the-loops/ }).check();
+    await expect(picker).toBeVisible();
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    await expect(picker).toHaveCount(0);
+    await page.getByRole("radio", { name: /Coaster/ }).check();
+    await page.getByRole("radio", { name: "Simple" }).check();
+    await expect(picker).toHaveCount(0);
+  });
+
+  test("the character survives switching style and leaving the ride", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Astronaut" }).check();
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    await page.getByRole("radio", { name: /Coaster/ }).check();
+    await expect(page.getByRole("radio", { name: "Astronaut" })).toBeChecked();
+    await button(page, "Edit my events").click();
+    await button(page, "See my ride").click();
+    await expect(page.getByRole("radio", { name: "Astronaut" })).toBeChecked();
+  });
+
+  for (const rider of ["Smiley", "Cat", "Robot", "Astronaut", "Dino", "Ghost"]) {
+    test(`a ride with ${rider} downloads as a PNG`, async ({ page }) => {
+      await openRide(page);
+      await page.getByRole("radio", { name: rider }).check();
+      expect(await hasPageOverflow(page)).toBe(false);
+      const downloading = page.waitForEvent("download");
+      await button(page, "Download image").click();
+      const file = await readFile(await (await downloading).path());
+      expect(file.subarray(1, 4).toString()).toBe(PNG_SIGNATURE);
+    });
+  }
+
   test("fit to screen is optional, and shows the whole ride without scrolling", async ({ page }) => {
     await page.goto("/sample");
     const region = page.getByRole("region", { name: /Roller coaster/ });
@@ -247,9 +293,9 @@ test.describe("ride styles and titles", () => {
 
   test("fit to screen is kept after editing, and does not change the image size", async ({ page }) => {
     await openRide(page);
-    const viewBox = await page.locator("svg[viewBox]").first().getAttribute("viewBox");
+    const viewBox = await page.locator('svg[role="group"]').getAttribute("viewBox");
     await button(page, "Fit to screen").click();
-    await expect(page.locator("svg[viewBox]").first()).toHaveAttribute("viewBox", viewBox ?? "");
+    await expect(page.locator('svg[role="group"]')).toHaveAttribute("viewBox", viewBox ?? "");
     await button(page, "Edit my events").click();
     await button(page, "See my ride").click();
     await expect(button(page, "Fit to screen")).toHaveAttribute("aria-pressed", "true");
@@ -263,7 +309,7 @@ test.describe("ride styles and titles", () => {
 
   test("the balloon sits in front of the steel and behind the stops", async ({ page }) => {
     await openRide(page);
-    const order = await page.locator("svg[viewBox]").first().evaluate((svg) => {
+    const order = await page.locator('svg[role="group"]').evaluate((svg) => {
       const position = (selector: string) =>
         Array.from(svg.querySelectorAll("*")).findIndex((element) => element.matches(selector));
       return {
@@ -296,7 +342,7 @@ test.describe("ride styles and titles", () => {
       const downloading = page.waitForEvent("download");
       await button(page, "Download image").click();
       const file = await readFile(await (await downloading).path());
-      const viewBox = await page.locator("svg[viewBox]").first().getAttribute("viewBox");
+      const viewBox = await page.locator('svg[role="group"]').getAttribute("viewBox");
       const [, , width, height] = (viewBox ?? "").split(" ").map(Number);
       expect(file.readUInt32BE(PNG_WIDTH_OFFSET)).toBe(width * EXPORT_SCALE);
       expect(file.readUInt32BE(PNG_HEIGHT_OFFSET)).toBe(height * EXPORT_SCALE);

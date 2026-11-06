@@ -159,8 +159,14 @@ export function RideTrack(props: RideTrackProps): ReactElement {
             onSelect={onSelect && (() => onSelect(stop.id))}
           />
         ))}
-        {palette && rail && railEnd && (
-          <RideCart path={rail.path} parkedAt={railEnd} stopCount={track.stops.length} color={palette.cart} />
+        {scene && rail && railEnd && (
+          <RideCart
+            path={rail.path}
+            parkedAt={railEnd}
+            stopCount={track.stops.length}
+            color={scene.palette.cart}
+            rider={scene.rider}
+          />
         )}
       </g>
     </svg>
