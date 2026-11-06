@@ -1,9 +1,10 @@
 /**
  * SVG drawing of a generated roller-coaster track.
  * Markers can be selected by mouse or keyboard, and major events are drawn larger.
- * This component only draws the geometry it receives, so any source of events can use it.
+ * The same drawing is used for image export, so the ride on screen and in the file always match.
  */
-import type { KeyboardEvent, ReactElement } from "react";
+import type { KeyboardEvent, ReactElement, Ref } from "react";
+import { EXPORT_HIDDEN_ATTRIBUTE } from "@/lib/export/rideImage";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
 import type { Track, TrackStop } from "@/lib/track/buildTrack";
 
@@ -11,6 +12,7 @@ interface RideTrackProps {
   track: Track;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  svgRef: Ref<SVGSVGElement>;
 }
 
 /** Smallest allowed drawing scale. Below this the track scrolls instead, so labels stay readable. */
@@ -70,6 +72,7 @@ function StopMarker(props: { stop: TrackStop; isSelected: boolean; onSelect: () 
           cx={stop.x}
           cy={stop.y}
           r={radius + SELECTED_RING_GAP}
+          {...{ [EXPORT_HIDDEN_ATTRIBUTE]: true }}
           fill="none"
           stroke="currentColor"
           strokeWidth={SUPPORT_WIDTH}
@@ -86,9 +89,10 @@ function StopMarker(props: { stop: TrackStop; isSelected: boolean; onSelect: () 
   );
 }
 
-export function RideTrack({ track, selectedId, onSelect }: RideTrackProps): ReactElement {
+export function RideTrack({ track, selectedId, onSelect, svgRef }: RideTrackProps): ReactElement {
   return (
     <svg
+      ref={svgRef}
       viewBox={`0 0 ${track.width} ${track.height}`}
       role="group"
       aria-label="Your life as a roller coaster"

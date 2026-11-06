@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-Roadmap phases 1 to 4 are done: the landing page, story editor, shared event schema, AI extraction, event review, and the ride. Export is not built yet.
+All essential roadmap phases (1 to 5) are done: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export.
 
 `docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
 
@@ -39,6 +39,8 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 ## Track Model
 
 `buildTrack` in `src/lib/track` returns geometry only. Height is cumulative: positive events add their impact, negative events subtract it, and neutral events stay flat. Stops sit in list order at even spacing, not on a true time scale, so the user's order is respected and undated events have a place.
+
+Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites its markup with a fixed light palette, and `downloadRideImage.ts` converts it to PNG in the browser, so nothing is uploaded.
 
 ## Event Data Model
 

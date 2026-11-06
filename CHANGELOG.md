@@ -23,6 +23,7 @@ All notable changes to this project are documented in this file. The format foll
 - Option to skip AI and add events by hand.
 - Roller-coaster track generated from events, with cumulative height, category colours and large markers for major events.
 - Ride stage where selecting a stop lets users change its sentiment and impact and see the track update at once.
+- PNG export of the ride, created in the browser with nothing uploaded.
 
 ### Changed
 

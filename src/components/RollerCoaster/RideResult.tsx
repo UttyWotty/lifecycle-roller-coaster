@@ -11,6 +11,7 @@ import { updateEvent } from "@/lib/events/editing";
 import type { LifeEvent } from "@/lib/events/schema";
 import { buildTrack } from "@/lib/track/buildTrack";
 import { CategoryLegend } from "./CategoryLegend";
+import { ExportButton } from "./ExportButton";
 import { RideTrack } from "./RideTrack";
 import { StopDetails } from "./StopDetails";
 
@@ -26,6 +27,7 @@ const CREATIVE_NOTE = "This ride is a creative picture of your story, not a meas
 export function RideResult({ events, onEventsChange, onBack }: RideResultProps): ReactElement {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const svg = useRef<SVGSVGElement>(null);
   const track = useMemo(() => buildTrack(events), [events]);
   const selected = events.find((event) => event.id === selectedId);
 
@@ -47,7 +49,7 @@ export function RideResult({ events, onEventsChange, onBack }: RideResultProps):
         aria-label="Roller coaster, scrolls sideways on small screens"
         className="overflow-x-auto"
       >
-        <RideTrack track={track} selectedId={selectedId} onSelect={setSelectedId} />
+        <RideTrack track={track} selectedId={selectedId} onSelect={setSelectedId} svgRef={svg} />
       </div>
       <CategoryLegend events={events} />
       {selected ? (
@@ -58,6 +60,7 @@ export function RideResult({ events, onEventsChange, onBack }: RideResultProps):
       ) : (
         <p className="text-sm">{SELECT_PROMPT}</p>
       )}
+      <ExportButton svg={svg} width={track.width} height={track.height} />
       <p className="text-sm text-muted">{CREATIVE_NOTE}</p>
     </section>
   );

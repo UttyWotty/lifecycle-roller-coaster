@@ -36,7 +36,7 @@ const eslintConfig = defineConfig([
   restrictImports(["src/lib/events/**"], [SDK_PATTERN, AI_PATTERN, TRACK_PATTERN, UI_PATTERN]),
   restrictImports(["src/lib/track/**"], [SDK_PATTERN, AI_PATTERN, UI_PATTERN]),
   restrictImports(["src/lib/ai/**"], [SDK_PATTERN, TRACK_PATTERN, UI_PATTERN], [SDK_ADAPTER]),
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores([".next/**", ".loop/**", "out/**", "build/**", "next-env.d.ts"]),
 ]);
 
 export default eslintConfig;
