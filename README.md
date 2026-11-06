@@ -5,7 +5,7 @@
 
 **Your life is a journey. Let's see what the ride looks like.**
 
-Write your life story in your own words, and watch it turn into a roller coaster. The highs climb, the lows drop, and the quiet years run flat. Correct anything that does not feel right, then download your ride as an image.
+Write your life story in your own words, and the AI turns it straight into a roller coaster. The highs climb, the lows drop, and the quiet years run flat. Adjust anything that does not feel right, then download your ride as an image.
 
 ![An example roller coaster with stops for starting university, losing a job, getting married and running a first marathon](docs/images/example-ride.png)
 
@@ -15,7 +15,8 @@ This is a playful, creative picture of a story. It is not a psychological assess
 
 - **Free-form writing:** no questionnaire and no account. Just tell your story.
 - **AI event extraction:** Claude finds the events, dates, categories and feelings in your text. It does not invent events, and it asks about anything unclear.
-- **You have the final say:** edit, add, delete and reorder every event. AI guesses are labelled until you confirm them.
+- **From text to ride in one step:** you do not have to fill in any forms.
+- **You have the final say:** editing is optional, and you can change, add, delete and reorder every event. AI guesses are labelled there until you confirm them.
 - **No AI required:** skip it and add your events by hand.
 - **An adjustable ride:** select a stop and change how it felt or how much it mattered, and the track redraws at once.
 - **Image export:** download a PNG that is created on your device.
@@ -84,12 +85,12 @@ A single Next.js app, with TypeScript, Tailwind CSS, zod and hand-drawn SVG.
 ```text
 Story text --> POST /api/extract --> Provider adapter --> Validated events
                                                                 |
-                               Manual entry --------------------+
-                                                                v
-                                                          Review stage
-                                                                |
+                 Manual entry --> event editing ----------------+
                                                                 v
                                      buildTrack --> Ride stage --> PNG export
+                                                        ^
+                                                        |
+                                              Optional event editing
 ```
 
 The AI layer and the rendering engine are independent. The AI produces structured events, and the track generator reads only those events, so changing the provider never touches the visuals, and manual events work with no AI at all. Lint rules enforce this boundary.

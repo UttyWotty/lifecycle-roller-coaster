@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Changed
 
+- Generate now goes straight from the story to the ride, and editing events is an optional step.
 - Demo mode now shows a clear notice that the events are samples and the story was not read.
 - The landing page example now comes from the real track generator.
 

@@ -52,7 +52,7 @@ test("the story is sent only on Generate and is never stored", async ({ page }) 
   await storyBox(page).fill(STORY);
   expect(posts).toHaveLength(0);
   await button(page, "Generate my ride").click();
-  await page.getByRole("heading", { name: "Review your events" }).waitFor();
+  await page.getByRole("heading", { name: "Your ride" }).waitFor();
   expect(posts).toEqual([JSON.stringify({ story: STORY })]);
   const stored = await page.evaluate(() =>
     JSON.stringify([{ ...localStorage }, { ...sessionStorage }, document.cookie]),
@@ -74,6 +74,38 @@ test("adding events by hand sends nothing", async ({ page }) => {
   expect(requests).toBe(0);
 });
 
+test("Generate goes straight to the ride, with editing as an option", async ({ page }) => {
+  await page.goto("/story");
+  await storyBox(page).fill(STORY);
+  await button(page, "Generate my ride").click();
+  await expect(page.getByRole("heading", { name: "Your ride" })).toBeVisible();
+  await expect(page.locator('svg g[role="button"]')).toHaveCount(4);
+  await expect(page.getByLabel("Title")).toHaveCount(0);
+  await expect(page.getByText("sample events, not your story")).toBeVisible();
+  await button(page, "Edit my events").click();
+  await expect(page.getByRole("heading", { name: "Review your events" })).toBeVisible();
+  await expect(page.getByText("This step is optional")).toBeVisible();
+});
+
+test("a story with no events opens the editor with guidance", async ({ page }) => {
+  await page.route("**/api/extract", (route) =>
+    route.fulfill({ json: { events: [], clarifications: [] } }),
+  );
+  await page.goto("/story");
+  await storyBox(page).fill(STORY);
+  await button(page, "Generate my ride").click();
+  await expect(page.getByText("No events yet")).toBeVisible();
+  await expect(button(page, "See my ride")).toBeDisabled();
+});
+
+test("returning from a blank event goes to the editor, not a broken ride", async ({ page }) => {
+  await openReview(page);
+  await button(page, "Add an event").click();
+  await button(page, "Back to my story").click();
+  await button(page, "Return to my ride").click();
+  await expect(page.getByRole("heading", { name: "Review your events" })).toBeVisible();
+});
+
 test("returning to the story keeps the events", async ({ page }) => {
   await openReview(page);
   await page.locator("ol > li").first().getByLabel("Title").fill("Changed title");
@@ -81,6 +113,7 @@ test("returning to the story keeps the events", async ({ page }) => {
   await expect(storyBox(page)).toHaveValue(STORY);
   await expect(page.getByText("replaces your current events")).toBeVisible();
   await storyBox(page).fill(`${STORY} more`);
-  await button(page, "Return to my events").click();
-  await expect(page.locator("ol > li").first().getByLabel("Title")).toHaveValue("Changed title");
+  await button(page, "Return to my ride").click();
+  await page.getByRole("heading", { name: "Your ride" }).waitFor();
+  await expect(page.locator('svg g[role="button"]').first()).toContainText("Changed title");
 });

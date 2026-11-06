@@ -100,6 +100,7 @@ test("text from the model cannot run as HTML", async ({ page }) => {
   await page.goto("/story");
   await storyBox(page).fill(STORY);
   await button(page, "Generate my ride").click();
+  await button(page, "Edit my events").click();
   await expect(page.locator("ol > li").first().getByLabel("Title")).toHaveValue(title);
   await expect(page.getByText("<b>Question?</b>")).toBeVisible();
   expect(await page.evaluate(() => "__injected" in window)).toBe(false);

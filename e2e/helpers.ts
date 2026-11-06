@@ -24,17 +24,17 @@ export function rideStop(page: Page, title: string): Locator {
   return page.locator('svg g[role="button"]').filter({ hasText: title });
 }
 
-export async function openReview(page: Page): Promise<void> {
+export async function openRide(page: Page): Promise<void> {
   await page.goto("/story");
   await storyBox(page).fill(STORY);
   await button(page, "Generate my ride").click();
-  await page.getByRole("heading", { name: "Review your events" }).waitFor();
+  await page.getByRole("heading", { name: "Your ride" }).waitFor();
 }
 
-export async function openRide(page: Page): Promise<void> {
-  await openReview(page);
-  await button(page, "See my ride").click();
-  await page.getByRole("heading", { name: "Your ride" }).waitFor();
+export async function openReview(page: Page): Promise<void> {
+  await openRide(page);
+  await button(page, "Edit my events").click();
+  await page.getByRole("heading", { name: "Review your events" }).waitFor();
 }
 
 export async function hasPageOverflow(page: Page): Promise<boolean> {
