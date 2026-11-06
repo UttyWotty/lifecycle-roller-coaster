@@ -11,7 +11,7 @@ const BEST_GUESS = "Best guess";
 test("review opens with an editable card per event", async ({ page }) => {
   await openReview(page);
   await expect(page.locator("ol > li")).toHaveCount(4);
-  await expect(page.getByText("Demo data")).toBeVisible();
+  await expect(page.getByText("Demo mode: these are sample events, not your story")).toBeVisible();
   await expect(eventCard(page, 1).getByLabel("Title")).toHaveValue("Started university");
   await expect(eventCard(page, 4).getByLabel("Date")).toHaveValue("");
   await expect(page.locator("h1")).toBeFocused();

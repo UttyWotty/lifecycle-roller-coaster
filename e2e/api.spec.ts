@@ -15,7 +15,7 @@ test("the test server returns labelled demo data", async ({ request }) => {
   });
   expect(response.status()).toBe(200);
   const body = await response.json();
-  expect(body.clarifications[0]).toContain("Demo data");
+  expect(body.isDemo).toBe(true);
   expect(body.events[0].id).toBe("event_001");
 });
 

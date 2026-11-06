@@ -30,22 +30,22 @@ function codeOf(run: () => unknown): string {
 
 describe("finalizeDraft", () => {
   it("assigns unique sequential ids that pass the shared contract", () => {
-    const result = finalizeDraft({ events: [DRAFT_EVENT, DRAFT_EVENT], clarifications: [] });
+    const result = finalizeDraft({ events: [DRAFT_EVENT, DRAFT_EVENT], clarifications: [] }, false);
     expect(result.events.map(({ id }) => id)).toEqual(["event_001", "event_002"]);
     expect(lifeEventListSchema.safeParse({ events: result.events }).success).toBe(true);
   });
 
   it("keeps clarifications", () => {
-    expect(finalizeDraft(DRAFT).clarifications).toEqual(["Which year?"]);
+    expect(finalizeDraft(DRAFT, false).clarifications).toEqual(["Which year?"]);
   });
 
   it("accepts a story with no events", () => {
-    expect(finalizeDraft({ events: [], clarifications: [] }).events).toEqual([]);
+    expect(finalizeDraft({ events: [], clarifications: [] }, false).events).toEqual([]);
   });
 
   it("rejects a draft that breaks the contract", () => {
     const invalid = { events: [{ ...DRAFT_EVENT, impact: 99 }], clarifications: [] };
-    expect(codeOf(() => finalizeDraft(invalid))).toBe("provider_failed");
+    expect(codeOf(() => finalizeDraft(invalid, false))).toBe("provider_failed");
   });
 });
 

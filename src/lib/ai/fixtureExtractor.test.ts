@@ -8,10 +8,11 @@ import { finalizeDraft } from "./extraction";
 import { createFixtureExtractor } from "./fixtureExtractor";
 
 describe("createFixtureExtractor", () => {
-  it("returns a draft that passes the event contract and labels itself as demo data", async () => {
-    const draft = await createFixtureExtractor().extract("any story", new AbortController().signal);
-    const result = finalizeDraft(draft);
+  it("returns a draft that passes the event contract and marks itself as demo data", async () => {
+    const extractor = createFixtureExtractor();
+    const draft = await extractor.extract("any story", new AbortController().signal);
+    const result = finalizeDraft(draft, extractor.isDemo);
     expect(result.events.length).toBeGreaterThan(0);
-    expect(result.clarifications[0]).toContain("Demo data");
+    expect(result.isDemo).toBe(true);
   });
 });

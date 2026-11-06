@@ -36,7 +36,7 @@ Then open http://localhost:3000.
 
 ### Demo mode and real stories
 
-The app starts in demo mode, so Generate returns four labelled sample events and costs nothing. Your story is not read in this mode.
+The app starts in demo mode, so Generate ignores what you wrote and returns the same four sample events, with a clear notice on the review screen. This costs nothing, and lets you try the app without a key.
 
 To have Claude read real stories, edit `.env`:
 

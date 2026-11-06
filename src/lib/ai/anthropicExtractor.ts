@@ -64,6 +64,7 @@ async function requestDraft(
 
 export function createAnthropicExtractor(): EventExtractor {
   return {
+    isDemo: false,
     async extract(story: string, signal: AbortSignal): Promise<ExtractionDraft> {
       if (API_KEY === "") {
         throw new ExtractionError("not_configured");
