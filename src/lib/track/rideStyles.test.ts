@@ -70,8 +70,8 @@ describe("buildLoopTrack", () => {
   });
 
   it("puts labels of looped stops below, clear of the loop", () => {
-    const { stops } = buildLoopTrack(makeEvents([{ impact: MAJOR_IMPACT }, { impact: 2 }]));
-    expect(stops.map(({ labelSide }) => labelSide)).toEqual(["below", "above"]);
+    const { stops } = buildLoopTrack(makeEvents([{ impact: 2 }, { impact: MAJOR_IMPACT }]));
+    expect(stops.map(({ labelSide }) => labelSide)).toEqual(["above", "below"]);
   });
 });
 

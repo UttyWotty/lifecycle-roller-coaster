@@ -4,7 +4,7 @@
  * Sentiment and impact shift a stop up or down from its line, so edits still reshape the map.
  */
 import type { EventCategory, LifeEvent } from "@/lib/events/schema";
-import { createStop, cumulativeLevels } from "./buildTrack";
+import { createStop, eventLevels } from "./buildTrack";
 import type { Track, TrackLine, TrackPoint, TrackStop } from "./types";
 
 const STOP_SPACING = 170;
@@ -70,7 +70,7 @@ function buildLine(
 }
 
 export function buildMetroMap(events: readonly LifeEvent[]): Track {
-  const levels = cumulativeLevels(events);
+  const levels = eventLevels(events);
   const categories = [...new Set(events.map((event) => event.category))];
   const stops = events.map((event, index) =>
     createStop(event, {

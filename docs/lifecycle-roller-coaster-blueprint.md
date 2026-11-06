@@ -140,6 +140,10 @@ The visualization is the main product feature.
   Category          Color-coded marker
   Unknown date      Approximate placement
 
+Height comes from each event's own points, so positive events sit above
+the middle and negative events below it. A 10 followed by a 1 is a sharp
+drop, a 1 followed by a 10 is a sharp climb, and bigger gaps are steeper.
+
 The graph is a creative representation, not a psychological assessment
 or objective measurement of someone's life.
 

@@ -40,7 +40,7 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 
 ## Track Model
 
-`buildTrack` in `src/lib/track` returns geometry only. Height is cumulative: positive events add their impact, negative events subtract it, and neutral events stay flat. Stops sit in list order at even spacing, not on a true time scale, so the user's order is respected and undated events have a place.
+`buildTrack` in `src/lib/track` returns geometry only. Height is not a running total: each event sits at the level of its own signed impact, and a neutral event keeps the level before it. So 10 then 1 is a sharp drop even when both are positive, curves sharpen with the size of the move, and `MIN_LEVEL_SPAN` keeps small moves looking small. Stops sit in list order at even spacing, not on a true time scale, so the user's order is respected and undated events have a place.
 
 Every ride style is a generator that returns the same `Track` type from `src/lib/track/types.ts`, registered in `rideStyles.ts`, so `RideTrack` and image export need no per-style code paths. Styles change only how events are drawn, never the events. Loop-the-loops adds a circle at each major stop. The metro map gives each category a full-width line, brings all lines through major stops, and returns them to their lanes between distant stops. `addTitle` runs last and shifts the ride down with `contentOffset`; style and title live in `RideFlow` so they survive stage changes.
 
