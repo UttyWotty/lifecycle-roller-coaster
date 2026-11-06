@@ -13,12 +13,14 @@ All notable changes to this project are documented in this file. The format foll
 - Landing page with an example ride and a link to the story editor.
 - Story editor with example prompts, a length limit and a privacy note.
 - AI event extraction through a provider-agnostic interface, with a Claude adapter.
-- `POST /api/extract` endpoint and a read-only list of the events found, with clarification questions.
+- `POST /api/extract` endpoint and clarification questions.
 - Notice that explains what is sent to Anthropic before the user presses Generate.
 - Lint rules that enforce the boundaries between AI, rendering and shared event code.
 - `.env.example` with the required settings.
 - `EXTRACTOR_MODE=fixture` returns labelled demo events, so development spends no tokens.
 - Server logs record the token count of each extraction.
+- Event review stage with editing, add, delete with undo, reorder, sort by date and best-guess confirmation.
+- Option to skip AI and add events by hand.
 
 ### Changed
 

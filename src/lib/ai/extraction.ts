@@ -4,11 +4,10 @@
  * Nothing here performs I/O, and failures surface only as coded errors with no story content.
  */
 import { z } from "zod";
+import { formatEventId } from "@/lib/events/editing";
 import { lifeEventListSchema, lifeEventSchema, type LifeEvent } from "@/lib/events/schema";
 import { ExtractionError } from "./errors";
 
-const EVENT_ID_PREFIX = "event_";
-const EVENT_ID_DIGITS = 3;
 const STOP_REASON_REFUSAL = "refusal";
 const STOP_REASON_MAX_TOKENS = "max_tokens";
 
@@ -32,7 +31,7 @@ export type ExtractionResult = z.infer<typeof extractionResultSchema>;
 export function finalizeDraft(draft: ExtractionDraft): ExtractionResult {
   const events: LifeEvent[] = draft.events.map((event, index) => ({
     ...event,
-    id: `${EVENT_ID_PREFIX}${String(index + 1).padStart(EVENT_ID_DIGITS, "0")}`,
+    id: formatEventId(index + 1),
   }));
   const validated = lifeEventListSchema.safeParse({ events });
   if (!validated.success) {
