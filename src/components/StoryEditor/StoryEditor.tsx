@@ -15,10 +15,12 @@ import { useExtraction } from "./useExtraction";
 interface StoryEditorProps {
   story: string;
   hasEvents: boolean;
+  isSample: boolean;
   onStoryChange: (story: string) => void;
   onExtracted: (result: ExtractionResult) => void;
   onReturnToEvents: () => void;
   onAddManually: () => void;
+  onShowSample: () => void;
 }
 
 const INPUT_ID = "story";
@@ -27,13 +29,16 @@ const NUMBER_LOCALE = "en-US";
 const PLACEHOLDER = "I started university in 2015. I was really excited about it...";
 const TOO_LONG_MESSAGE = "This story is over the limit. Please shorten it to continue.";
 const LOADING_MESSAGE = "Reading your story...";
+const SAMPLE_HINT = "Not ready to write? See a made-up life as a ride. It is free and sends nothing.";
 const REPLACE_WARNING = "Generating again replaces your current events and any changes to them.";
 
 export function StoryEditor(props: StoryEditorProps): ReactElement {
-  const { story, hasEvents, onStoryChange, onExtracted, onReturnToEvents, onAddManually } = props;
+  const { story, hasEvents, isSample, onStoryChange, onExtracted, onReturnToEvents, onAddManually, onShowSample } = props;
   const { state, extract, reset } = useExtraction();
   const storyStatus = getStoryStatus(story);
   const isLoading = state.status === "loading";
+  /** Hidden once a real ride exists, so a paid reading can never be replaced by accident. */
+  const canShowSample = !hasEvents || isSample;
 
   function updateStory(nextStory: string): void {
     onStoryChange(nextStory);
@@ -45,6 +50,14 @@ export function StoryEditor(props: StoryEditorProps): ReactElement {
       <header className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold">Tell your story</h1>
         <p>Write about the moments that shaped your life, in your own words and in any order.</p>
+        {canShowSample && (
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" onClick={onShowSample} className={SECONDARY_BUTTON_CLASS}>
+              Try a sample life
+            </button>
+            <p className="text-sm text-muted">{SAMPLE_HINT}</p>
+          </div>
+        )}
       </header>
       <div className="flex flex-col gap-4">
         <label htmlFor={INPUT_ID} className="font-semibold">
