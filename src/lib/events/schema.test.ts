@@ -27,11 +27,11 @@ describe("lifeEventSchema", () => {
     expect(lifeEventSchema.safeParse(event).success).toBe(true);
   });
 
-  it.each(["2015", "2015-06", "2015-06-30", null])("accepts the date %s", (date) => {
+  it.each(["2015", "2015-06", "2015-06-30", "2024-02-29", null])("accepts the date %s", (date) => {
     expect(lifeEventSchema.safeParse({ ...BLUEPRINT_EVENT, date }).success).toBe(true);
   });
 
-  it.each(["", "soon", "2015-13", "2015-06-32", "15"])("rejects the date %j", (date) => {
+  it.each(["", "soon", "2015-13", "2015-06-32", "15", "2015-02-31", "2023-02-29", "2015-04-31"])("rejects the date %j", (date) => {
     expect(lifeEventSchema.safeParse({ ...BLUEPRINT_EVENT, date }).success).toBe(false);
   });
 
