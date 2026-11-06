@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-The repository is an early scaffold: a single Next.js app with a placeholder landing page and the shared event schema. The story editor, AI extraction, track rendering, and export are not built yet.
+Roadmap phase 1 is done: a single Next.js app with the landing page, the story editor, and the shared event schema. AI extraction, event review, track rendering, and export are not built yet, so Generate in `StoryEditor` is a stub until phase 2 connects it.
 
 `docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
 
@@ -56,5 +56,5 @@ User stories can contain sensitive personal details.
 
 - Do not store raw narratives by default, and do not log story content.
 - Tell users what is sent to an external AI provider.
-- Keep generated data in the browser where practical.
+- Keep generated data in the browser where practical. The story currently lives only in React state in `StoryEditor`.
 - Sharing is opt-in; never publish a ride automatically.
