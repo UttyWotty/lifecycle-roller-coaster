@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-All essential roadmap phases (1 to 5) are released: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export. v0.3.0 added ride styles, illustrated themes, custom titles and sample lives, and v0.4.0 added fit to screen, character choice and two more themes.
+All essential roadmap phases (1 to 5) are released: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export. v0.3.0 added ride styles, illustrated themes, custom titles and sample lives, v0.4.0 added fit to screen, character choice and two more themes, and v0.5.0 added the four art modes.
 
 `docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
 
@@ -44,7 +44,7 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 
 Every ride style is a generator that returns the same `Track` type from `src/lib/track/types.ts`, registered in `rideStyles.ts`, so `RideTrack` and image export need no per-style code paths. Styles change only how events are drawn, never the events. Loop-the-loops adds a circle at each major stop. The metro map gives each category a full-width line, brings all lines through major stops, and returns them to their lanes between distant stops. `addTitle` runs last and shifts the ride down with `contentOffset`; style and title live in `RideFlow` so they survive stage changes.
 
-Themes are separate from styles. `src/lib/scene` holds palettes and scenery, and `composeRide` is the one place that builds a style, adds headroom, a title and scenery. Scenery uses a fixed seed, never `Math.random`, so redraws do not flicker. All art is original and drawn in code. A palette's `kind` picks its scenery, so a new theme can reuse a kind or add landmarks to `SceneLandmarks.tsx` and building shapes to `SceneBuildings.tsx`. Riders are listed in `riders.ts` and drawn in `RiderArt.tsx`, and new ones must stay original. Scene colours are fixed hex values, so they export unchanged. The moving cart is hidden from exports with `EXPORT_HIDDEN_ATTRIBUTE`, and page CSS shows it instead of the parked cart, which is all an exported image sees.
+Themes are separate from styles. `src/lib/scene` holds palettes and scenery, and `composeRide` is the one place that builds a style, adds headroom, a title and scenery. Scenery uses a fixed seed, never `Math.random`, so redraws do not flicker. All art is original and drawn in code. A palette's `kind` picks its scenery. Art modes are whole art directions, not recolours: `sceneModes.ts` maps a kind to its own backdrop, structure and rail in `src/components/Scene/modes`, and other kinds share the standard set, with landmarks in `SceneLandmarks.tsx` and building shapes in `SceneBuildings.tsx`. Riders are listed in `riders.ts` and drawn in `RiderArt.tsx`, and new ones must stay original. Scene colours are fixed hex values, so they export unchanged. The moving cart is hidden from exports with `EXPORT_HIDDEN_ATTRIBUTE`, and page CSS shows it instead of the parked cart, which is all an exported image sees.
 
 Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites its markup with a fixed light palette, and `downloadRideImage.ts` converts it to PNG in the browser, so nothing is uploaded.
 

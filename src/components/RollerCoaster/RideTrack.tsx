@@ -6,9 +6,9 @@
 import type { ReactElement, Ref } from "react";
 import { toLabel } from "@/components/EventReview/fieldStyles";
 import { RideCart } from "@/components/Scene/RideCart";
-import { SceneBackdrop } from "@/components/Scene/SceneBackdrop";
 import { SkyMarkers } from "@/components/Scene/SkyMarkers";
-import { Trestle } from "@/components/Scene/Trestle";
+import { DRAW_TEST_ID, Rail } from "@/components/Scene/Rail";
+import { sceneModeFor } from "@/components/Scene/sceneModes";
 import type { Scene } from "@/lib/scene/composeRide";
 import type { ScenePalette } from "@/lib/scene/themes";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
@@ -30,46 +30,30 @@ interface RideTrackProps {
 
 /** Smallest allowed drawing scale. Below this the track scrolls instead, so labels stay readable. */
 const MIN_TRACK_SCALE = 0.9;
-const RAIL_WIDTH = 7;
-const TIE_WIDTH = 3;
-const TIE_PATTERN = "2 14";
 const METRO_LINE_WIDTH = 6;
 const METRO_CASING_WIDTH = 4;
+const MONOCHROME_LINE_WIDTH = 3;
+/** Without colour, each line is told apart by its dashes, like a printed map. */
+const MONOCHROME_DASHES = ["none", "12 7", "3 6", "18 6 3 6", "2 12", "24 8", "8 4 2 4 2 4", "5 5"];
 const SUPPORT_WIDTH = 2;
 const SUPPORT_OPACITY = 0.3;
 const LINE_NAME_SIZE = 13;
 const LINE_NAME_GAP = 10;
 const LINE_NAME_DROP = 4;
-const DRAW_TEST_ID = "ride-path";
-
-function Rail({ path, palette }: { path: string; palette: ScenePalette | null }): ReactElement {
-  return (
-    <>
-      <path
-        d={path}
-        pathLength={1}
-        fill="none"
-        stroke={palette?.rail ?? "var(--accent)"}
-        strokeWidth={RAIL_WIDTH}
-        strokeLinecap="round"
-        className="ride-track-draw"
-        data-testid={DRAW_TEST_ID}
-      />
-      <path d={path} fill="none" stroke={palette?.pill ?? "var(--background)"} strokeWidth={TIE_WIDTH} strokeDasharray={TIE_PATTERN} className="ride-track-ties" />
-    </>
-  );
-}
+const SERIF_FONT = "Georgia, 'Times New Roman', serif";
 
 function MetroLine(props: {
   line: TrackLine;
   category: NonNullable<TrackLine["category"]>;
   palette: ScenePalette | null;
+  index: number;
 }): ReactElement {
-  const { line, category, palette } = props;
+  const { line, category, palette, index } = props;
+  const isMonochrome = palette?.kind === "line";
   const nameHalo = palette ? { ...LABEL_HALO, stroke: palette.pill } : LABEL_HALO;
   return (
     <>
-      {palette && (
+      {palette && !isMonochrome && (
         <path
           d={line.path}
           fill="none"
@@ -79,17 +63,29 @@ function MetroLine(props: {
           strokeLinejoin="round"
         />
       )}
-      <path
-        d={line.path}
-        pathLength={1}
-        fill="none"
-        stroke={CATEGORY_COLORS[category]}
-        strokeWidth={METRO_LINE_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="ride-track-draw"
-        data-testid={DRAW_TEST_ID}
-      />
+      {isMonochrome ? (
+        <path
+          d={line.path}
+          fill="none"
+          stroke={palette.ink}
+          strokeWidth={MONOCHROME_LINE_WIDTH}
+          strokeDasharray={MONOCHROME_DASHES[index % MONOCHROME_DASHES.length]}
+          strokeLinejoin="round"
+          data-testid={DRAW_TEST_ID}
+        />
+      ) : (
+        <path
+          d={line.path}
+          pathLength={1}
+          fill="none"
+          stroke={CATEGORY_COLORS[category]}
+          strokeWidth={METRO_LINE_WIDTH}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="ride-track-draw"
+          data-testid={DRAW_TEST_ID}
+        />
+      )}
       <text
         x={line.start.x - LINE_NAME_GAP}
         y={line.start.y + LINE_NAME_DROP}
@@ -110,7 +106,10 @@ export function RideTrack(props: RideTrackProps): ReactElement {
   const palette = scene?.palette ?? null;
   const rail = track.lines.find(({ category }) => category === null);
   const railEnd = track.profile.at(-1);
+  const mode = palette ? sceneModeFor(palette.kind) : null;
+  const RailArt = mode?.Rail ?? Rail;
   const isStation = track.style === "metro";
+  const titleFont = palette?.kind === "poster" ? { fontFamily: SERIF_FONT, fontStyle: "italic" } : undefined;
   return (
     <svg
       ref={svgRef}
@@ -120,14 +119,14 @@ export function RideTrack(props: RideTrackProps): ReactElement {
       style={onSelect && !fitToScreen ? { minWidth: track.width * MIN_TRACK_SCALE } : undefined}
       className={palette ? "h-auto w-full rounded-2xl" : "h-auto w-full"}
     >
-      {scene && <SceneBackdrop scene={scene} width={track.width} height={track.height} />}
+      {scene && mode && <mode.Backdrop scene={scene} track={track} />}
       {track.title && (
-        <text x={track.title.x} y={track.title.y} fontSize={track.title.fontSize} fontWeight={700} fill={palette ? palette.title : "currentColor"}>
+        <text x={track.title.x} y={track.title.y} fontSize={track.title.fontSize} fontWeight={700} fill={palette ? palette.title : "currentColor"} {...titleFont}>
           {track.title.text}
         </text>
       )}
       <g transform={`translate(0 ${track.contentOffset})`}>
-        {palette && <Trestle track={track} palette={palette} />}
+        {palette && mode && <mode.Structure track={track} palette={palette} />}
         {!palette && track.supports.map(({ x, y }) => (
           <line
             key={`${x}-${y}`}
@@ -140,11 +139,11 @@ export function RideTrack(props: RideTrackProps): ReactElement {
             strokeWidth={SUPPORT_WIDTH}
           />
         ))}
-        {track.lines.map((line) =>
+        {track.lines.map((line, index) =>
           line.category === null ? (
-            <Rail key="rail" path={line.path} palette={palette} />
+            <RailArt key="rail" path={line.path} palette={palette} />
           ) : (
-            <MetroLine key={line.category} line={line} category={line.category} palette={palette} />
+            <MetroLine key={line.category} line={line} category={line.category} palette={palette} index={index} />
           ),
         )}
         {scene && <SkyMarkers scenery={scene.scenery} palette={scene.palette} />}
@@ -166,6 +165,7 @@ export function RideTrack(props: RideTrackProps): ReactElement {
             stopCount={track.stops.length}
             color={scene.palette.cart}
             rider={scene.rider}
+            isMonochrome={scene.palette.kind === "line"}
           />
         )}
       </g>

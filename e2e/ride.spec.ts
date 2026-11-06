@@ -322,13 +322,67 @@ test.describe("ride styles and titles", () => {
     expect(order.stop).toBeGreaterThan(order.balloon);
   });
 
-  test("Retro fairground and Nightmare mode draw their own scenery", async ({ page }) => {
+  test("each art mode draws its own backdrop and structure", async ({ page }) => {
+    await openRide(page);
+    const drawing = page.locator('svg[role="group"]');
+    const seen = new Set<string>();
+    for (const theme of ["Classic Ride", "Nightmare Mode", "Minimal Mode", "Retro Mode"]) {
+      await page.getByRole("radio", { name: theme, exact: true }).check();
+      await expect(page.getByTestId("mode-backdrop")).toHaveCount(1);
+      await expect(page.getByTestId("mode-structure")).toHaveCount(1);
+      await expect(page.locator('svg g[role="button"]')).toHaveCount(4);
+      seen.add(await page.getByTestId("mode-structure").innerHTML());
+    }
+    expect(seen.size).toBe(4);
+    await expect(drawing).toBeVisible();
+  });
+
+  test("Nightmare Mode has signs and a wet floor reflection", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Nightmare Mode" }).check();
+    await expect(page.getByTestId("neon-sign").first()).toBeVisible();
+    await expect(page.getByTestId("neon-reflection")).toHaveCount(1);
+  });
+
+  test("Minimal Mode drops the colour legend, and stops stay editable", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Minimal Mode" }).check();
+    await expect(page.getByRole("list", { name: "Marker colours" })).toHaveCount(0);
+    await rideStop(page, "Got married").click();
+    await expect(page.getByRole("region", { name: "Selected stop" }).getByRole("heading")).toHaveText("Got married");
+  });
+
+  test("Nightmare Mode leaves signs off metro maps, and Minimal lines stay distinct", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    await page.getByRole("radio", { name: "Nightmare Mode", exact: true }).check();
+    await expect(page.getByTestId("neon-sign")).toHaveCount(0);
+    await page.getByRole("radio", { name: "Minimal Mode", exact: true }).check();
+    const dashes = await page.getByTestId("ride-path").evaluateAll((lines) => lines.map((line) => line.getAttribute("stroke-dasharray")));
+    expect(new Set(dashes).size).toBe(dashes.length);
+  });
+
+  test("Minimal Mode draws the Metro map with no colour", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    await page.getByRole("radio", { name: "Minimal Mode", exact: true }).check();
+    const colours = await page.locator('svg[role="group"] [stroke], svg[role="group"] [fill]').evaluateAll((nodes) =>
+      nodes.flatMap((n) => [n.getAttribute("stroke"), n.getAttribute("fill")]).filter((v): v is string => Boolean(v) && /^#[0-9a-f]{6}$/i.test(v ?? "")),
+    );
+    const coloured = colours.filter((hex) => {
+      const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+      return Math.max(r, g, b) - Math.min(r, g, b) > 8;
+    });
+    expect(coloured).toEqual([]);
+  });
+
+  test("Retro fairground and Haunted night draw their own scenery", async ({ page }) => {
     await openRide(page);
     await page.getByRole("radio", { name: "Retro fairground" }).check();
     await expect(page.getByTestId("scene-wheel").first()).toBeVisible();
     await expect(page.getByTestId("scene-tent").first()).toBeVisible();
     await expect(page.getByTestId("scene-bat")).toHaveCount(0);
-    await page.getByRole("radio", { name: "Nightmare mode" }).check();
+    await page.getByRole("radio", { name: "Haunted night" }).check();
     await expect(page.getByTestId("scene-bat").first()).toBeVisible();
     await expect(page.getByTestId("scene-tower").first()).toBeVisible();
     await expect(page.getByTestId("scene-wheel")).toHaveCount(0);
@@ -337,11 +391,11 @@ test.describe("ride styles and titles", () => {
   });
 
   for (const style of [/Coaster/, /Loop-the-loops/, /Metro map/]) {
-    for (const theme of ["Retro fairground", "Nightmare mode"]) {
+    for (const theme of ["Classic Ride", "Nightmare Mode", "Minimal Mode", "Retro Mode", "Retro fairground", "Haunted night"]) {
       test(`${theme} exports at full size in the ${style.source} style`, async ({ page }) => {
         await openRide(page);
         await page.getByRole("radio", { name: style }).check();
-        await page.getByRole("radio", { name: theme }).check();
+        await page.getByRole("radio", { name: theme, exact: true }).check();
         expect(await hasPageOverflow(page)).toBe(false);
         const downloading = page.waitForEvent("download");
         await button(page, "Download image").click();
@@ -357,7 +411,7 @@ test.describe("ride styles and titles", () => {
   for (const theme of ["Sunny day", "Golden sunset", "Starry night", "Simple"]) {
     test(`a ${theme} ride downloads as a PNG`, async ({ page }) => {
       await openRide(page);
-      await page.getByRole("radio", { name: theme }).check();
+      await page.getByRole("radio", { name: theme, exact: true }).check();
       const downloading = page.waitForEvent("download");
       await button(page, "Download image").click();
       const file = await readFile(await (await downloading).path());

@@ -1,7 +1,7 @@
 /**
  * How a stop looks in an illustrated theme: a hub on the rail, a flag on a pole and a label pill.
  * Poles alternate between two heights, so neighbouring labels sit clear of each other.
- * Metro stations and stops labelled below the track skip the pole and keep the pill close.
+ * Metro stations and low stops skip the pole, and Minimal Mode draws bare text with an open circle.
  */
 import type { ReactElement } from "react";
 import type { ScenePalette } from "@/lib/scene/themes";
@@ -42,9 +42,10 @@ function pillWidth(stop: TrackStop, date: string): number {
 
 export function SceneStopArt(props: SceneStopArtProps): ReactElement {
   const { stop, date, isStation, isTall, markerRadius, palette } = props;
-  const color = CATEGORY_COLORS[stop.category];
+  const isBare = palette.kind === "line";
+  const color = isBare ? palette.ink : CATEGORY_COLORS[stop.category];
   const isAbove = stop.labelSide === "above";
-  const hasFlag = isAbove && !isStation;
+  const hasFlag = isAbove && !isStation && !isBare;
   const poleHeight = isTall ? TALL_POLE_HEIGHT : POLE_HEIGHT;
   const poleTop = stop.y - poleHeight;
   const width = pillWidth(stop, date);
@@ -68,9 +69,9 @@ export function SceneStopArt(props: SceneStopArtProps): ReactElement {
         cx={stop.x}
         cy={stop.y}
         r={markerRadius}
-        fill={isStation ? palette.pill : color}
-        stroke={isStation ? color : palette.steelDark}
-        strokeWidth={isStation ? STATION_RING_WIDTH : HUB_RING_WIDTH}
+        fill={isStation || isBare ? palette.pill : color}
+        stroke={isStation || isBare ? color : palette.steelDark}
+        strokeWidth={isStation || isBare ? STATION_RING_WIDTH : HUB_RING_WIDTH}
       />
       <rect
         x={stop.x - width / 2}
@@ -79,7 +80,7 @@ export function SceneStopArt(props: SceneStopArtProps): ReactElement {
         height={PILL_HEIGHT}
         rx={PILL_RADIUS}
         fill={palette.pill}
-        stroke={color}
+        stroke={isBare ? "none" : color}
         strokeWidth={PILL_EDGE_WIDTH}
       />
       <text x={stop.x} y={pillTop + TITLE_BASELINE} textAnchor="middle" fontSize={TITLE_SIZE} fontWeight={700} fill={palette.ink}>

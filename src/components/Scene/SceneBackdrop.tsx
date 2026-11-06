@@ -6,13 +6,13 @@
 import type { ReactElement } from "react";
 import type { Cloud } from "@/lib/scene/buildScenery";
 import type { Scene } from "@/lib/scene/composeRide";
+import type { Track } from "@/lib/track/types";
 import { SceneBuildings } from "./SceneBuildings";
 import { BatShape, FerrisWheel, SceneOrb } from "./SceneLandmarks";
 
 interface SceneBackdropProps {
   scene: Scene;
-  width: number;
-  height: number;
+  track: Track;
 }
 
 const SKY_GRADIENT_ID = "ride-sky";
@@ -30,8 +30,9 @@ function CloudShape({ cloud, color }: { cloud: Cloud; color: string }): ReactEle
   );
 }
 
-export function SceneBackdrop({ scene, width, height }: SceneBackdropProps): ReactElement {
+export function SceneBackdrop({ scene, track }: SceneBackdropProps): ReactElement {
   const { palette, scenery } = scene;
+  const { width, height } = track;
   return (
     <g aria-hidden="true">
       <defs>

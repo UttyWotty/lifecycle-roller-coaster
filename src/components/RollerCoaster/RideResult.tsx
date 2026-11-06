@@ -130,7 +130,7 @@ export function RideResult(props: RideResultProps): ReactElement {
           Fit to screen
         </button>
       </div>
-      <CategoryLegend events={events} />
+      {scene?.palette.kind !== "line" && <CategoryLegend events={events} />}
       {selected ? (
         <StopDetails
           event={selected}
