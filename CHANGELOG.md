@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-06
+
 ### Added
 
 - Next.js, TypeScript and Tailwind CSS application with a placeholder landing page.
