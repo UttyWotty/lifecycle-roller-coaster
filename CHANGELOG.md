@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-06
+
 ### Changed
 
 - Track height now comes from each event's own points, so a big gap between two events makes a sharp drop or climb.
