@@ -32,6 +32,9 @@ interface RideTrackProps {
 const MIN_TRACK_SCALE = 0.9;
 const METRO_LINE_WIDTH = 6;
 const METRO_CASING_WIDTH = 4;
+const MONOCHROME_LINE_WIDTH = 3;
+/** Without colour, each line is told apart by its dashes, like a printed map. */
+const MONOCHROME_DASHES = ["none", "12 7", "3 6", "18 6 3 6", "2 12", "24 8", "8 4 2 4 2 4", "5 5"];
 const SUPPORT_WIDTH = 2;
 const SUPPORT_OPACITY = 0.3;
 const LINE_NAME_SIZE = 13;
@@ -43,12 +46,14 @@ function MetroLine(props: {
   line: TrackLine;
   category: NonNullable<TrackLine["category"]>;
   palette: ScenePalette | null;
+  index: number;
 }): ReactElement {
-  const { line, category, palette } = props;
+  const { line, category, palette, index } = props;
+  const isMonochrome = palette?.kind === "line";
   const nameHalo = palette ? { ...LABEL_HALO, stroke: palette.pill } : LABEL_HALO;
   return (
     <>
-      {palette && (
+      {palette && !isMonochrome && (
         <path
           d={line.path}
           fill="none"
@@ -58,17 +63,29 @@ function MetroLine(props: {
           strokeLinejoin="round"
         />
       )}
-      <path
-        d={line.path}
-        pathLength={1}
-        fill="none"
-        stroke={CATEGORY_COLORS[category]}
-        strokeWidth={METRO_LINE_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="ride-track-draw"
-        data-testid={DRAW_TEST_ID}
-      />
+      {isMonochrome ? (
+        <path
+          d={line.path}
+          fill="none"
+          stroke={palette.ink}
+          strokeWidth={MONOCHROME_LINE_WIDTH}
+          strokeDasharray={MONOCHROME_DASHES[index % MONOCHROME_DASHES.length]}
+          strokeLinejoin="round"
+          data-testid={DRAW_TEST_ID}
+        />
+      ) : (
+        <path
+          d={line.path}
+          pathLength={1}
+          fill="none"
+          stroke={CATEGORY_COLORS[category]}
+          strokeWidth={METRO_LINE_WIDTH}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="ride-track-draw"
+          data-testid={DRAW_TEST_ID}
+        />
+      )}
       <text
         x={line.start.x - LINE_NAME_GAP}
         y={line.start.y + LINE_NAME_DROP}
@@ -122,11 +139,11 @@ export function RideTrack(props: RideTrackProps): ReactElement {
             strokeWidth={SUPPORT_WIDTH}
           />
         ))}
-        {track.lines.map((line) =>
+        {track.lines.map((line, index) =>
           line.category === null ? (
             <RailArt key="rail" path={line.path} palette={palette} />
           ) : (
-            <MetroLine key={line.category} line={line} category={line.category} palette={palette} />
+            <MetroLine key={line.category} line={line} category={line.category} palette={palette} index={index} />
           ),
         )}
         {scene && <SkyMarkers scenery={scene.scenery} palette={scene.palette} />}

@@ -352,6 +352,30 @@ test.describe("ride styles and titles", () => {
     await expect(page.getByRole("region", { name: "Selected stop" }).getByRole("heading")).toHaveText("Got married");
   });
 
+  test("Nightmare Mode leaves signs off metro maps, and Minimal lines stay distinct", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    await page.getByRole("radio", { name: "Nightmare Mode", exact: true }).check();
+    await expect(page.getByTestId("neon-sign")).toHaveCount(0);
+    await page.getByRole("radio", { name: "Minimal Mode", exact: true }).check();
+    const dashes = await page.getByTestId("ride-path").evaluateAll((lines) => lines.map((line) => line.getAttribute("stroke-dasharray")));
+    expect(new Set(dashes).size).toBe(dashes.length);
+  });
+
+  test("Minimal Mode draws the Metro map with no colour", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    await page.getByRole("radio", { name: "Minimal Mode", exact: true }).check();
+    const colours = await page.locator('svg[role="group"] [stroke], svg[role="group"] [fill]').evaluateAll((nodes) =>
+      nodes.flatMap((n) => [n.getAttribute("stroke"), n.getAttribute("fill")]).filter((v): v is string => Boolean(v) && /^#[0-9a-f]{6}$/i.test(v ?? "")),
+    );
+    const coloured = colours.filter((hex) => {
+      const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+      return Math.max(r, g, b) - Math.min(r, g, b) > 8;
+    });
+    expect(coloured).toEqual([]);
+  });
+
   test("Retro fairground and Haunted night draw their own scenery", async ({ page }) => {
     await openRide(page);
     await page.getByRole("radio", { name: "Retro fairground" }).check();
