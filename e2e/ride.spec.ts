@@ -50,13 +50,13 @@ test("ride edits are kept when going back", async ({ page }) => {
   await openRide(page);
   await rideStop(page, "Lost job").click();
   await page.getByRole("region", { name: "Selected stop" }).getByLabel("How it felt").selectOption("neutral");
-  await button(page, "Back to my events").click();
+  await button(page, "Edit my events").click();
   await expect(eventCard(page, 2).getByLabel("How it felt")).toHaveValue("neutral");
 });
 
 test("a long title is shortened on the track and shown in full in the details", async ({ page }) => {
   await openRide(page);
-  await button(page, "Back to my events").click();
+  await button(page, "Edit my events").click();
   await eventCard(page, 1).getByLabel("Title").fill("T".repeat(120));
   await button(page, "See my ride").click();
   const stop = rideStop(page, "TTT");

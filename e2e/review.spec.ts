@@ -121,6 +121,6 @@ test("generating again replaces edited events", async ({ page }) => {
   await eventCard(page, 1).getByLabel("Title").fill("Changed");
   await button(page, "Back to my story").click();
   await button(page, "Generate my ride").click();
-  await page.getByRole("heading", { name: "Review your events" }).waitFor();
+  await button(page, "Edit my events").click();
   await expect(eventCard(page, 1).getByLabel("Title")).toHaveValue("Started university");
 });

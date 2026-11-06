@@ -86,7 +86,7 @@ export function StoryEditor(props: StoryEditorProps): ReactElement {
         <div className="flex flex-wrap gap-2">
           {hasEvents ? (
             <button type="button" onClick={onReturnToEvents} className={SECONDARY_BUTTON_CLASS}>
-              Return to my events
+              Return to my ride
             </button>
           ) : (
             <button type="button" onClick={onAddManually} className={SECONDARY_BUTTON_CLASS}>
