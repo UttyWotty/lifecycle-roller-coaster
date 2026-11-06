@@ -1,7 +1,7 @@
 /**
  * Pure generators that turn a list of life events into roller-coaster geometry.
- * Positive events raise the level by their impact, negative events lower it, and neutral events stay flat.
- * They return plain numbers and path data, and know nothing about AI, React or how events were made.
+ * Each event sits at a height set by its own points: positive above the middle, negative below, neutral unchanged.
+ * The bigger the gap between two events, the steeper and sharper the move between them.
  */
 import type { EventSentiment, LifeEvent } from "@/lib/events/schema";
 import type { RideStyle, Track, TrackPoint, TrackStop } from "./types";
@@ -11,7 +11,7 @@ interface CoasterShape {
   stopSpacing: number;
   topMargin: number;
   height: number;
-  /** How late a curve turns: 0.5 is a gentle slope, and higher values make sharper drops. */
+  /** How late the gentlest curve turns. Bigger moves add to this, up to SHARPNESS_GAIN more. */
   curveTension: number;
   hasLoops: boolean;
 }
@@ -20,11 +20,11 @@ interface PathPoint extends TrackPoint {
   loopRadius: number;
 }
 
-export const TRACK_HEIGHT = 460;
+export const TRACK_HEIGHT = 560;
 export const MAJOR_IMPACT = 8;
 export const MAX_LABEL_LENGTH = 22;
 
-export const LOOP_TRACK_HEIGHT = 560;
+export const LOOP_TRACK_HEIGHT = 680;
 
 const SIDE_PADDING = 110;
 const BOTTOM_MARGIN = 90;
@@ -33,6 +33,10 @@ const LOOP_RADIUS_STEP = 10;
 /** Control point distance that makes two cubic curves trace a true circle. */
 const CIRCLE_CONTROL_RATIO = 4 / 3;
 const NO_LOOP = 0;
+/** Extra curve tension for a move across the whole canvas. */
+const SHARPNESS_GAIN = 0.3;
+/** Levels a track shows at least, so a small move always looks small. */
+const MIN_LEVEL_SPAN = 10;
 const PROFILE_STEPS = 12;
 const LEAD_OUT = 60;
 const ELLIPSIS = "...";
@@ -52,7 +56,7 @@ const LOOP_SHAPE: CoasterShape = {
   stopSpacing: 200,
   topMargin: 190,
   height: LOOP_TRACK_HEIGHT,
-  curveTension: 0.8,
+  curveTension: 0.65,
   hasLoops: true,
 };
 
@@ -62,11 +66,13 @@ const SENTIMENT_DIRECTION: Readonly<Record<EventSentiment, number>> = {
   neutral: 0,
 };
 
-/** Adds up each event's signed impact, returning the level after every event. */
-export function cumulativeLevels(events: readonly LifeEvent[]): number[] {
+/** Gives each event the level of its own signed points, and a neutral event the level before it. */
+export function eventLevels(events: readonly LifeEvent[]): number[] {
   let level = 0;
   return events.map((event) => {
-    level += SENTIMENT_DIRECTION[event.sentiment] * event.impact;
+    if (event.sentiment !== "neutral") {
+      level = SENTIMENT_DIRECTION[event.sentiment] * event.impact;
+    }
     return level;
   });
 }
@@ -111,7 +117,15 @@ function createLevelScale(
   if (lowest === highest) {
     return () => (top + bottom) / 2;
   }
-  return (level) => bottom - ((level - lowest) / (highest - lowest)) * (bottom - top);
+  const span = Math.max(highest - lowest, MIN_LEVEL_SPAN);
+  return (level) => bottom - ((level - lowest) / span) * (bottom - top);
+}
+
+/** How far a curve holds its level before turning, which grows with the size of the move. */
+function curveReach(from: TrackPoint, to: TrackPoint, shape: CoasterShape): number {
+  const fullMove = shape.height - shape.topMargin - BOTTOM_MARGIN;
+  const tension = shape.curveTension + (SHARPNESS_GAIN * Math.abs(to.y - from.y)) / fullMove;
+  return (to.x - from.x) * tension;
 }
 
 /** Traces a full circle above a point, leaving and returning level so it joins the rail smoothly. */
@@ -125,11 +139,11 @@ function loopCurves({ x, y }: TrackPoint, radius: number): string {
 }
 
 /** Joins points with curves that are level at each point, so every peak and valley looks smooth. */
-function smoothPath(points: readonly PathPoint[], tension: number): string {
+function smoothPath(points: readonly PathPoint[], shape: CoasterShape): string {
   const [first, ...rest] = points;
   const curves = rest.map((point, index) => {
     const previous = points[index];
-    const reach = (point.x - previous.x) * tension;
+    const reach = curveReach(previous, point, shape);
     const curve = `C${previous.x + reach} ${previous.y} ${point.x - reach} ${point.y} ${point.x} ${point.y}`;
     return point.loopRadius > NO_LOOP ? `${curve} ${loopCurves(point, point.loopRadius)}` : curve;
   });
@@ -137,10 +151,10 @@ function smoothPath(points: readonly PathPoint[], tension: number): string {
 }
 
 /** Traces the same curves as smoothPath as a list of points, leaving out loops. */
-function sampleProfile(points: readonly TrackPoint[], tension: number): TrackPoint[] {
+function sampleProfile(points: readonly TrackPoint[], shape: CoasterShape): TrackPoint[] {
   const samples = points.slice(1).flatMap((point, index) => {
     const previous = points[index];
-    const reach = (point.x - previous.x) * tension;
+    const reach = curveReach(previous, point, shape);
     return Array.from({ length: PROFILE_STEPS }, (_, step) => {
       const t = (step + 1) / PROFILE_STEPS;
       const u = 1 - t;
@@ -165,7 +179,7 @@ function midpoints(points: readonly TrackPoint[]): TrackPoint[] {
 }
 
 function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track {
-  const levels = cumulativeLevels(events);
+  const levels = eventLevels(events);
   const toY = createLevelScale([0, ...levels], shape.topMargin, shape.height - BOTTOM_MARGIN);
   const stops = events.map((event, index): TrackStop => {
     const isDrop = levels[index] < (levels[index - 1] ?? 0);
@@ -188,7 +202,7 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track 
   const points = [start, ...stops, end];
   const path = smoothPath(
     [{ ...start, loopRadius: NO_LOOP }, ...stopPoints, { ...end, loopRadius: NO_LOOP }],
-    shape.curveTension,
+    shape,
   );
   return {
     style: shape.style,
@@ -198,7 +212,7 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track 
     lines: [{ category: null, path, start }],
     stops,
     supports: [...stops, ...midpoints(points)],
-    profile: sampleProfile(points, shape.curveTension),
+    profile: sampleProfile(points, shape),
     contentOffset: 0,
     title: null,
   };

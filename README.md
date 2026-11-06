@@ -64,12 +64,12 @@ Keep your key safe: `.env` is git-ignored, so never commit it, and never prefix 
 
 Each event has a **sentiment** and an **impact** from 1 to 10, which are separate because a neutral event can still matter a lot.
 
-- Positive events raise the track by their impact.
-- Negative events lower the track by their impact.
+- Positive events sit above the middle, higher the more they mattered.
+- Negative events sit below the middle, lower the more they mattered.
 - Neutral events keep the track flat.
 - Events with an impact of 8 or more get a larger marker.
 
-Height is cumulative, so the track shows the momentum of a story and not a score for each moment. Stops sit in the order of your list at even spacing, which keeps labels readable and gives undated events a place.
+Height comes from each event's own points, so a 10 followed by a 1 is a sharp drop and a 1 followed by a 10 is a sharp climb, and the bigger the gap, the steeper the move. Stops sit in the order of your list at even spacing, which keeps labels readable and gives undated events a place.
 
 On a metro map, each category is its own line. A stop sits above its line when it felt good and below when it felt hard, and every line meets at events with an impact of 8 or more.
 
