@@ -1,34 +1,39 @@
 /**
- * Controls that make a ride personal: its title, the style it is drawn in and its theme.
+ * Controls that make a ride personal: its title, style, theme and rider.
  * Both choices belong to the parent, so they survive moving between stages.
  * Neither control changes the events, only how they are drawn.
  */
 "use client";
 
 import type { ReactElement } from "react";
-import { FIELD_CLASS, LABEL_CLASS } from "@/components/EventReview/fieldStyles";
+import { CHOICE_PILL_CLASS, FIELD_CLASS, LABEL_CLASS } from "@/components/EventReview/fieldStyles";
+import type { Rider } from "@/lib/scene/riders";
 import { RIDE_THEMES, RIDE_THEME_DETAILS, type RideTheme } from "@/lib/scene/themes";
 import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import { MAX_TITLE_LENGTH } from "@/lib/track/rideTitle";
 import { RIDE_STYLES, type RideStyle } from "@/lib/track/types";
+import { RiderPicker } from "./RiderPicker";
 
 interface RideControlsProps {
   title: string;
   style: RideStyle;
   theme: RideTheme;
+  rider: Rider;
+  /** Only rides with a cart have someone to choose. */
+  hasCart: boolean;
   onTitleChange: (title: string) => void;
   onStyleChange: (style: RideStyle) => void;
   onThemeChange: (theme: RideTheme) => void;
+  onRiderChange: (rider: Rider) => void;
 }
 
 const TITLE_PLACEHOLDER = "My 20s Roller Coaster";
-const THEME_OPTION_CLASS =
-  "flex min-h-11 items-center gap-2 rounded-full border border-muted px-3 py-2 text-sm font-semibold has-checked:border-accent has-checked:outline-1 has-checked:outline-accent";
 const OPTION_CLASS =
   "flex min-h-11 flex-1 basis-48 items-start gap-2 rounded-lg border border-muted p-3 text-sm has-checked:border-accent has-checked:outline-1 has-checked:outline-accent";
 
 export function RideControls(props: RideControlsProps): ReactElement {
-  const { title, style, theme, onTitleChange, onStyleChange, onThemeChange } = props;
+  const { title, style, theme, rider, hasCart } = props;
+  const { onTitleChange, onStyleChange, onThemeChange, onRiderChange } = props;
   return (
     <div className="flex flex-col gap-4">
       <label className={LABEL_CLASS}>
@@ -68,7 +73,7 @@ export function RideControls(props: RideControlsProps): ReactElement {
           {RIDE_THEMES.map((option) => {
             const [from, to] = RIDE_THEME_DETAILS[option].swatch;
             return (
-              <label key={option} className={THEME_OPTION_CLASS}>
+              <label key={option} className={CHOICE_PILL_CLASS}>
                 <input
                   type="radio"
                   name="ride-theme"
@@ -87,6 +92,7 @@ export function RideControls(props: RideControlsProps): ReactElement {
           })}
         </div>
       </fieldset>
+      {hasCart && <RiderPicker rider={rider} onRiderChange={onRiderChange} />}
     </div>
   );
 }
