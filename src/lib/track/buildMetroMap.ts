@@ -96,5 +96,6 @@ export function buildMetroMap(events: readonly LifeEvent[]): Track {
     profile: [],
     contentOffset: 0,
     title: null,
+    chapterBands: [],
   };
 }

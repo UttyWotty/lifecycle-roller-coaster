@@ -3,11 +3,16 @@
  * On screen it follows the real rail once, through every loop, and parks at the end of the track.
  * Exports and reduced-motion users see only the parked cart, because the page styles decide which shows.
  */
-import type { ReactElement } from "react";
+import type { ComponentType, ReactElement } from "react";
 import { EXPORT_HIDDEN_ATTRIBUTE } from "@/lib/export/rideImage";
 import type { Rider } from "@/lib/scene/riders";
 import type { TrackPoint } from "@/lib/track/types";
 import { RiderArt } from "./RiderArt";
+
+export interface VehicleProps {
+  color: string;
+  rider: Rider;
+}
 
 interface RideCartProps {
   path: string;
@@ -17,6 +22,7 @@ interface RideCartProps {
   rider: Rider;
   /** Removes colour from the cart and rider, for line art. */
   isMonochrome: boolean;
+  Vehicle: ComponentType<VehicleProps>;
 }
 
 const SECONDS_PER_STOP = 1.3;
@@ -30,7 +36,7 @@ const RIDER_POSITION = "translate(-3 -35)";
 const CART_SCALE = 1.25;
 const MONOCHROME_STYLE = { filter: "grayscale(1)" };
 
-function CartArt({ color, rider }: { color: string; rider: Rider }): ReactElement {
+export function StandardCart({ color, rider }: VehicleProps): ReactElement {
   return (
     <g transform={`scale(${CART_SCALE})`}>
       <g transform={RIDER_POSITION}>
@@ -47,20 +53,20 @@ function CartArt({ color, rider }: { color: string; rider: Rider }): ReactElemen
   );
 }
 
-export function RideCart({ path, parkedAt, stopCount, color, rider, isMonochrome }: RideCartProps): ReactElement {
+export function RideCart({ path, parkedAt, stopCount, color, rider, isMonochrome, Vehicle }: RideCartProps): ReactElement {
   const seconds = Math.max(SHORTEST_RIDE_SECONDS, stopCount * SECONDS_PER_STOP);
   return (
     <g aria-hidden="true" style={isMonochrome ? MONOCHROME_STYLE : undefined}>
       <g className="ride-cart-moving" data-testid="ride-cart-moving" {...{ [EXPORT_HIDDEN_ATTRIBUTE]: true }}>
         <animateMotion path={path} dur={`${seconds}s`} rotate="auto" fill="freeze" />
-        <CartArt color={color} rider={rider} />
+        <Vehicle color={color} rider={rider} />
       </g>
       <g
         className="ride-cart-parked"
         data-testid="ride-cart-parked"
         transform={`translate(${parkedAt.x} ${parkedAt.y})`}
       >
-        <CartArt color={color} rider={rider} />
+        <Vehicle color={color} rider={rider} />
       </g>
     </g>
   );

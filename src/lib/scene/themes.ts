@@ -9,6 +9,10 @@ export const RIDE_THEMES = [
   "nightmare",
   "minimal",
   "poster",
+  "space",
+  "ocean",
+  "mountain",
+  "arcade",
   "sunny",
   "sunset",
   "night",
@@ -18,13 +22,24 @@ export const RIDE_THEMES = [
 ] as const;
 export type RideTheme = (typeof RIDE_THEMES)[number];
 
-export const RIDE_THEME_GROUPS = ["Art modes", "Scenes"] as const;
+export const RIDE_THEME_GROUPS = ["Art modes", "Worlds", "Scenes"] as const;
 export type RideThemeGroup = (typeof RIDE_THEME_GROUPS)[number];
 
 export const DEFAULT_RIDE_THEME: RideTheme = "sunny";
 
 /** Which landmarks a scene is built from. */
-export type SceneryKind = "city" | "fairground" | "haunted" | "toy" | "neon" | "line" | "poster";
+export type SceneryKind =
+  | "city"
+  | "fairground"
+  | "haunted"
+  | "toy"
+  | "neon"
+  | "line"
+  | "poster"
+  | "space"
+  | "ocean"
+  | "mountain"
+  | "arcade";
 
 export interface ScenePalette {
   kind: SceneryKind;
@@ -245,11 +260,99 @@ const POSTER: ScenePalette = {
   floor: 0,
 };
 
+const SPACE: ScenePalette = {
+  kind: "space",
+  skyTop: "#050816",
+  skyBottom: "#2a1458",
+  cloud: "#ffffff",
+  skylineFar: "#ffffff",
+  skylineNear: "#ffffff",
+  steel: "#93c5fd",
+  steelDark: "#1e3a8a",
+  rail: "#60a5fa",
+  ground: "#050816",
+  title: "#f8fafc",
+  ink: "#0f172a",
+  muted: "#475569",
+  pill: "#f1f5f9",
+  cart: "#e2e8f0",
+  hasStars: true,
+  orb: null,
+  floor: 0,
+};
+
+const OCEAN: ScenePalette = {
+  kind: "ocean",
+  skyTop: "#7dd3fc",
+  skyBottom: "#e0f7fa",
+  cloud: "#ffffff",
+  skylineFar: "#7dd3fc",
+  skylineNear: "#7dd3fc",
+  steel: "#0ea5e9",
+  steelDark: "#0c3b70",
+  rail: "#ffffff",
+  ground: "#e9cf9a",
+  title: "#0c3b70",
+  ink: "#0c3b70",
+  muted: "#3b6b8f",
+  pill: "#ffffff",
+  cart: "#f59e0b",
+  hasStars: false,
+  orb: null,
+  floor: 0,
+};
+
+const MOUNTAIN: ScenePalette = {
+  kind: "mountain",
+  skyTop: "#a5d8f3",
+  skyBottom: "#fdeedc",
+  cloud: "#ffffff",
+  skylineFar: "#c3cfe2",
+  skylineNear: "#9fb1cc",
+  steel: "#6b7a90",
+  steelDark: "#3a4557",
+  rail: "#3a4557",
+  ground: "#2f6b4f",
+  title: "#25364d",
+  ink: "#25364d",
+  muted: "#55657d",
+  pill: "#ffffff",
+  cart: "#f97316",
+  hasStars: false,
+  orb: null,
+  floor: 0,
+};
+
+const ARCADE: ScenePalette = {
+  kind: "arcade",
+  skyTop: "#1b1036",
+  skyBottom: "#1b1036",
+  cloud: "#3b2a6b",
+  skylineFar: "#2a1b52",
+  skylineNear: "#2a1b52",
+  steel: "#f472b6",
+  steelDark: "#7e22ce",
+  rail: "#facc15",
+  ground: "#1b1036",
+  title: "#facc15",
+  ink: "#1b1036",
+  muted: "#4c3a78",
+  pill: "#fef3c7",
+  cart: "#22d3ee",
+  hasStars: true,
+  orb: null,
+  floor: 0,
+};
+
 export const RIDE_THEME_DETAILS: Readonly<Record<RideTheme, RideThemeDetails>> = {
   classic: { name: "Classic Ride", group: "Art modes", palette: CLASSIC },
   nightmare: { name: "Nightmare Mode", group: "Art modes", palette: NIGHTMARE },
   minimal: { name: "Minimal Mode", group: "Art modes", palette: MINIMAL },
   poster: { name: "Retro Mode", group: "Art modes", palette: POSTER },
+  space: { name: "Space mission", group: "Worlds", palette: SPACE },
+  ocean: { name: "Ocean voyage", group: "Worlds", palette: OCEAN },
+  mountain: { name: "Mountain trek", group: "Worlds", palette: MOUNTAIN },
+  arcade: { name: "Arcade level", group: "Worlds", palette: ARCADE },
   sunny: { name: "Sunny day", group: "Scenes", palette: SUNNY },
   sunset: { name: "Golden sunset", group: "Scenes", palette: SUNSET },
   night: { name: "Starry night", group: "Scenes", palette: NIGHT },

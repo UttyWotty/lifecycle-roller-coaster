@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import { ReadingNotes } from "@/components/RideFlow/ReadingNotes";
 import { updateEvent } from "@/lib/events/editing";
+import type { LifeChapter, LifeReport } from "@/lib/events/insights";
 import type { LifeEvent } from "@/lib/events/schema";
 import { composeRide } from "@/lib/scene/composeRide";
 import type { Rider } from "@/lib/scene/riders";
@@ -17,6 +18,8 @@ import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import type { RideStyle } from "@/lib/track/types";
 import { CategoryLegend } from "./CategoryLegend";
 import { ExportButton } from "./ExportButton";
+import { LifeReportPanel } from "./LifeReportPanel";
+import { LifeStatsPanel } from "./LifeStatsPanel";
 import { RideControls } from "./RideControls";
 import { RideLookBar } from "./RideLookBar";
 import { RideTrack } from "./RideTrack";
@@ -30,6 +33,8 @@ interface RideResultProps {
   title: string;
   rideStyle: RideStyle;
   rideTheme: RideTheme;
+  chapters: readonly LifeChapter[];
+  report: LifeReport | null;
   rider: Rider;
   fitToScreen: boolean;
   onTitleChange: (title: string) => void;
@@ -48,15 +53,15 @@ const SELECT_PROMPT = "Select a stop on the track to adjust how it felt and how 
 const CREATIVE_NOTE = "This ride is a creative picture of your story, not a measurement of your life.";
 
 export function RideResult(props: RideResultProps): ReactElement {
-  const { events, clarifications, isDemo, isSample, title, rideStyle, rideTheme, rider, fitToScreen } = props;
+  const { events, clarifications, isDemo, isSample, title, rideStyle, rideTheme, chapters, report, rider, fitToScreen } = props;
   const { onFitToScreenChange, onTitleChange, onRideStyleChange, onRideThemeChange, onRiderChange, onEventsChange, onEditEvents, onBackToStory, onShowAnotherSample } = props;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const svg = useRef<SVGSVGElement>(null);
   const [rideNumber, setRideNumber] = useState(FIRST_RIDE);
   const { track, scene } = useMemo(
-    () => composeRide(events, { style: rideStyle, theme: rideTheme, title, rider }),
-    [events, rideStyle, rideTheme, title, rider],
+    () => composeRide(events, { style: rideStyle, theme: rideTheme, title, rider, chapters }),
+    [events, rideStyle, rideTheme, title, rider, chapters],
   );
   const hasCart = scene !== null && track.style !== "metro";
   const selected = events.find((event) => event.id === selectedId);
@@ -143,6 +148,8 @@ export function RideResult(props: RideResultProps): ReactElement {
         onRiderChange={onRiderChange}
       />
       <ExportButton svg={svg} width={track.width} height={track.height} />
+      {report && <LifeReportPanel report={report} isSample={isSample} />}
+      <LifeStatsPanel events={events} />
       <p className="text-sm text-muted">{CREATIVE_NOTE}</p>
     </section>
   );

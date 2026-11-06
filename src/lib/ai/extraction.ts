@@ -5,6 +5,7 @@
  */
 import { z } from "zod";
 import { formatEventId } from "@/lib/events/editing";
+import { lifeChapterSchema, lifeReportSchema, type LifeChapter, type LifeReport } from "@/lib/events/insights";
 import { lifeEventListSchema, lifeEventSchema, type LifeEvent } from "@/lib/events/schema";
 import { ExtractionError } from "./errors";
 
@@ -17,16 +18,36 @@ export const LOW_CONFIDENCE_THRESHOLD = 0.6;
 export const extractionDraftSchema = z.object({
   events: z.array(lifeEventSchema.omit({ id: true })),
   clarifications: z.array(z.string()),
+  /** Event numbers count from 1, in the order of the events list. */
+  chapters: z.array(
+    z.object({ title: z.string(), firstEvent: z.number().int(), lastEvent: z.number().int() }),
+  ),
+  report: z.object({ headline: z.string(), highlights: z.array(z.string()) }),
 });
 
 export const extractionResultSchema = z.object({
   events: z.array(lifeEventSchema),
   clarifications: z.array(z.string()),
   isDemo: z.boolean().default(false),
+  chapters: z.array(lifeChapterSchema).default([]),
+  report: lifeReportSchema.nullable().default(null),
 });
 
 export type ExtractionDraft = z.infer<typeof extractionDraftSchema>;
 export type ExtractionResult = z.infer<typeof extractionResultSchema>;
+
+/** Turns event numbers into ids, dropping chapters that are unnamed or point at no events. */
+function finalizeChapters(draft: ExtractionDraft, events: readonly LifeEvent[]): LifeChapter[] {
+  return draft.chapters.flatMap(({ title, firstEvent, lastEvent }) => {
+    const eventIds = events.slice(Math.max(firstEvent - 1, 0), Math.max(lastEvent, 0)).map(({ id }) => id);
+    return title.trim() === "" || eventIds.length === 0 ? [] : [{ title: title.trim(), eventIds }];
+  });
+}
+
+function finalizeReport({ headline, highlights }: ExtractionDraft["report"]): LifeReport | null {
+  const kept = highlights.map((highlight) => highlight.trim()).filter((highlight) => highlight !== "");
+  return headline.trim() === "" ? null : { headline: headline.trim(), highlights: kept };
+}
 
 /** Assigns sequential ids and re-validates the list against the shared event contract. */
 export function finalizeDraft(draft: ExtractionDraft, isDemo: boolean): ExtractionResult {
@@ -38,7 +59,13 @@ export function finalizeDraft(draft: ExtractionDraft, isDemo: boolean): Extracti
   if (!validated.success) {
     throw new ExtractionError("provider_failed");
   }
-  return { events: validated.data.events, clarifications: draft.clarifications, isDemo };
+  return {
+    events: validated.data.events,
+    clarifications: draft.clarifications,
+    isDemo,
+    chapters: finalizeChapters(draft, validated.data.events),
+    report: finalizeReport(draft.report),
+  };
 }
 
 function parseDraftText(text: string): ExtractionDraft {

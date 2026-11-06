@@ -17,7 +17,8 @@ const DRAFT_EVENT: ExtractionDraft["events"][number] = {
   impact: 8,
   confidence: 0.95,
 };
-const DRAFT: ExtractionDraft = { events: [DRAFT_EVENT], clarifications: ["Which year?"] };
+const NO_INSIGHTS = { chapters: [], report: { headline: "", highlights: [] } };
+const DRAFT: ExtractionDraft = { events: [DRAFT_EVENT], clarifications: ["Which year?"], ...NO_INSIGHTS };
 
 function codeOf(run: () => unknown): string {
   try {
@@ -30,7 +31,7 @@ function codeOf(run: () => unknown): string {
 
 describe("finalizeDraft", () => {
   it("assigns unique sequential ids that pass the shared contract", () => {
-    const result = finalizeDraft({ events: [DRAFT_EVENT, DRAFT_EVENT], clarifications: [] }, false);
+    const result = finalizeDraft({ events: [DRAFT_EVENT, DRAFT_EVENT], clarifications: [], ...NO_INSIGHTS }, false);
     expect(result.events.map(({ id }) => id)).toEqual(["event_001", "event_002"]);
     expect(lifeEventListSchema.safeParse({ events: result.events }).success).toBe(true);
   });
@@ -40,11 +41,11 @@ describe("finalizeDraft", () => {
   });
 
   it("accepts a story with no events", () => {
-    expect(finalizeDraft({ events: [], clarifications: [] }, false).events).toEqual([]);
+    expect(finalizeDraft({ events: [], clarifications: [], ...NO_INSIGHTS }, false).events).toEqual([]);
   });
 
   it("rejects a draft that breaks the contract", () => {
-    const invalid = { events: [{ ...DRAFT_EVENT, impact: 99 }], clarifications: [] };
+    const invalid = { events: [{ ...DRAFT_EVENT, impact: 99 }], clarifications: [], ...NO_INSIGHTS };
     expect(codeOf(() => finalizeDraft(invalid, false))).toBe("provider_failed");
   });
 });
@@ -84,5 +85,37 @@ describe("readModelOutput", () => {
       expect(String(error)).not.toContain(secret);
     }
     expect.assertions(1);
+  });
+});
+
+describe("finalizeDraft insights", () => {
+  const events = [DRAFT_EVENT, DRAFT_EVENT, DRAFT_EVENT];
+
+  it("turns chapter event numbers into ids, and drops bad chapters", () => {
+    const result = finalizeDraft(
+      {
+        events,
+        clarifications: [],
+        chapters: [
+          { title: "Early", firstEvent: 1, lastEvent: 2 },
+          { title: "Late", firstEvent: 3, lastEvent: 99 },
+          { title: "Nowhere", firstEvent: 40, lastEvent: 50 },
+          { title: " ", firstEvent: 1, lastEvent: 1 },
+        ],
+        report: { headline: "", highlights: [] },
+      },
+      false,
+    );
+    expect(result.chapters).toEqual([
+      { title: "Early", eventIds: ["event_001", "event_002"] },
+      { title: "Late", eventIds: ["event_003"] },
+    ]);
+  });
+
+  it("keeps a report with a headline, and drops an empty one", () => {
+    const report = { headline: " Great ride. ", highlights: ["One.", " "] };
+    const kept = finalizeDraft({ events, clarifications: [], chapters: [], report }, false);
+    expect(kept.report).toEqual({ headline: "Great ride.", highlights: ["One."] });
+    expect(finalizeDraft({ events, clarifications: [], ...NO_INSIGHTS }, false).report).toBeNull();
   });
 });

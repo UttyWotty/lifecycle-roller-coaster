@@ -4,7 +4,7 @@
  * It uses a fixed seed, so the same ride always gets the same scene and never flickers when redrawn.
  */
 import type { Track, TrackPoint, TrackStop } from "@/lib/track/types";
-import type { ScenePalette } from "./themes";
+import type { ScenePalette, SceneryKind } from "./themes";
 
 export interface Cloud extends TrackPoint {
   scale: number;
@@ -79,6 +79,7 @@ const BAT_TOP = 40;
 const BAT_SKY_SHARE = 0.5;
 const BAT_SCALE_MIN = 0.6;
 const BAT_SCALE_RANGE = 0.8;
+const KINDS_WITHOUT_MARKERS: readonly SceneryKind[] = ["line", "space", "arcade"];
 const MARKER_SIDE_OFFSET = 85;
 const MARKER_LIFT = 150;
 const MARKER_TOP = 70;
@@ -174,7 +175,7 @@ function markerBeside(stop: TrackStop | null, track: Track): TrackPoint | null {
 export function buildScenery(track: Track, palette: ScenePalette): Scenery {
   const random = createRandom();
   const { kind, hasStars, orb } = palette;
-  const hasMarkers = track.style !== "metro" && kind !== "line";
+  const hasMarkers = track.style !== "metro" && !KINDS_WITHOUT_MARKERS.includes(kind);
   return {
     clouds: buildClouds(track, random),
     skylineFar: kind === "fairground" ? [] : buildSkyline(track, FAR_HEIGHT_SHARE_MIN, FAR_HEIGHT_SHARE_RANGE, random),

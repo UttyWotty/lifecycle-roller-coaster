@@ -344,6 +344,17 @@ test.describe("ride styles and titles", () => {
     expect(order.stop).toBeGreaterThan(order.balloon);
   });
 
+  test("each world draws its own journey and vehicle", async ({ page }) => {
+    await openRide(page);
+    for (const [theme, marker] of [["Space mission", "space-planet"], ["Ocean voyage", "ocean-fish"], ["Mountain trek", "mountain-pine"]]) {
+      await page.getByRole("radio", { name: theme, exact: true }).check();
+      await expect(page.getByTestId(marker).first()).toBeAttached();
+      await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+    }
+    await page.getByRole("radio", { name: "Arcade level", exact: true }).check();
+    await expect(page.getByTestId("mode-structure")).toHaveCount(1);
+  });
+
   test("each art mode draws its own backdrop and structure", async ({ page }) => {
     await openRide(page);
     const drawing = page.locator('svg[role="group"]');
@@ -413,7 +424,7 @@ test.describe("ride styles and titles", () => {
   });
 
   for (const style of [/Coaster/, /Loop-the-loops/, /Metro map/]) {
-    for (const theme of ["Classic Ride", "Nightmare Mode", "Minimal Mode", "Retro Mode", "Retro fairground", "Haunted night"]) {
+    for (const theme of ["Classic Ride", "Nightmare Mode", "Minimal Mode", "Retro Mode", "Space mission", "Ocean voyage", "Mountain trek", "Arcade level", "Retro fairground", "Haunted night"]) {
       test(`${theme} exports at full size in the ${style.source} style`, async ({ page }) => {
         await openRide(page);
         await page.getByRole("radio", { name: style }).check();
