@@ -1,10 +1,16 @@
 /**
- * SVG drawing of a generated ride, in any style.
- * It draws whatever lines, supports and stops the generator returned, plus the title when there is one.
+ * SVG drawing of a generated ride, in any style and theme.
+ * It draws whatever the generators returned, with a full scene when the theme has one.
  * The same drawing serves the landing page, the ride stage and image export, so they always match.
  */
 import type { ReactElement, Ref } from "react";
 import { toLabel } from "@/components/EventReview/fieldStyles";
+import { RideCart } from "@/components/Scene/RideCart";
+import { SceneBackdrop } from "@/components/Scene/SceneBackdrop";
+import { SkyMarkers } from "@/components/Scene/SkyMarkers";
+import { Trestle } from "@/components/Scene/Trestle";
+import type { Scene } from "@/lib/scene/composeRide";
+import type { ScenePalette } from "@/lib/scene/themes";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
 import type { Track, TrackLine } from "@/lib/track/types";
 import { LABEL_HALO, StopMarker } from "./StopMarker";
@@ -12,6 +18,8 @@ import { LABEL_HALO, StopMarker } from "./StopMarker";
 interface RideTrackProps {
   track: Track;
   label: string;
+  /** Null draws the simple page-coloured ride. */
+  scene: Scene | null;
   selectedId?: string | null;
   /** Without a handler the track is a plain picture that scales to fit its container. */
   onSelect?: (id: string) => void;
@@ -24,6 +32,7 @@ const RAIL_WIDTH = 7;
 const TIE_WIDTH = 3;
 const TIE_PATTERN = "2 14";
 const METRO_LINE_WIDTH = 6;
+const METRO_CASING_WIDTH = 4;
 const SUPPORT_WIDTH = 2;
 const SUPPORT_OPACITY = 0.3;
 const LINE_NAME_SIZE = 13;
@@ -31,27 +40,43 @@ const LINE_NAME_GAP = 10;
 const LINE_NAME_DROP = 4;
 const DRAW_TEST_ID = "ride-path";
 
-function Rail({ path }: { path: string }): ReactElement {
+function Rail({ path, palette }: { path: string; palette: ScenePalette | null }): ReactElement {
   return (
     <>
       <path
         d={path}
         pathLength={1}
         fill="none"
-        stroke="var(--accent)"
+        stroke={palette?.rail ?? "var(--accent)"}
         strokeWidth={RAIL_WIDTH}
         strokeLinecap="round"
         className="ride-track-draw"
         data-testid={DRAW_TEST_ID}
       />
-      <path d={path} fill="none" stroke="var(--background)" strokeWidth={TIE_WIDTH} strokeDasharray={TIE_PATTERN} />
+      <path d={path} fill="none" stroke={palette?.pill ?? "var(--background)"} strokeWidth={TIE_WIDTH} strokeDasharray={TIE_PATTERN} className="ride-track-ties" />
     </>
   );
 }
 
-function MetroLine({ line, category }: { line: TrackLine; category: NonNullable<TrackLine["category"]> }): ReactElement {
+function MetroLine(props: {
+  line: TrackLine;
+  category: NonNullable<TrackLine["category"]>;
+  palette: ScenePalette | null;
+}): ReactElement {
+  const { line, category, palette } = props;
+  const nameHalo = palette ? { ...LABEL_HALO, stroke: palette.pill } : LABEL_HALO;
   return (
     <>
+      {palette && (
+        <path
+          d={line.path}
+          fill="none"
+          stroke={palette.pill}
+          strokeWidth={METRO_LINE_WIDTH + METRO_CASING_WIDTH}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
       <path
         d={line.path}
         pathLength={1}
@@ -69,8 +94,8 @@ function MetroLine({ line, category }: { line: TrackLine; category: NonNullable<
         textAnchor="end"
         fontSize={LINE_NAME_SIZE}
         fontWeight={600}
-        fill="var(--muted)"
-        {...LABEL_HALO}
+        fill={palette?.ink ?? "var(--muted)"}
+        {...nameHalo}
       >
         {toLabel(category)}
       </text>
@@ -79,7 +104,11 @@ function MetroLine({ line, category }: { line: TrackLine; category: NonNullable<
 }
 
 export function RideTrack(props: RideTrackProps): ReactElement {
-  const { track, label, selectedId = null, onSelect, svgRef } = props;
+  const { track, label, scene, selectedId = null, onSelect, svgRef } = props;
+  const palette = scene?.palette ?? null;
+  const rail = track.lines.find(({ category }) => category === null);
+  const railEnd = track.profile.at(-1);
+  const isStation = track.style === "metro";
   return (
     <svg
       ref={svgRef}
@@ -87,15 +116,18 @@ export function RideTrack(props: RideTrackProps): ReactElement {
       role={onSelect ? "group" : "img"}
       aria-label={label}
       style={onSelect && { minWidth: track.width * MIN_TRACK_SCALE }}
-      className="h-auto w-full"
+      className={palette ? "h-auto w-full rounded-2xl" : "h-auto w-full"}
     >
+      {scene && <SceneBackdrop scene={scene} width={track.width} height={track.height} />}
       {track.title && (
-        <text x={track.title.x} y={track.title.y} fontSize={track.title.fontSize} fontWeight={700} fill="currentColor">
+        <text x={track.title.x} y={track.title.y} fontSize={track.title.fontSize} fontWeight={700} fill={palette ? palette.title : "currentColor"}>
           {track.title.text}
         </text>
       )}
       <g transform={`translate(0 ${track.contentOffset})`}>
-        {track.supports.map(({ x, y }) => (
+        {scene && <SkyMarkers scenery={scene.scenery} palette={scene.palette} />}
+        {palette && <Trestle track={track} palette={palette} />}
+        {!palette && track.supports.map(({ x, y }) => (
           <line
             key={`${x}-${y}`}
             x1={x}
@@ -109,20 +141,25 @@ export function RideTrack(props: RideTrackProps): ReactElement {
         ))}
         {track.lines.map((line) =>
           line.category === null ? (
-            <Rail key="rail" path={line.path} />
+            <Rail key="rail" path={line.path} palette={palette} />
           ) : (
-            <MetroLine key={line.category} line={line} category={line.category} />
+            <MetroLine key={line.category} line={line} category={line.category} palette={palette} />
           ),
         )}
-        {track.stops.map((stop) => (
+        {track.stops.map((stop, index) => (
           <StopMarker
             key={stop.id}
             stop={stop}
-            isStation={track.style === "metro"}
+            isStation={isStation}
+            isTall={index % 2 === 0 || index === track.stops.length - 1}
+            palette={palette}
             isSelected={stop.id === selectedId}
             onSelect={onSelect && (() => onSelect(stop.id))}
           />
         ))}
+        {palette && rail && railEnd && (
+          <RideCart path={rail.path} parkedAt={railEnd} stopCount={track.stops.length} color={palette.cart} />
+        )}
       </g>
     </svg>
   );

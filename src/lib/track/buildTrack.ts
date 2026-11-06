@@ -33,6 +33,7 @@ const LOOP_RADIUS_STEP = 10;
 /** Control point distance that makes two cubic curves trace a true circle. */
 const CIRCLE_CONTROL_RATIO = 4 / 3;
 const NO_LOOP = 0;
+const PROFILE_STEPS = 12;
 const LEAD_OUT = 60;
 const ELLIPSIS = "...";
 
@@ -135,6 +136,27 @@ function smoothPath(points: readonly PathPoint[], tension: number): string {
   return [`M${first.x} ${first.y}`, ...curves].join(" ");
 }
 
+/** Traces the same curves as smoothPath as a list of points, leaving out loops. */
+function sampleProfile(points: readonly TrackPoint[], tension: number): TrackPoint[] {
+  const samples = points.slice(1).flatMap((point, index) => {
+    const previous = points[index];
+    const reach = (point.x - previous.x) * tension;
+    return Array.from({ length: PROFILE_STEPS }, (_, step) => {
+      const t = (step + 1) / PROFILE_STEPS;
+      const u = 1 - t;
+      const startShare = u ** 3 + 3 * u ** 2 * t;
+      const endShare = 3 * u * t ** 2 + t ** 3;
+      const x =
+        u ** 3 * previous.x +
+        3 * u ** 2 * t * (previous.x + reach) +
+        3 * u * t ** 2 * (point.x - reach) +
+        t ** 3 * point.x;
+      return { x, y: startShare * previous.y + endShare * point.y };
+    });
+  });
+  return [points[0], ...samples];
+}
+
 function midpoints(points: readonly TrackPoint[]): TrackPoint[] {
   return points.slice(1).map((point, index) => ({
     x: (points[index].x + point.x) / 2,
@@ -176,6 +198,7 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track 
     lines: [{ category: null, path, start }],
     stops,
     supports: [...stops, ...midpoints(points)],
+    profile: sampleProfile(points, shape.curveTension),
     contentOffset: 0,
     title: null,
   };
