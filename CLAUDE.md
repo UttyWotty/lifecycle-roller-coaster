@@ -50,6 +50,11 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 - Never invent events, and preserve the user's original meaning.
 - Ask for clarification when dates are ambiguous; represent inferred dates and uncertain interpretations as uncertain, not as facts.
 - Do not treat every negative event as a failure.
+- When the story states no feeling, suggest the expected sentiment with confidence below `LOW_CONFIDENCE_THRESHOLD`, so the UI labels it as a best guess.
+
+## Token Use
+
+Real extraction spends the owner's money, so ask before any live API call and keep runs few. Unit tests use fake extractors, and CI has no key. For manual and browser testing, use `EXTRACTOR_MODE=fixture`, which returns labelled demo events for free. Server logs record the token count of each real extraction.
 
 ## Privacy Requirements
 

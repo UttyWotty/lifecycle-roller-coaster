@@ -12,6 +12,9 @@ const EVENT_ID_DIGITS = 3;
 const STOP_REASON_REFUSAL = "refusal";
 const STOP_REASON_MAX_TOKENS = "max_tokens";
 
+/** Below this confidence an event is a suggestion, and the UI labels it as a best guess. */
+export const LOW_CONFIDENCE_THRESHOLD = 0.6;
+
 export const extractionDraftSchema = z.object({
   events: z.array(lifeEventSchema.omit({ id: true })),
   clarifications: z.array(z.string()),

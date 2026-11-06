@@ -18,7 +18,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Add your Anthropic API key to `.env`, then open http://localhost:3000. The app runs without a key, but Generate shows a setup message. `.env` is git-ignored, so never commit it or prefix its values with `NEXT_PUBLIC_`.
+Then open http://localhost:3000. `.env.example` sets `EXTRACTOR_MODE=fixture`, so Generate returns labelled demo events and spends no tokens. To read real stories, add your Anthropic API key to `.env` and set `EXTRACTOR_MODE=anthropic`. `.env` is git-ignored, so never commit it or prefix its values with `NEXT_PUBLIC_`.
 
 ## Commands
 
