@@ -126,7 +126,7 @@ Browser tests need a browser, so run `npx playwright install chromium` once firs
 
 ## Roadmap
 
-Version 0.1.0 covers the full path from story to image. Ideas for later releases include visual themes, life statistics, shareable links and a local-model option. See the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md) for the thinking behind them, and the [changelog](CHANGELOG.md) for what has shipped.
+The app covers the full path from story to image. Ideas for later releases include visual themes, life statistics, shareable links and a local-model option. See the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md) for the thinking behind them, and the [changelog](CHANGELOG.md) for what has shipped.
 
 ## Contributing
 
