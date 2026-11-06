@@ -17,10 +17,13 @@ All notable changes to this project are documented in this file. The format foll
 - Notice that explains what is sent to Anthropic before the user presses Generate.
 - Lint rules that enforce the boundaries between AI, rendering and shared event code.
 - `.env.example` with the required settings.
+- `EXTRACTOR_MODE=fixture` returns labelled demo events, so development spends no tokens.
+- Server logs record the token count of each extraction.
 
 ### Changed
 
 - Event dates that do not exist on the calendar, such as `2015-02-31`, are now rejected.
+- AI now suggests a likely sentiment when the story does not state one, labelled as a best guess.
 
 ### Security
 

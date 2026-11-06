@@ -53,6 +53,11 @@ async function requestDraft(
     },
     { signal },
   );
+  console.info(
+    "Extraction used %d input and %d output tokens",
+    message.usage.input_tokens,
+    message.usage.output_tokens,
+  );
   const textBlocks = message.content.filter((block) => block.type === "text");
   return readModelOutput(message.stop_reason, textBlocks.at(-1)?.text ?? null);
 }

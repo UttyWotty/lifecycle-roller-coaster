@@ -4,14 +4,13 @@
  * Editing these events arrives with the review screen in roadmap phase 3.
  */
 import type { ReactElement } from "react";
-import type { ExtractionResult } from "@/lib/ai/extraction";
+import { LOW_CONFIDENCE_THRESHOLD, type ExtractionResult } from "@/lib/ai/extraction";
 import type { LifeEvent } from "@/lib/events/schema";
 
 interface ExtractedEventsProps {
   result: ExtractionResult;
 }
 
-const LOW_CONFIDENCE_THRESHOLD = 0.6;
 const UNKNOWN_DATE_LABEL = "Date unknown";
 
 function EventCard({ event }: { event: LifeEvent }): ReactElement {
