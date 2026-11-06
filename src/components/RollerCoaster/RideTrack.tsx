@@ -23,6 +23,8 @@ interface RideTrackProps {
   selectedId?: string | null;
   /** Without a handler the track is a plain picture that scales to fit its container. */
   onSelect?: (id: string) => void;
+  /** Shrinks an interactive ride to fit its container, instead of scrolling sideways. */
+  fitToScreen?: boolean;
   svgRef?: Ref<SVGSVGElement>;
 }
 
@@ -104,7 +106,7 @@ function MetroLine(props: {
 }
 
 export function RideTrack(props: RideTrackProps): ReactElement {
-  const { track, label, scene, selectedId = null, onSelect, svgRef } = props;
+  const { track, label, scene, selectedId = null, onSelect, fitToScreen = false, svgRef } = props;
   const palette = scene?.palette ?? null;
   const rail = track.lines.find(({ category }) => category === null);
   const railEnd = track.profile.at(-1);
@@ -115,7 +117,7 @@ export function RideTrack(props: RideTrackProps): ReactElement {
       viewBox={`0 0 ${track.width} ${track.height}`}
       role={onSelect ? "group" : "img"}
       aria-label={label}
-      style={onSelect && { minWidth: track.width * MIN_TRACK_SCALE }}
+      style={onSelect && !fitToScreen ? { minWidth: track.width * MIN_TRACK_SCALE } : undefined}
       className={palette ? "h-auto w-full rounded-2xl" : "h-auto w-full"}
     >
       {scene && <SceneBackdrop scene={scene} width={track.width} height={track.height} />}
@@ -125,7 +127,6 @@ export function RideTrack(props: RideTrackProps): ReactElement {
         </text>
       )}
       <g transform={`translate(0 ${track.contentOffset})`}>
-        {scene && <SkyMarkers scenery={scene.scenery} palette={scene.palette} />}
         {palette && <Trestle track={track} palette={palette} />}
         {!palette && track.supports.map(({ x, y }) => (
           <line
@@ -146,6 +147,7 @@ export function RideTrack(props: RideTrackProps): ReactElement {
             <MetroLine key={line.category} line={line} category={line.category} palette={palette} />
           ),
         )}
+        {scene && <SkyMarkers scenery={scene.scenery} palette={scene.palette} />}
         {track.stops.map((stop, index) => (
           <StopMarker
             key={stop.id}

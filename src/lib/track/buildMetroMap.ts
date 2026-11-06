@@ -7,10 +7,11 @@ import type { EventCategory, LifeEvent } from "@/lib/events/schema";
 import { createStop, eventLevels } from "./buildTrack";
 import type { Track, TrackLine, TrackPoint, TrackStop } from "./types";
 
-const STOP_SPACING = 170;
-/** Wider than the coaster, so each line's name fits to the left of its start. */
-const SIDE_PADDING = 200;
-const LEAD = 60;
+/** Wider than the coaster, so lines have room to reach each other without steep angles. */
+const STOP_SPACING = 220;
+/** Wide enough for each line's name, and for lines to fan in towards a big first stop. */
+const SIDE_PADDING = 280;
+const LEAD = 140;
 const TOP_MARGIN = 100;
 const BOTTOM_MARGIN = 100;
 const LANE_GAP = 90;

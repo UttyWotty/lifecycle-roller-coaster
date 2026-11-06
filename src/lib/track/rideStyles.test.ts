@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from "vitest";
 import type { EventCategory, LifeEvent } from "@/lib/events/schema";
-import { MAJOR_IMPACT, buildLoopTrack, loopRadius } from "./buildTrack";
+import { MAJOR_IMPACT, buildLoopTrack, buildTrack, loopRadius } from "./buildTrack";
 import { buildMetroMap } from "./buildMetroMap";
 import { RIDE_STYLE_DETAILS } from "./rideStyles";
 import { RIDE_STYLES } from "./types";
@@ -129,6 +129,12 @@ describe("buildMetroMap", () => {
     const laneY = otherLine?.start.y;
     const onLane = pointsOf(otherLine?.path ?? "").filter(({ y }) => y === laneY);
     expect(onLane.some(({ x }) => x > stops[0].x && x < stops[2].x)).toBe(true);
+  });
+
+  it("leaves more room between stops than the coaster", () => {
+    const events = makeEvents([{}, {}]);
+    const gap = ({ stops }: { stops: { x: number }[] }) => stops[1].x - stops[0].x;
+    expect(gap(buildMetroMap(events))).toBeGreaterThan(gap(buildTrack(events)));
   });
 
   it("moves a stop when its sentiment or impact changes", () => {
