@@ -20,10 +20,12 @@ export function RideFlow(): ReactElement {
   const [story, setStory] = useState("");
   const [events, setEvents] = useState<LifeEvent[]>([]);
   const [clarifications, setClarifications] = useState<readonly string[]>([]);
+  const [isDemo, setIsDemo] = useState(false);
 
   function startReview(result: ExtractionResult): void {
     setEvents(result.events);
     setClarifications(result.clarifications);
+    setIsDemo(result.isDemo);
     setStage("review");
   }
 
@@ -42,6 +44,7 @@ export function RideFlow(): ReactElement {
       <EventReview
         events={events}
         clarifications={clarifications}
+        isDemo={isDemo}
         onEventsChange={setEvents}
         onBack={() => setStage("story")}
         onContinue={() => setStage("ride")}
@@ -59,6 +62,7 @@ export function RideFlow(): ReactElement {
       onAddManually={() => {
         setEvents(addBlankEvent([]));
         setClarifications([]);
+        setIsDemo(false);
         setStage("review");
       }}
     />

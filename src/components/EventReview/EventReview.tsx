@@ -23,6 +23,7 @@ import { SECONDARY_BUTTON_CLASS } from "./fieldStyles";
 interface EventReviewProps {
   events: readonly LifeEvent[];
   clarifications: readonly string[];
+  isDemo: boolean;
   onEventsChange: (events: LifeEvent[]) => void;
   onBack: () => void;
   onContinue: () => void;
@@ -35,9 +36,12 @@ interface RemovedEvent {
 
 const NO_EVENTS_MESSAGE = "No events yet. Add what happened and roughly when.";
 const UNTITLED = "Untitled event";
+const DEMO_TITLE = "Demo mode: these are sample events, not your story";
+const DEMO_DETAILS =
+  "The AI did not read what you wrote. To have it read your story, add an API key to .env, set EXTRACTOR_MODE=anthropic and restart the app.";
 
 export function EventReview(props: EventReviewProps): ReactElement {
-  const { events, clarifications, onEventsChange, onBack, onContinue } = props;
+  const { events, clarifications, isDemo, onEventsChange, onBack, onContinue } = props;
   const [removed, setRemoved] = useState<RemovedEvent | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const invalidFields = findInvalidFields(events);
@@ -66,6 +70,12 @@ export function EventReview(props: EventReviewProps): ReactElement {
           Back to my story
         </button>
       </header>
+      {isDemo && (
+        <div role="alert" className="flex flex-col gap-1 rounded-lg border-2 border-accent p-4">
+          <h2 className="font-semibold">{DEMO_TITLE}</h2>
+          <p className="text-sm">{DEMO_DETAILS}</p>
+        </div>
+      )}
       {clarifications.length > 0 && (
         <div className="flex flex-col gap-2">
           <h2 className="font-semibold">A few questions</h2>

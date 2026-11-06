@@ -73,7 +73,7 @@ export async function handleExtractRequest(
   }
   try {
     const draft = await extractor.extract(story, signal);
-    return { status: STATUS_OK, body: finalizeDraft(draft) };
+    return { status: STATUS_OK, body: finalizeDraft(draft, extractor.isDemo) };
   } catch (error) {
     return errorResponse(error instanceof ExtractionError ? error.code : "provider_failed");
   }

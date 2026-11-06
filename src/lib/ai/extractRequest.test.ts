@@ -29,6 +29,7 @@ const DRAFT: ExtractionDraft = {
 
 function fakeExtractor(result: ExtractionDraft | Error): EventExtractor & { extract: ReturnType<typeof vi.fn> } {
   return {
+    isDemo: false,
     extract: vi.fn(async () => {
       if (result instanceof Error) {
         throw result;
@@ -46,7 +47,17 @@ describe("handleExtractRequest", () => {
   it("returns events with server-assigned ids", async () => {
     const response = await run(fakeExtractor(DRAFT), JSON.stringify({ story: SECRET_STORY }));
     expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({ events: [{ id: "event_001" }], clarifications: [] });
+    expect(response.body).toMatchObject({
+      events: [{ id: "event_001" }],
+      clarifications: [],
+      isDemo: false,
+    });
+  });
+
+  it("marks results from a demo extractor", async () => {
+    const extractor = { ...fakeExtractor(DRAFT), isDemo: true };
+    const response = await run(extractor, JSON.stringify({ story: "x" }));
+    expect(response.body).toMatchObject({ isDemo: true });
   });
 
   it("trims the story before sending it to the provider", async () => {
