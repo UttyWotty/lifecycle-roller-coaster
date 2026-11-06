@@ -231,7 +231,7 @@ test.describe("ride styles and titles", () => {
   });
 
   for (const theme of ["Sunny day", "Golden sunset", "Starry night", "Simple"]) {
-    test(`a ${theme} ride exports with no animation left in the image`, async ({ page }) => {
+    test(`a ${theme} ride downloads as a PNG`, async ({ page }) => {
       await openRide(page);
       await page.getByRole("radio", { name: theme }).check();
       const downloading = page.waitForEvent("download");
