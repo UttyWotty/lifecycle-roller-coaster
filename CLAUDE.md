@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-All essential roadmap phases (1 to 5) are done: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export.
+Version 0.1.0 is released, and all essential roadmap phases (1 to 5) are done: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export.
 
 `docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
 
@@ -74,4 +74,4 @@ User stories can contain sensitive personal details.
 
 ## Before Public Deployment
 
-`/api/extract` spends real tokens on every call and has no rate limiting yet. Add rate limiting and set a spend limit on the API key before deploying publicly.
+The app is deliberately not publicly hosted for now. `/api/extract` spends real tokens on every call and has no rate limiting, so add rate limiting and set a spend limit on the API key before any public deployment.
