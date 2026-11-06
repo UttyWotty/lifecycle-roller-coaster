@@ -52,7 +52,7 @@ export function composeRide(events: readonly LifeEvent[], choices: RideChoices):
     track,
     scene: {
       palette,
-      scenery: buildScenery(track, palette.hasStars),
+      scenery: buildScenery(track, palette),
       rider: choices.rider ?? DEFAULT_RIDER,
     },
   };

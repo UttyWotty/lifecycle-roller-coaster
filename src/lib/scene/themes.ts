@@ -4,12 +4,16 @@
  * This module holds data only, and the Simple theme has no scene at all.
  */
 
-export const RIDE_THEMES = ["sunny", "sunset", "night", "plain"] as const;
+export const RIDE_THEMES = ["sunny", "sunset", "night", "retro", "nightmare", "plain"] as const;
 export type RideTheme = (typeof RIDE_THEMES)[number];
 
 export const DEFAULT_RIDE_THEME: RideTheme = "sunny";
 
+/** Which landmarks a scene is built from. */
+export type SceneryKind = "city" | "fairground" | "haunted";
+
 export interface ScenePalette {
+  kind: SceneryKind;
   skyTop: string;
   skyBottom: string;
   cloud: string;
@@ -25,6 +29,8 @@ export interface ScenePalette {
   pill: string;
   cart: string;
   hasStars: boolean;
+  /** A sun or moon, or null when the sky has neither. */
+  orb: string | null;
 }
 
 interface RideThemeDetails {
@@ -36,6 +42,7 @@ interface RideThemeDetails {
 }
 
 const SUNNY: ScenePalette = {
+  kind: "city",
   skyTop: "#8fd3f4",
   skyBottom: "#d6f1ff",
   cloud: "#ffffff",
@@ -51,9 +58,11 @@ const SUNNY: ScenePalette = {
   pill: "#ffffff",
   cart: "#2563eb",
   hasStars: false,
+  orb: null,
 };
 
 const SUNSET: ScenePalette = {
+  kind: "city",
   skyTop: "#ffb59a",
   skyBottom: "#ffedc7",
   cloud: "#fff5e6",
@@ -69,9 +78,11 @@ const SUNSET: ScenePalette = {
   pill: "#fff6e9",
   cart: "#f59e0b",
   hasStars: false,
+  orb: null,
 };
 
 const NIGHT: ScenePalette = {
+  kind: "city",
   skyTop: "#0b1437",
   skyBottom: "#2b3a78",
   cloud: "#46558f",
@@ -87,11 +98,54 @@ const NIGHT: ScenePalette = {
   pill: "#eef2ff",
   cart: "#f472b6",
   hasStars: true,
+  orb: null,
+};
+
+const RETRO: ScenePalette = {
+  kind: "fairground",
+  skyTop: "#f4e3b5",
+  skyBottom: "#fdf6e3",
+  cloud: "#fffbf0",
+  skylineFar: "#e9d8a6",
+  skylineNear: "#e9c46a",
+  steel: "#2a9d8f",
+  steelDark: "#1f6f67",
+  rail: "#9c3d24",
+  ground: "#8ab17d",
+  title: "#264653",
+  ink: "#264653",
+  muted: "#55686f",
+  pill: "#fff8e7",
+  cart: "#e76f51",
+  hasStars: false,
+  orb: "#f4a261",
+};
+
+const NIGHTMARE: ScenePalette = {
+  kind: "haunted",
+  skyTop: "#33101f",
+  skyBottom: "#7a1a2c",
+  cloud: "#4a2238",
+  skylineFar: "#3a1324",
+  skylineNear: "#1a0912",
+  steel: "#8b1e2d",
+  steelDark: "#4a0f18",
+  rail: "#e8dfd0",
+  ground: "#0c0508",
+  title: "#f3e9dc",
+  ink: "#1a0a12",
+  muted: "#5a3a42",
+  pill: "#f3e9dc",
+  cart: "#6b21a8",
+  hasStars: false,
+  orb: "#f5e6b3",
 };
 
 export const RIDE_THEME_DETAILS: Readonly<Record<RideTheme, RideThemeDetails>> = {
   sunny: { name: "Sunny day", swatch: [SUNNY.skyTop, SUNNY.steel], palette: SUNNY },
   sunset: { name: "Golden sunset", swatch: [SUNSET.skyBottom, SUNSET.skyTop], palette: SUNSET },
   night: { name: "Starry night", swatch: [NIGHT.skyTop, NIGHT.steel], palette: NIGHT },
+  retro: { name: "Retro fairground", swatch: [RETRO.skyTop, RETRO.steel], palette: RETRO },
+  nightmare: { name: "Nightmare mode", swatch: [NIGHTMARE.skyTop, NIGHTMARE.skyBottom], palette: NIGHTMARE },
   plain: { name: "Simple", swatch: ["#ffffff", "#e11d48"], palette: null },
 };

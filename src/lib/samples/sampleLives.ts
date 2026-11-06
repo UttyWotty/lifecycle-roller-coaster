@@ -105,7 +105,7 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2022", "Sang at the big hall", "career", "positive", 10, "She sang to a full hall with her parents in the front row."],
     [null, "Opened a music school", "business", "positive", 6, "She opened a free music school in her old neighbourhood."],
   ]),
-  buildLife("jonah", "Jonah's Second Act", "coaster", "sunny", "smiley", [
+  buildLife("jonah", "Jonah's Second Act", "coaster", "retro", "smiley", [
     ["1998", "Started teaching", "career", "positive", 7, "Jonah started teaching maths at his old school."],
     ["2000", "Married Claire", "relationships", "positive", 9, "He married Claire in the rain."],
     ["2003", "Bought the old house", "finance", "positive", 6, "They bought an old house that needed everything fixed."],
@@ -137,7 +137,7 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2023", "Paid off the loan", "finance", "positive", 7, "She paid off the last of the loan."],
     [null, "Wrote a cookbook", "personal", "positive", 6, "She wrote her grandmother's recipes into a cookbook."],
   ]),
-  buildLife("sam", "Sam Goes the Distance", "coaster", "night", "dino", [
+  buildLife("sam", "Sam Goes the Distance", "coaster", "nightmare", "dino", [
     ["2006", "Joined a running club", "health", "positive", 6, "Sam joined a running club at twelve."],
     ["2010", "Won the county race", "personal", "positive", 7, "Sam won the county race, in borrowed shoes."],
     ["2012", "Sports scholarship", "education", "positive", 9, "A sports scholarship paid for university."],
@@ -169,7 +169,7 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2020", "Bridge built in Lagos", "career", "positive", 10, "Her firm built a footbridge in the neighbourhood she grew up in."],
     [null, "Mentors new arrivals", "personal", "positive", 5, "She mentors teenagers who have just arrived in the country."],
   ]),
-  buildLife("walter", "Walter's Eighty Years", "coaster", "sunset", "smiley", [
+  buildLife("walter", "Walter's Eighty Years", "coaster", "retro", "smiley", [
     ["1951", "Grew up on the farm", "personal", "positive", 6, "Walter grew up on a sheep farm."],
     ["1961", "Left school early", "education", "negative", 5, "He left school at fifteen when the harvest failed."],
     ["1964", "Joined the navy", "career", "positive", 7, "He joined the merchant navy and saw the world."],

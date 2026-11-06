@@ -322,6 +322,38 @@ test.describe("ride styles and titles", () => {
     expect(order.stop).toBeGreaterThan(order.balloon);
   });
 
+  test("Retro fairground and Nightmare mode draw their own scenery", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Retro fairground" }).check();
+    await expect(page.getByTestId("scene-wheel").first()).toBeVisible();
+    await expect(page.getByTestId("scene-tent").first()).toBeVisible();
+    await expect(page.getByTestId("scene-bat")).toHaveCount(0);
+    await page.getByRole("radio", { name: "Nightmare mode" }).check();
+    await expect(page.getByTestId("scene-bat").first()).toBeVisible();
+    await expect(page.getByTestId("scene-tower").first()).toBeVisible();
+    await expect(page.getByTestId("scene-wheel")).toHaveCount(0);
+    await page.getByRole("radio", { name: "Sunny day" }).check();
+    await expect(page.getByTestId("scene-orb")).toHaveCount(0);
+  });
+
+  for (const style of [/Coaster/, /Loop-the-loops/, /Metro map/]) {
+    for (const theme of ["Retro fairground", "Nightmare mode"]) {
+      test(`${theme} exports at full size in the ${style.source} style`, async ({ page }) => {
+        await openRide(page);
+        await page.getByRole("radio", { name: style }).check();
+        await page.getByRole("radio", { name: theme }).check();
+        expect(await hasPageOverflow(page)).toBe(false);
+        const downloading = page.waitForEvent("download");
+        await button(page, "Download image").click();
+        const file = await readFile(await (await downloading).path());
+        const viewBox = await page.locator('svg[role="group"]').getAttribute("viewBox");
+        const [, , width, height] = (viewBox ?? "").split(" ").map(Number);
+        expect(file.readUInt32BE(PNG_WIDTH_OFFSET)).toBe(width * EXPORT_SCALE);
+        expect(file.readUInt32BE(PNG_HEIGHT_OFFSET)).toBe(height * EXPORT_SCALE);
+      });
+    }
+  }
+
   for (const theme of ["Sunny day", "Golden sunset", "Starry night", "Simple"]) {
     test(`a ${theme} ride downloads as a PNG`, async ({ page }) => {
       await openRide(page);
