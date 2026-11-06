@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- Preview cards for every theme, and a strip of themes on the landing page.
+
+### Changed
+
+- Style and theme now sit in a compact bar right above the drawing, pinned while scrolling, so every choice changes what is on screen.
+
 ## [0.5.0] - 2026-11-06
 
 ### Added

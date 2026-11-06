@@ -8,7 +8,7 @@ import type { LifeEvent } from "@/lib/events/schema";
 import { RIDE_STYLES } from "@/lib/track/types";
 import { SKY_HEADROOM, composeRide } from "./composeRide";
 import { DEFAULT_RIDER } from "./riders";
-import { RIDE_THEMES, RIDE_THEME_DETAILS } from "./themes";
+import { RIDE_THEMES, RIDE_THEME_DETAILS, RIDE_THEME_GROUPS } from "./themes";
 
 function makeEvents(overrides: Partial<LifeEvent>[]): LifeEvent[] {
   return overrides.map((over, index) => ({
@@ -67,7 +67,7 @@ describe("composeRide", () => {
   it("gives every sceneless and scenic theme a name and preview", () => {
     for (const theme of RIDE_THEMES) {
       expect(RIDE_THEME_DETAILS[theme].name).not.toBe("");
-      expect(RIDE_THEME_DETAILS[theme].swatch).toHaveLength(2);
+      expect(RIDE_THEME_GROUPS).toContain(RIDE_THEME_DETAILS[theme].group);
     }
   });
 });

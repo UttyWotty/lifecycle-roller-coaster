@@ -276,6 +276,28 @@ test.describe("ride styles and titles", () => {
     });
   }
 
+  test("the look bar sits right above the drawing, so a choice and its result stay in view", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await openRide(page);
+    const bar = await page.getByTestId("ride-look-bar").boundingBox();
+    const drawing = await page.locator('svg[role="group"]').boundingBox();
+    const title = await page.getByLabel("Name your ride").boundingBox();
+    expect(drawing?.y).toBeGreaterThan((bar?.y ?? 0) + (bar?.height ?? 0) - 1);
+    expect(drawing?.y).toBeLessThan(800 / 2 + 100);
+    expect(title?.y).toBeGreaterThan(drawing?.y ?? 0);
+    await page.mouse.wheel(0, 500);
+    await expect.poll(async () => (await page.getByTestId("ride-look-bar").boundingBox())?.y).toBe(0);
+  });
+
+  test("every theme has a preview card, and choosing one works from the keyboard", async ({ page }) => {
+    await openRide(page);
+    const themes = page.locator("input[name=ride-theme]");
+    await expect(page.getByTestId("theme-preview")).toHaveCount(await themes.count());
+    await themes.first().focus();
+    await page.keyboard.press("ArrowDown");
+    await expect(themes.nth(1)).toBeChecked();
+  });
+
   test("fit to screen is optional, and shows the whole ride without scrolling", async ({ page }) => {
     await page.goto("/sample");
     const region = page.getByRole("region", { name: /Roller coaster/ });
