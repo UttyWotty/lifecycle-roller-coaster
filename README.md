@@ -20,7 +20,7 @@ This is a playful, creative picture of a story. It is not a psychological assess
 - **No AI required:** skip it and add your events by hand.
 - **An adjustable ride:** select a stop and change how it felt or how much it mattered, and the track redraws at once.
 - **Ride styles:** draw your life as the classic coaster, with loop-the-loops at every big moment, or as a metro map with a line for each part of your life.
-- **Illustrated themes:** a full scene with sky, skyline, steel lattice and flags, in Sunny day, Golden sunset or Starry night. A cart rides the track, and a balloon and parachute mark your best and hardest moments.
+- **Illustrated themes:** a full scene with sky, skyline, steel lattice and flags, in Sunny day, Golden sunset, Starry night, Retro fairground or Nightmare mode. A cart rides the track, and a balloon and parachute mark your best and hardest moments.
 - **Sample lives:** try a random made-up life in one click, with nothing to write and no API key.
 - **Your title:** name your ride, and the title appears on the drawing and in the image.
 - **Choose your character:** pick who rides your cart, from six original characters.

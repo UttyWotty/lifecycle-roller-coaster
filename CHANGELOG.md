@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- Retro fairground and Nightmare mode themes, each with its own scenery: tents and Ferris wheels, or haunted towers, a moon and bats.
 - Choose your character: Smiley, Cat, Robot, Astronaut, Dino or Ghost rides your cart.
 - Fit to screen, an optional toggle that shows a whole long ride without scrolling.
 

@@ -111,6 +111,38 @@ describe("scenery", () => {
     expect(scene?.scenery.parachute?.x).toBeLessThan(track.stops[3].x);
   });
 
+  it("gives each kind of theme only its own landmarks", () => {
+    const scenery = (theme: "sunny" | "retro" | "nightmare") =>
+      composeRide(MIXED, { style: "coaster", theme, title: "" }).scene?.scenery;
+    expect(scenery("sunny")).toMatchObject({ orb: null, wheels: [], bats: [] });
+    expect(scenery("retro")?.wheels.length).toBeGreaterThan(0);
+    expect(scenery("retro")?.orb).not.toBeNull();
+    expect(scenery("retro")?.skylineFar).toEqual([]);
+    expect(scenery("retro")?.bats).toEqual([]);
+    expect(scenery("nightmare")?.bats.length).toBeGreaterThan(0);
+    expect(scenery("nightmare")?.orb).not.toBeNull();
+    expect(scenery("nightmare")?.wheels).toEqual([]);
+  });
+
+  it.each(RIDE_STYLES)("keeps new landmarks inside the canvas in %s", (style) => {
+    const long = makeEvents(Array.from({ length: 30 }, () => ({})));
+    for (const events of [[], MIXED, long]) {
+      const retro = composeRide(events, { style, theme: "retro", title: "" });
+      for (const { x, y, radius } of retro.scene?.scenery.wheels ?? []) {
+        expect(x + radius).toBeLessThanOrEqual(retro.track.width);
+        expect(y + radius).toBeLessThanOrEqual(retro.track.height);
+        expect(y - radius).toBeGreaterThanOrEqual(0);
+      }
+      const haunted = composeRide(events, { style, theme: "nightmare", title: "" });
+      const orb = haunted.scene?.scenery.orb;
+      expect(orb?.x).toBeLessThanOrEqual(haunted.track.width);
+      expect((orb?.y ?? 0) + (orb?.radius ?? 0)).toBeLessThanOrEqual(haunted.track.height);
+      for (const { y } of haunted.scene?.scenery.bats ?? []) {
+        expect(y).toBeLessThanOrEqual(haunted.track.height);
+      }
+    }
+  });
+
   it("leaves out a parachute when nothing went wrong", () => {
     const { scene } = composeRide(makeEvents([{}, {}]), { style: "coaster", theme: "sunny", title: "" });
     expect(scene?.scenery.parachute).toBeNull();
