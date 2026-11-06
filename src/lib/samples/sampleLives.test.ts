@@ -6,6 +6,7 @@
 import { describe, expect, it } from "vitest";
 import { EVENT_CATEGORIES, lifeEventListSchema } from "@/lib/events/schema";
 import { MAJOR_IMPACT, MAX_LABEL_LENGTH } from "@/lib/track/buildTrack";
+import { RIDERS, RIDER_NAMES } from "@/lib/scene/riders";
 import { MAX_TITLE_LENGTH } from "@/lib/track/rideTitle";
 import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import { RIDE_STYLES } from "@/lib/track/types";
@@ -41,6 +42,14 @@ describe("SAMPLE_LIVES", () => {
     const usedCategories = EVENT_CATEGORIES.filter((category) => category !== "other");
     expect(usedCategories.every((category) => categories.has(category))).toBe(true);
     expect(new Set(SAMPLE_LIVES.map(({ rideStyle }) => rideStyle))).toEqual(new Set(RIDE_STYLES));
+  });
+
+  it("gives each sample a named rider, and more than one rider overall", () => {
+    for (const { rider } of SAMPLE_LIVES) {
+      expect(RIDERS).toContain(rider);
+    }
+    expect(new Set(SAMPLE_LIVES.map(({ rider }) => rider)).size).toBeGreaterThan(1);
+    expect(RIDERS.every((rider) => RIDER_NAMES[rider] !== "")).toBe(true);
   });
 
   it("includes both hard moments and undated events", () => {

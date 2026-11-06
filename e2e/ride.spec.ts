@@ -230,6 +230,130 @@ test.describe("ride styles and titles", () => {
     await expect(page.locator('svg g[role="button"]')).toHaveCount(4);
   });
 
+  test("the character starts as Smiley, and choosing one changes both carts", async ({ page }) => {
+    await openRide(page);
+    await expect(page.getByRole("radio", { name: "Smiley" })).toBeChecked();
+    await page.getByRole("radio", { name: "Robot" }).check();
+    const moving = page.getByTestId("ride-cart-moving").locator("[data-rider]");
+    const parked = page.getByTestId("ride-cart-parked").locator("[data-rider]");
+    await expect(moving).toHaveAttribute("data-rider", "robot");
+    await expect(parked).toHaveAttribute("data-rider", "robot");
+  });
+
+  test("the character picker shows only when there is a cart", async ({ page }) => {
+    await openRide(page);
+    const picker = page.getByRole("group", { name: "Choose your character" });
+    await expect(picker).toBeVisible();
+    await page.getByRole("radio", { name: /Loop-the-loops/ }).check();
+    await expect(picker).toBeVisible();
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    await expect(picker).toHaveCount(0);
+    await page.getByRole("radio", { name: /Coaster/ }).check();
+    await page.getByRole("radio", { name: "Simple" }).check();
+    await expect(picker).toHaveCount(0);
+  });
+
+  test("the character survives switching style and leaving the ride", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Astronaut" }).check();
+    await page.getByRole("radio", { name: /Metro map/ }).check();
+    await page.getByRole("radio", { name: /Coaster/ }).check();
+    await expect(page.getByRole("radio", { name: "Astronaut" })).toBeChecked();
+    await button(page, "Edit my events").click();
+    await button(page, "See my ride").click();
+    await expect(page.getByRole("radio", { name: "Astronaut" })).toBeChecked();
+  });
+
+  for (const rider of ["Smiley", "Cat", "Robot", "Astronaut", "Dino", "Ghost"]) {
+    test(`a ride with ${rider} downloads as a PNG`, async ({ page }) => {
+      await openRide(page);
+      await page.getByRole("radio", { name: rider }).check();
+      expect(await hasPageOverflow(page)).toBe(false);
+      const downloading = page.waitForEvent("download");
+      await button(page, "Download image").click();
+      const file = await readFile(await (await downloading).path());
+      expect(file.subarray(1, 4).toString()).toBe(PNG_SIGNATURE);
+    });
+  }
+
+  test("fit to screen is optional, and shows the whole ride without scrolling", async ({ page }) => {
+    await page.goto("/sample");
+    const region = page.getByRole("region", { name: /Roller coaster/ });
+    const fit = button(page, "Fit to screen");
+    const scrolls = () => region.evaluate((element) => element.scrollWidth > element.clientWidth);
+    await expect(fit).toHaveAttribute("aria-pressed", "false");
+    expect(await scrolls()).toBe(true);
+    await fit.click();
+    await expect(fit).toHaveAttribute("aria-pressed", "true");
+    await expect.poll(scrolls).toBe(false);
+    expect(await hasPageOverflow(page)).toBe(false);
+    await fit.click();
+    await expect.poll(scrolls).toBe(true);
+  });
+
+  test("fit to screen is kept after editing, and does not change the image size", async ({ page }) => {
+    await openRide(page);
+    const viewBox = await page.locator('svg[role="group"]').getAttribute("viewBox");
+    await button(page, "Fit to screen").click();
+    await expect(page.locator('svg[role="group"]')).toHaveAttribute("viewBox", viewBox ?? "");
+    await button(page, "Edit my events").click();
+    await button(page, "See my ride").click();
+    await expect(button(page, "Fit to screen")).toHaveAttribute("aria-pressed", "true");
+    const [, , width, height] = (viewBox ?? "").split(" ").map(Number);
+    const downloading = page.waitForEvent("download");
+    await button(page, "Download image").click();
+    const file = await readFile(await (await downloading).path());
+    expect(file.readUInt32BE(PNG_WIDTH_OFFSET)).toBe(width * EXPORT_SCALE);
+    expect(file.readUInt32BE(PNG_HEIGHT_OFFSET)).toBe(height * EXPORT_SCALE);
+  });
+
+  test("the balloon sits in front of the steel and behind the stops", async ({ page }) => {
+    await openRide(page);
+    const order = await page.locator('svg[role="group"]').evaluate((svg) => {
+      const position = (selector: string) =>
+        Array.from(svg.querySelectorAll("*")).findIndex((element) => element.matches(selector));
+      return {
+        steel: position('[data-testid="trestle"]'),
+        balloon: position('[data-testid="sky-balloon"]'),
+        stop: position('g[role="button"]'),
+      };
+    });
+    expect(order.balloon).toBeGreaterThan(order.steel);
+    expect(order.stop).toBeGreaterThan(order.balloon);
+  });
+
+  test("Retro fairground and Nightmare mode draw their own scenery", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Retro fairground" }).check();
+    await expect(page.getByTestId("scene-wheel").first()).toBeVisible();
+    await expect(page.getByTestId("scene-tent").first()).toBeVisible();
+    await expect(page.getByTestId("scene-bat")).toHaveCount(0);
+    await page.getByRole("radio", { name: "Nightmare mode" }).check();
+    await expect(page.getByTestId("scene-bat").first()).toBeVisible();
+    await expect(page.getByTestId("scene-tower").first()).toBeVisible();
+    await expect(page.getByTestId("scene-wheel")).toHaveCount(0);
+    await page.getByRole("radio", { name: "Sunny day" }).check();
+    await expect(page.getByTestId("scene-orb")).toHaveCount(0);
+  });
+
+  for (const style of [/Coaster/, /Loop-the-loops/, /Metro map/]) {
+    for (const theme of ["Retro fairground", "Nightmare mode"]) {
+      test(`${theme} exports at full size in the ${style.source} style`, async ({ page }) => {
+        await openRide(page);
+        await page.getByRole("radio", { name: style }).check();
+        await page.getByRole("radio", { name: theme }).check();
+        expect(await hasPageOverflow(page)).toBe(false);
+        const downloading = page.waitForEvent("download");
+        await button(page, "Download image").click();
+        const file = await readFile(await (await downloading).path());
+        const viewBox = await page.locator('svg[role="group"]').getAttribute("viewBox");
+        const [, , width, height] = (viewBox ?? "").split(" ").map(Number);
+        expect(file.readUInt32BE(PNG_WIDTH_OFFSET)).toBe(width * EXPORT_SCALE);
+        expect(file.readUInt32BE(PNG_HEIGHT_OFFSET)).toBe(height * EXPORT_SCALE);
+      });
+    }
+  }
+
   for (const theme of ["Sunny day", "Golden sunset", "Starry night", "Simple"]) {
     test(`a ${theme} ride downloads as a PNG`, async ({ page }) => {
       await openRide(page);
@@ -250,7 +374,7 @@ test.describe("ride styles and titles", () => {
       const downloading = page.waitForEvent("download");
       await button(page, "Download image").click();
       const file = await readFile(await (await downloading).path());
-      const viewBox = await page.locator("svg[viewBox]").first().getAttribute("viewBox");
+      const viewBox = await page.locator('svg[role="group"]').getAttribute("viewBox");
       const [, , width, height] = (viewBox ?? "").split(" ").map(Number);
       expect(file.readUInt32BE(PNG_WIDTH_OFFSET)).toBe(width * EXPORT_SCALE);
       expect(file.readUInt32BE(PNG_HEIGHT_OFFSET)).toBe(height * EXPORT_SCALE);

@@ -11,6 +11,7 @@ import { ReadingNotes } from "@/components/RideFlow/ReadingNotes";
 import { updateEvent } from "@/lib/events/editing";
 import type { LifeEvent } from "@/lib/events/schema";
 import { composeRide } from "@/lib/scene/composeRide";
+import type { Rider } from "@/lib/scene/riders";
 import type { RideTheme } from "@/lib/scene/themes";
 import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import type { RideStyle } from "@/lib/track/types";
@@ -28,9 +29,13 @@ interface RideResultProps {
   title: string;
   rideStyle: RideStyle;
   rideTheme: RideTheme;
+  rider: Rider;
+  fitToScreen: boolean;
   onTitleChange: (title: string) => void;
   onRideStyleChange: (style: RideStyle) => void;
   onRideThemeChange: (theme: RideTheme) => void;
+  onRiderChange: (rider: Rider) => void;
+  onFitToScreenChange: (fitToScreen: boolean) => void;
   onEventsChange: (events: LifeEvent[]) => void;
   onEditEvents: () => void;
   onBackToStory: () => void;
@@ -42,15 +47,15 @@ const SELECT_PROMPT = "Select a stop on the track to adjust how it felt and how 
 const CREATIVE_NOTE = "This ride is a creative picture of your story, not a measurement of your life.";
 
 export function RideResult(props: RideResultProps): ReactElement {
-  const { events, clarifications, isDemo, isSample, title, rideStyle, rideTheme } = props;
-  const { onTitleChange, onRideStyleChange, onRideThemeChange, onEventsChange, onEditEvents, onBackToStory, onShowAnotherSample } = props;
+  const { events, clarifications, isDemo, isSample, title, rideStyle, rideTheme, rider, fitToScreen } = props;
+  const { onFitToScreenChange, onTitleChange, onRideStyleChange, onRideThemeChange, onRiderChange, onEventsChange, onEditEvents, onBackToStory, onShowAnotherSample } = props;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const svg = useRef<SVGSVGElement>(null);
   const [rideNumber, setRideNumber] = useState(FIRST_RIDE);
   const { track, scene } = useMemo(
-    () => composeRide(events, { style: rideStyle, theme: rideTheme, title }),
-    [events, rideStyle, rideTheme, title],
+    () => composeRide(events, { style: rideStyle, theme: rideTheme, title, rider }),
+    [events, rideStyle, rideTheme, title, rider],
   );
   const hasCart = scene !== null && track.style !== "metro";
   const selected = events.find((event) => event.id === selectedId);
@@ -82,9 +87,12 @@ export function RideResult(props: RideResultProps): ReactElement {
         title={title}
         style={rideStyle}
         theme={rideTheme}
+        rider={rider}
+        hasCart={hasCart}
         onTitleChange={onTitleChange}
         onStyleChange={onRideStyleChange}
         onThemeChange={onRideThemeChange}
+        onRiderChange={onRiderChange}
       />
       <div
         tabIndex={0}
@@ -97,20 +105,31 @@ export function RideResult(props: RideResultProps): ReactElement {
           track={track}
           scene={scene}
           label={RIDE_STYLE_DETAILS[rideStyle].drawingLabel}
+          fitToScreen={fitToScreen}
           selectedId={selectedId}
           onSelect={setSelectedId}
           svgRef={svg}
         />
       </div>
-      {hasCart && (
+      <div className="flex flex-wrap gap-2">
+        {hasCart && (
+          <button
+            type="button"
+            onClick={() => setRideNumber((number) => number + 1)}
+            className={`${SECONDARY_BUTTON_CLASS} motion-reduce:hidden`}
+          >
+            Ride again
+          </button>
+        )}
         <button
           type="button"
-          onClick={() => setRideNumber((number) => number + 1)}
-          className={`${SECONDARY_BUTTON_CLASS} self-start motion-reduce:hidden`}
+          aria-pressed={fitToScreen}
+          onClick={() => onFitToScreenChange(!fitToScreen)}
+          className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
-          Ride again
+          Fit to screen
         </button>
-      )}
+      </div>
       <CategoryLegend events={events} />
       {selected ? (
         <StopDetails

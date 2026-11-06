@@ -8,11 +8,13 @@ import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import { addTitle } from "@/lib/track/rideTitle";
 import type { RideStyle, Track } from "@/lib/track/types";
 import { buildScenery, type Scenery } from "./buildScenery";
+import { DEFAULT_RIDER, type Rider } from "./riders";
 import { RIDE_THEME_DETAILS, type RideTheme, type ScenePalette } from "./themes";
 
 export interface Scene {
   palette: ScenePalette;
   scenery: Scenery;
+  rider: Rider;
 }
 
 export interface ComposedRide {
@@ -24,6 +26,8 @@ interface RideChoices {
   style: RideStyle;
   theme: RideTheme;
   title: string;
+  /** Defaults to DEFAULT_RIDER, which is all the landing page example needs. */
+  rider?: Rider;
 }
 
 /** Sky kept clear above the track, so the tallest flag and its label always fit. */
@@ -44,5 +48,12 @@ export function composeRide(events: readonly LifeEvent[], choices: RideChoices):
     return { track: addTitle(base, choices.title), scene: null };
   }
   const track = addTitle(addHeadroom(base, SKY_HEADROOM), choices.title);
-  return { track, scene: { palette, scenery: buildScenery(track, palette.hasStars) } };
+  return {
+    track,
+    scene: {
+      palette,
+      scenery: buildScenery(track, palette),
+      rider: choices.rider ?? DEFAULT_RIDER,
+    },
+  };
 }
