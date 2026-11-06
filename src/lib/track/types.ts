@@ -39,6 +39,12 @@ export interface TrackTitle {
   y: number;
 }
 
+export interface ChapterBand {
+  title: string;
+  start: number;
+  end: number;
+}
+
 export interface Track {
   style: RideStyle;
   width: number;
@@ -52,4 +58,6 @@ export interface Track {
   /** How far the ride sits below the top of the canvas, to leave room for a title. */
   contentOffset: number;
   title: TrackTitle | null;
+  /** Named spans along the bottom of the ride, empty when there are no chapters. */
+  chapterBands: ChapterBand[];
 }

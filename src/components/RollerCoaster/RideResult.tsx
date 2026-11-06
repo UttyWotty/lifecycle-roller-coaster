@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import { ReadingNotes } from "@/components/RideFlow/ReadingNotes";
 import { updateEvent } from "@/lib/events/editing";
+import type { LifeChapter, LifeReport } from "@/lib/events/insights";
 import type { LifeEvent } from "@/lib/events/schema";
 import { composeRide } from "@/lib/scene/composeRide";
 import type { Rider } from "@/lib/scene/riders";
@@ -17,7 +18,10 @@ import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import type { RideStyle } from "@/lib/track/types";
 import { CategoryLegend } from "./CategoryLegend";
 import { ExportButton } from "./ExportButton";
+import { LifeReportPanel } from "./LifeReportPanel";
+import { LifeStatsPanel } from "./LifeStatsPanel";
 import { RideControls } from "./RideControls";
+import { RideLookBar } from "./RideLookBar";
 import { RideTrack } from "./RideTrack";
 import { StopDetails } from "./StopDetails";
 
@@ -29,6 +33,8 @@ interface RideResultProps {
   title: string;
   rideStyle: RideStyle;
   rideTheme: RideTheme;
+  chapters: readonly LifeChapter[];
+  report: LifeReport | null;
   rider: Rider;
   fitToScreen: boolean;
   onTitleChange: (title: string) => void;
@@ -47,15 +53,15 @@ const SELECT_PROMPT = "Select a stop on the track to adjust how it felt and how 
 const CREATIVE_NOTE = "This ride is a creative picture of your story, not a measurement of your life.";
 
 export function RideResult(props: RideResultProps): ReactElement {
-  const { events, clarifications, isDemo, isSample, title, rideStyle, rideTheme, rider, fitToScreen } = props;
+  const { events, clarifications, isDemo, isSample, title, rideStyle, rideTheme, chapters, report, rider, fitToScreen } = props;
   const { onFitToScreenChange, onTitleChange, onRideStyleChange, onRideThemeChange, onRiderChange, onEventsChange, onEditEvents, onBackToStory, onShowAnotherSample } = props;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const svg = useRef<SVGSVGElement>(null);
   const [rideNumber, setRideNumber] = useState(FIRST_RIDE);
   const { track, scene } = useMemo(
-    () => composeRide(events, { style: rideStyle, theme: rideTheme, title, rider }),
-    [events, rideStyle, rideTheme, title, rider],
+    () => composeRide(events, { style: rideStyle, theme: rideTheme, title, rider, chapters }),
+    [events, rideStyle, rideTheme, title, rider, chapters],
   );
   const hasCart = scene !== null && track.style !== "metro";
   const selected = events.find((event) => event.id === selectedId);
@@ -63,7 +69,7 @@ export function RideResult(props: RideResultProps): ReactElement {
   useEffect(() => heading.current?.focus(), []);
 
   return (
-    <section className="flex flex-col gap-6">
+    <section className="flex flex-col gap-4">
       <header className="flex flex-col gap-3">
         <h1 ref={heading} tabIndex={-1} className="text-3xl font-bold outline-none">
           Your ride
@@ -83,22 +89,17 @@ export function RideResult(props: RideResultProps): ReactElement {
         </div>
       </header>
       <ReadingNotes isDemo={isDemo} isSample={isSample} clarifications={clarifications} />
-      <RideControls
-        title={title}
+      <RideLookBar
         style={rideStyle}
         theme={rideTheme}
-        rider={rider}
-        hasCart={hasCart}
-        onTitleChange={onTitleChange}
         onStyleChange={onRideStyleChange}
         onThemeChange={onRideThemeChange}
-        onRiderChange={onRiderChange}
       />
       <div
         tabIndex={0}
         role="region"
         aria-label="Roller coaster, scrolls sideways on small screens"
-        className="overflow-x-auto"
+        className="overflow-x-auto lg:scroll-mt-56"
       >
         <RideTrack
           key={`${rideStyle}-${rideNumber}`}
@@ -139,7 +140,16 @@ export function RideResult(props: RideResultProps): ReactElement {
       ) : (
         <p className="text-sm">{SELECT_PROMPT}</p>
       )}
+      <RideControls
+        title={title}
+        rider={rider}
+        hasCart={hasCart}
+        onTitleChange={onTitleChange}
+        onRiderChange={onRiderChange}
+      />
       <ExportButton svg={svg} width={track.width} height={track.height} />
+      {report && <LifeReportPanel report={report} isSample={isSample} />}
+      <LifeStatsPanel events={events} />
       <p className="text-sm text-muted">{CREATIVE_NOTE}</p>
     </section>
   );

@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-06
+
+### Added
+
+- Four new worlds that tell your story as a different journey: Space mission, Ocean voyage, Mountain trek and Arcade level, each with its own vehicle.
+- Life Statistics, worked out from your events with no AI, including your biggest comeback and longest steady stretch.
+- Life Chapters and a playful Life Report, written by Claude in the same reading of your story.
+- Share my ride, which uses your device's share sheet or copies the image.
+- Preview cards for every theme, and a strip of themes on the landing page.
+
+### Changed
+
+- Style and theme now sit in a compact bar right above the drawing, pinned while scrolling, so every choice changes what is on screen.
+
 ## [0.5.0] - 2026-11-06
 
 ### Added

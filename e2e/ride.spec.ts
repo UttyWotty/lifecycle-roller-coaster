@@ -276,6 +276,28 @@ test.describe("ride styles and titles", () => {
     });
   }
 
+  test("the look bar sits right above the drawing, so a choice and its result stay in view", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await openRide(page);
+    const bar = await page.getByTestId("ride-look-bar").boundingBox();
+    const drawing = await page.locator('svg[role="group"]').boundingBox();
+    const title = await page.getByLabel("Name your ride").boundingBox();
+    expect(drawing?.y).toBeGreaterThan((bar?.y ?? 0) + (bar?.height ?? 0) - 1);
+    expect(drawing?.y).toBeLessThan(800 / 2 + 100);
+    expect(title?.y).toBeGreaterThan(drawing?.y ?? 0);
+    await page.mouse.wheel(0, 500);
+    await expect.poll(async () => (await page.getByTestId("ride-look-bar").boundingBox())?.y).toBe(0);
+  });
+
+  test("every theme has a preview card, and choosing one works from the keyboard", async ({ page }) => {
+    await openRide(page);
+    const themes = page.locator("input[name=ride-theme]");
+    await expect(page.getByTestId("theme-preview")).toHaveCount(await themes.count());
+    await themes.first().focus();
+    await page.keyboard.press("ArrowDown");
+    await expect(themes.nth(1)).toBeChecked();
+  });
+
   test("fit to screen is optional, and shows the whole ride without scrolling", async ({ page }) => {
     await page.goto("/sample");
     const region = page.getByRole("region", { name: /Roller coaster/ });
@@ -320,6 +342,17 @@ test.describe("ride styles and titles", () => {
     });
     expect(order.balloon).toBeGreaterThan(order.steel);
     expect(order.stop).toBeGreaterThan(order.balloon);
+  });
+
+  test("each world draws its own journey and vehicle", async ({ page }) => {
+    await openRide(page);
+    for (const [theme, marker] of [["Space mission", "space-planet"], ["Ocean voyage", "ocean-fish"], ["Mountain trek", "mountain-pine"]]) {
+      await page.getByRole("radio", { name: theme, exact: true }).check();
+      await expect(page.getByTestId(marker).first()).toBeAttached();
+      await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+    }
+    await page.getByRole("radio", { name: "Arcade level", exact: true }).check();
+    await expect(page.getByTestId("mode-structure")).toHaveCount(1);
   });
 
   test("each art mode draws its own backdrop and structure", async ({ page }) => {
@@ -391,7 +424,7 @@ test.describe("ride styles and titles", () => {
   });
 
   for (const style of [/Coaster/, /Loop-the-loops/, /Metro map/]) {
-    for (const theme of ["Classic Ride", "Nightmare Mode", "Minimal Mode", "Retro Mode", "Retro fairground", "Haunted night"]) {
+    for (const theme of ["Classic Ride", "Nightmare Mode", "Minimal Mode", "Retro Mode", "Space mission", "Ocean voyage", "Mountain trek", "Arcade level", "Retro fairground", "Haunted night"]) {
       test(`${theme} exports at full size in the ${style.source} style`, async ({ page }) => {
         await openRide(page);
         await page.getByRole("radio", { name: style }).check();

@@ -24,7 +24,7 @@ const DRAFT: ExtractionDraft = {
       confidence: 0.95,
     },
   ],
-  clarifications: [],
+  clarifications: [], chapters: [], report: { headline: "", highlights: [] },
 };
 
 function fakeExtractor(result: ExtractionDraft | Error): EventExtractor & { extract: ReturnType<typeof vi.fn> } {
@@ -123,7 +123,7 @@ describe("handleExtractRequest", () => {
   });
 
   it("fails safely when the model returns an invalid draft", async () => {
-    const invalid = { events: [{ ...DRAFT.events[0], impact: 99 }], clarifications: [] };
+    const invalid = { events: [{ ...DRAFT.events[0], impact: 99 }], clarifications: [], chapters: [], report: { headline: "", highlights: [] } };
     const response = await run(fakeExtractor(invalid), JSON.stringify({ story: "x" }));
     expect(response.status).toBe(502);
   });

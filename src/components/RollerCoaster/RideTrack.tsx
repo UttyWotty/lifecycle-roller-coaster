@@ -5,12 +5,13 @@
  */
 import type { ReactElement, Ref } from "react";
 import { toLabel } from "@/components/EventReview/fieldStyles";
+import { ChapterBands } from "@/components/Scene/ChapterBands";
 import { RideCart } from "@/components/Scene/RideCart";
 import { SkyMarkers } from "@/components/Scene/SkyMarkers";
 import { DRAW_TEST_ID, Rail } from "@/components/Scene/Rail";
 import { sceneModeFor } from "@/components/Scene/sceneModes";
 import type { Scene } from "@/lib/scene/composeRide";
-import type { ScenePalette } from "@/lib/scene/themes";
+import type { ScenePalette, SceneryKind } from "@/lib/scene/themes";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
 import type { Track, TrackLine } from "@/lib/track/types";
 import { LABEL_HALO, StopMarker } from "./StopMarker";
@@ -40,7 +41,10 @@ const SUPPORT_OPACITY = 0.3;
 const LINE_NAME_SIZE = 13;
 const LINE_NAME_GAP = 10;
 const LINE_NAME_DROP = 4;
-const SERIF_FONT = "Georgia, 'Times New Roman', serif";
+const TITLE_FONTS: Readonly<Partial<Record<SceneryKind, { fontFamily: string; fontStyle?: string }>>> = {
+  poster: { fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" },
+  arcade: { fontFamily: "'Courier New', Courier, monospace" },
+};
 
 function MetroLine(props: {
   line: TrackLine;
@@ -109,7 +113,7 @@ export function RideTrack(props: RideTrackProps): ReactElement {
   const mode = palette ? sceneModeFor(palette.kind) : null;
   const RailArt = mode?.Rail ?? Rail;
   const isStation = track.style === "metro";
-  const titleFont = palette?.kind === "poster" ? { fontFamily: SERIF_FONT, fontStyle: "italic" } : undefined;
+  const titleFont = palette ? TITLE_FONTS[palette.kind] : undefined;
   return (
     <svg
       ref={svgRef}
@@ -166,8 +170,10 @@ export function RideTrack(props: RideTrackProps): ReactElement {
             color={scene.palette.cart}
             rider={scene.rider}
             isMonochrome={scene.palette.kind === "line"}
+            Vehicle={sceneModeFor(scene.palette.kind).Vehicle}
           />
         )}
+        {track.chapterBands.length > 0 && <ChapterBands track={track} palette={palette} />}
       </g>
     </svg>
   );

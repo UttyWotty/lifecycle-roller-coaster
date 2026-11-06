@@ -118,6 +118,15 @@ test("returning to the story keeps the events", async ({ page }) => {
   await expect(page.locator('svg g[role="button"]').first()).toContainText("Changed title");
 });
 
+test("the landing page shows every theme, leading to a sample", async ({ page }) => {
+  await page.goto("/");
+  const gallery = page.getByRole("region", { name: "Themes" });
+  await expect(gallery.getByRole("link")).toHaveCount(14);
+  expect(await hasPageOverflow(page)).toBe(false);
+  await gallery.getByRole("link", { name: "Nightmare Mode" }).click();
+  await expect(page.getByRole("heading", { name: "Your ride" })).toBeVisible();
+});
+
 test.describe("sample lives", () => {
   const rideHeading = (page: Page) => page.getByRole("heading", { name: "Your ride" });
   const notice = (page: Page) => page.getByText("This is a sample life");
