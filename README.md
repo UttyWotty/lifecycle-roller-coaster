@@ -7,7 +7,7 @@
 
 Write your life story in your own words, and the AI turns it straight into a roller coaster. The highs climb, the lows drop, and the quiet years run flat. Adjust anything that does not feel right, then download your ride as an image.
 
-![An example roller coaster with stops for starting university, losing a job, getting married and running a first marathon](docs/images/example-ride.png)
+![An illustrated roller coaster in a sunny city, with loops, a cart, a balloon and a parachute, passing stops for starting university, losing a job, getting married and building a company](docs/images/example-ride.png)
 
 This is a playful, creative picture of a story. It is not a psychological assessment or a measurement of anyone's life.
 
