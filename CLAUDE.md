@@ -4,9 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-This repository is pre-code: it contains only the product blueprint, `docs/lifecycle-roller-coaster-blueprint.md`, and is not yet a git repository. There is no application, build, lint, or test tooling. When the scaffold is added, record the real commands here, including how to run a single test, and do not assume any until then.
+The repository is an early scaffold: a single Next.js app with a placeholder landing page and the shared event schema. The story editor, AI extraction, track rendering, and export are not built yet.
 
-The blueprint is the source of truth for product intent. Read the relevant section before implementing a feature.
+`docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
+
+## Commands
+
+```bash
+npm run dev                  # development server on http://localhost:3000
+npm run build                # production build
+npm run lint                 # ESLint
+npm run typecheck            # generate route types, then tsc
+npm test                     # all tests once
+npx vitest run src/lib/events/schema.test.ts   # one test file
+npx vitest run -t "rejects duplicate ids"      # one test by name
+```
+
+This Next.js version differs from older releases. Read the guide in `node_modules/next/dist/docs/` before using framework APIs. `AGENTS.md` is written by `next dev`, so keep it committed.
 
 ## What Is Being Built
 
@@ -18,15 +32,17 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 
 - **AI and rendering stay independent.** This is the key technical boundary (blueprint section 13). The LLM layer outputs structured event data; the visualization consumes only that data. Changing the AI provider must not touch the rendering engine, and manually entered events must render without any AI involved.
 - **The LLM sits behind a provider-agnostic adapter**, so a local model can be added later.
-- **Planned stack:** Next.js + TypeScript, Tailwind CSS, SVG (optionally D3.js) track generation, SVG-to-PNG export, and browser local storage. The backend is either FastAPI or a Next.js API. The blueprint allows a single Next.js app for a small first release, and this choice is still open.
+- **Stack:** Next.js + TypeScript and Tailwind CSS, with zod validating data at the boundaries. Server logic lives in Next.js route handlers rather than a separate backend. Planned additions are SVG (optionally D3.js) track generation, SVG-to-PNG export, and browser local storage.
+- **Module layout:** `src/app` holds routes and `src/components` holds UI. `src/lib/events` is the shared contract and stays pure. AI code goes in `src/lib/ai` and track generation in `src/lib/track`; each may import `src/lib/events` but never the other.
 
 ## Event Data Model
 
-The schema in blueprint section 4 is the contract between AI and rendering. Each event has `id`, `date`, `title`, `description`, `category`, `sentiment`, `impact`, and `confidence`.
+`src/lib/events/schema.ts` implements the blueprint section 4 schema and is the contract between AI and rendering. TypeScript types are inferred from the zod schemas, so change the schema rather than the types.
 
+- `date` is `YYYY`, `YYYY-MM`, or `YYYY-MM-DD`; `null` means unknown and gets approximate placement.
+- `impact` is an integer from 1 to 10, and `confidence` is from 0 to 1.
 - `sentiment` and `impact` are separate values: a neutral event can still be highly significant.
 - Users have the final say and can override AI sentiment and impact. Changing intensity must update the graph immediately.
-- Categories: education, career, relationships, finance, business, personal, health, other.
 
 ## AI Extraction Rules
 
