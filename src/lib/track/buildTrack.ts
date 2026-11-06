@@ -215,6 +215,7 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track 
     profile: sampleProfile(points, shape),
     contentOffset: 0,
     title: null,
+    chapterBands: [],
   };
 }
 

@@ -3,7 +3,9 @@
  * It builds the chosen style, makes room for flags and a title, and adds the chosen theme's scenery.
  * The result is the same for the page, the landing example and the exported image.
  */
+import type { LifeChapter } from "@/lib/events/insights";
 import type { LifeEvent } from "@/lib/events/schema";
+import { addChapters } from "@/lib/track/rideChapters";
 import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import { addTitle } from "@/lib/track/rideTitle";
 import type { RideStyle, Track } from "@/lib/track/types";
@@ -28,6 +30,8 @@ interface RideChoices {
   title: string;
   /** Defaults to DEFAULT_RIDER, which is all the landing page example needs. */
   rider?: Rider;
+  /** Defaults to none, which is all the landing page example needs. */
+  chapters?: readonly LifeChapter[];
 }
 
 /** Sky kept clear above the track, so the tallest flag and its label always fit. */
@@ -47,7 +51,7 @@ function addHeadroom(track: Track, headroom: number): Track {
 
 export function composeRide(events: readonly LifeEvent[], choices: RideChoices): ComposedRide {
   const { palette } = RIDE_THEME_DETAILS[choices.theme];
-  const base = RIDE_STYLE_DETAILS[choices.style].build(events);
+  const base = addChapters(RIDE_STYLE_DETAILS[choices.style].build(events), choices.chapters ?? []);
   if (palette === null) {
     return { track: addTitle(base, choices.title), scene: null };
   }

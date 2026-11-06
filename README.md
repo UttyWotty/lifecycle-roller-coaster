@@ -21,6 +21,10 @@ This is a playful, creative picture of a story. It is not a psychological assess
 - **An adjustable ride:** select a stop and change how it felt or how much it mattered, and the track redraws at once.
 - **Ride styles:** draw your life as the classic coaster, with loop-the-loops at every big moment, or as a metro map with a line for each part of your life.
 - **Art modes:** four completely different looks for your ride. Classic Ride is a soft pastel toy, Nightmare Mode a glowing neon city, Minimal Mode black line art, and Retro Mode a vintage poster.
+- **Worlds:** tell your story as a Space mission, Ocean voyage, Mountain trek or Arcade level, each with its own vehicle.
+- **Life Chapters and Life Report:** Claude names the eras of your life and writes a short, playful report in the same reading of your story.
+- **Life Statistics:** your biggest comeback, biggest drop and longest steady stretch, worked out from your events with no AI.
+- **Share your ride:** share the image through your device, or copy it. Nothing is shared unless you choose to.
 - **Illustrated themes:** a full scene with sky, skyline, steel lattice and flags, in Sunny day, Golden sunset, Starry night, Retro fairground or Haunted night. A cart rides the track, and a balloon and parachute mark your best and hardest moments.
 - **Sample lives:** try a random made-up life in one click, with nothing to write and no API key.
 - **Your title:** name your ride, and the title appears on the drawing and in the image.

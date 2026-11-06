@@ -5,6 +5,7 @@
  */
 import type { ReactElement, Ref } from "react";
 import { toLabel } from "@/components/EventReview/fieldStyles";
+import { ChapterBands } from "@/components/Scene/ChapterBands";
 import { RideCart } from "@/components/Scene/RideCart";
 import { SkyMarkers } from "@/components/Scene/SkyMarkers";
 import { DRAW_TEST_ID, Rail } from "@/components/Scene/Rail";
@@ -172,6 +173,7 @@ export function RideTrack(props: RideTrackProps): ReactElement {
             Vehicle={sceneModeFor(scene.palette.kind).Vehicle}
           />
         )}
+        {track.chapterBands.length > 0 && <ChapterBands track={track} palette={palette} />}
       </g>
     </svg>
   );

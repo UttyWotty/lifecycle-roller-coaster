@@ -46,6 +46,14 @@ const FIXTURE_DRAFT: ExtractionDraft = {
     },
   ],
   clarifications: [],
+  chapters: [
+    { title: "Finding My Feet", firstEvent: 1, lastEvent: 2 },
+    { title: "Starting Again", firstEvent: 3, lastEvent: 4 },
+  ],
+  report: {
+    headline: "Your biggest comeback came right after your hardest moment.",
+    highlights: ["You went from losing a job to getting married in two years.", "A marathon suits someone who keeps going."],
+  },
 };
 
 export function createFixtureExtractor(): EventExtractor {

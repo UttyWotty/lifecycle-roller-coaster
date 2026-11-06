@@ -12,6 +12,11 @@ describe("EXTRACTION_SYSTEM_PROMPT", () => {
     expect(EXTRACTION_SYSTEM_PROMPT).not.toContain("${");
   });
 
+  it("asks for chapters and a report, with no advice or scoring", () => {
+    expect(EXTRACTION_SYSTEM_PROMPT).toContain("Chapters:");
+    expect(EXTRACTION_SYSTEM_PROMPT).toContain("Never diagnose, give advice, score the person");
+  });
+
   it("states the best-guess threshold used by the UI", () => {
     expect(EXTRACTION_SYSTEM_PROMPT).toContain(`confidence below ${LOW_CONFIDENCE_THRESHOLD}`);
   });

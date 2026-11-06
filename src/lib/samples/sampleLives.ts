@@ -4,6 +4,7 @@
  * This module holds data and one builder, and never involves an AI provider.
  */
 import { formatEventId } from "@/lib/events/editing";
+import type { LifeChapter, LifeReport } from "@/lib/events/insights";
 import type { EventCategory, EventSentiment, LifeEvent } from "@/lib/events/schema";
 import type { Rider } from "@/lib/scene/riders";
 import type { RideTheme } from "@/lib/scene/themes";
@@ -16,6 +17,16 @@ export interface SampleLife {
   rideTheme: RideTheme;
   rider: Rider;
   events: readonly LifeEvent[];
+  chapters: readonly LifeChapter[];
+  report: LifeReport;
+}
+
+/** A chapter name with its first and last event numbers, counting from 1. */
+type SampleChapter = readonly [title: string, first: number, last: number];
+
+interface SampleInsights {
+  chapters: readonly SampleChapter[];
+  report: LifeReport;
 }
 
 type SampleRow = readonly [
@@ -37,6 +48,7 @@ function buildLife(
   rideTheme: RideTheme,
   rider: Rider,
   rows: readonly SampleRow[],
+  insights: SampleInsights,
 ): SampleLife {
   const events = rows.map(([date, eventTitle, category, sentiment, impact, description], index) => ({
     id: formatEventId(index + 1),
@@ -48,7 +60,11 @@ function buildLife(
     impact,
     confidence: FULL_CONFIDENCE,
   }));
-  return { id, title, rideStyle, rideTheme, rider, events };
+  const chapters = insights.chapters.map(([name, first, last]) => ({
+    title: name,
+    eventIds: events.slice(first - 1, last).map((event) => event.id),
+  }));
+  return { id, title, rideStyle, rideTheme, rider, events, chapters, report: insights.report };
 }
 
 /** The story a sample would have been written from, for the story box. */
@@ -72,7 +88,10 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     [null, "Learned to say no", "personal", "neutral", 5, "Somewhere along the way she learned to say no."],
     ["2024", "Sold the company", "finance", "positive", 10, "She sold the company and paid back everyone who believed in her."],
     ["2025", "Started mentoring", "career", "positive", 6, "She began mentoring young founders every week."],
-  ]),
+  ], {
+    chapters: [["Learning to Code",1,3],["The Big Leap",4,7],["Building It",8,11],["Passing It On",12,14]],
+    report: { headline: "Your biggest comeback came right after the money ran out.", highlights: ["You went from an empty bank account to a first big customer.", "Karaoke was terrible, but it found you Daniel.", "You paid back everyone who believed in you."] },
+  }),
   buildLife("tomas", "Tomas Takes the Night Shift", "metro", "space", "ghost", [
     ["2005", "Moved to Lisbon", "personal", "positive", 6, "Tomas moved to Lisbon with one suitcase."],
     ["2007", "Started nursing school", "education", "positive", 7, "He started nursing school after years of odd jobs."],
@@ -88,7 +107,10 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2022", "Bought a small flat", "finance", "positive", 7, "He and Ines finally bought a small flat with a view of the river."],
     ["2023", "Head of nursing", "career", "positive", 9, "He became head of nursing at the hospital where he started."],
     [null, "Still bakes on Sundays", "personal", "neutral", 3, "He still bakes his father's bread on Sundays."],
-  ]),
+  ], {
+    chapters: [["Finding a Calling",1,4],["Night Shifts and New Life",5,8],["The Hardest Years",9,10],["Steady Hands",11,14]],
+    report: { headline: "You went from one suitcase to head of nursing.", highlights: ["Bad vending machine coffee led to the love of your life.", "You came back from a six-month injury.", "Your father's bread is still baking on Sundays."] },
+  }),
   buildLife("priya", "Priya's Encore", "loops", "poster", "cat", [
     ["2001", "Got her first guitar", "personal", "positive", 7, "Priya got her first guitar, a battered gift from an uncle."],
     ["2004", "Formed a school band", "relationships", "positive", 5, "She formed a band with three school friends."],
@@ -104,7 +126,10 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2019", "Solo album", "career", "positive", 9, "Her solo album sold out its first pressing."],
     ["2022", "Sang at the big hall", "career", "positive", 10, "She sang to a full hall with her parents in the front row."],
     [null, "Opened a music school", "business", "positive", 6, "She opened a free music school in her old neighbourhood."],
-  ]),
+  ], {
+    chapters: [["First Chords",1,4],["The Band Years",5,7],["Starting Over",8,10],["Encore",11,14]],
+    report: { headline: "Your biggest comeback ended in a full hall.", highlights: ["You lost your voice for a year and came back singing.", "Your parents ended up in the front row.", "You now hand music to the next generation."] },
+  }),
   buildLife("jonah", "Jonah's Second Act", "coaster", "arcade", "smiley", [
     ["1998", "Started teaching", "career", "positive", 7, "Jonah started teaching maths at his old school."],
     ["2000", "Married Claire", "relationships", "positive", 9, "He married Claire in the rain."],
@@ -120,7 +145,10 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2021", "Retired early", "career", "neutral", 7, "He retired early to see what else there was."],
     ["2022", "Started woodworking", "education", "positive", 5, "He started a woodworking course."],
     ["2024", "Opened a woodwork shop", "business", "positive", 8, "He opened a small furniture shop on the high street."],
-  ]),
+  ], {
+    chapters: [["The Busy Years",1,5],["Wake-Up Call",6,8],["Coming Apart",9,11],["Second Act",12,14]],
+    report: { headline: "Your second act started when most people slow down.", highlights: ["A heart scare turned into a ten kilometre run.", "You learned to cook, badly at first.", "Your shop is on the high street."] },
+  }),
   buildLife("elena", "Elena's Kitchen Stories", "metro", "ocean", "cat", [
     ["2003", "Learned from grandma", "personal", "positive", 8, "Elena learned to cook at her grandmother's side."],
     ["2008", "Culinary school", "education", "positive", 7, "She won a place at culinary school in Barcelona."],
@@ -136,7 +164,10 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2021", "Won a national award", "career", "positive", 9, "The restaurant won a national award."],
     ["2023", "Paid off the loan", "finance", "positive", 7, "She paid off the last of the loan."],
     [null, "Wrote a cookbook", "personal", "positive", 6, "She wrote her grandmother's recipes into a cookbook."],
-  ]),
+  ], {
+    chapters: [["Grandma's Kitchen",1,5],["Her Name Above the Door",6,8],["Rebuilt",9,11],["Full Tables",12,14]],
+    report: { headline: "Your neighbours helped you rebuild, and then you won a national award.", highlights: ["A kitchen fire closed you for five months.", "Very good lemons found you Marta.", "Your grandmother's recipes are now in a book."] },
+  }),
   buildLife("sam", "Sam Goes the Distance", "coaster", "haunted", "dino", [
     ["2006", "Joined a running club", "health", "positive", 6, "Sam joined a running club at twelve."],
     ["2010", "Won the county race", "personal", "positive", 7, "Sam won the county race, in borrowed shoes."],
@@ -152,7 +183,10 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2022", "Started a clinic", "business", "positive", 7, "Sam started a clinic for injured runners."],
     ["2023", "Ran with an old rival", "relationships", "positive", 4, "Sam ran a charity race beside an old rival."],
     ["2025", "Became a parent", "relationships", "positive", 10, "Sam became a parent, and now runs much more slowly."],
-  ]),
+  ], {
+    chapters: [["Running Start",1,3],["Setbacks",4,6],["National Team",7,9],["A New Pace",10,14]],
+    report: { headline: "You made the national team after losing your scholarship.", highlights: ["You paid your fees from a bike shop.", "You turned your own injury into a clinic.", "You now run much more slowly, by choice."] },
+  }),
   buildLife("amara", "Amara Crosses the Ocean", "metro", "minimal", "astronaut", [
     ["1996", "Left Lagos at sixteen", "personal", "neutral", 9, "Amara left Lagos at sixteen to live with an aunt in Toronto."],
     ["1997", "Bullied for her accent", "education", "negative", 5, "She was teased at school for her accent."],
@@ -168,7 +202,10 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2016", "Opened her own firm", "business", "positive", 8, "She opened her own engineering firm."],
     ["2020", "Bridge built in Lagos", "career", "positive", 10, "Her firm built a footbridge in the neighbourhood she grew up in."],
     [null, "Mentors new arrivals", "personal", "positive", 5, "She mentors teenagers who have just arrived in the country."],
-  ]),
+  ], {
+    chapters: [["Arriving",1,4],["Building Bridges",5,8],["Putting Down Roots",9,11],["Coming Home",12,14]],
+    report: { headline: "You left Lagos at sixteen and later built a bridge there.", highlights: ["You were the only woman on the team.", "You needed two ceremonies on two continents.", "You now help new arrivals find their feet."] },
+  }),
   buildLife("walter", "Walter's Eighty Years", "coaster", "mountain", "smiley", [
     ["1951", "Grew up on the farm", "personal", "positive", 6, "Walter grew up on a sheep farm."],
     ["1961", "Left school early", "education", "negative", 5, "He left school at fifteen when the harvest failed."],
@@ -184,5 +221,8 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2010", "Took up painting", "personal", "positive", 6, "He took up painting, mostly sheep."],
     ["2015", "Learned to use email", "education", "neutral", 2, "He learned email to write to his grandchildren."],
     ["2021", "Walked the coast path", "health", "positive", 7, "He walked the coast path at seventy-six."],
-  ]),
+  ], {
+    chapters: [["Farm and Sea",1,4],["Rose",5,6],["Hard Winters",7,9],["Everything After",10,14]],
+    report: { headline: "You spent two days adrift, then lived a long and full life.", highlights: ["Rose wrote to you for years before you married.", "You learned email at sixty-nine, for your grandchildren.", "You walked the coast path at seventy-six."] },
+  }),
 ];

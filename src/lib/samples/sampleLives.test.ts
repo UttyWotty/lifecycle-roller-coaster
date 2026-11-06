@@ -32,6 +32,14 @@ describe("SAMPLE_LIVES", () => {
     expect(RIDE_STYLE_DETAILS[life.rideStyle].build(life.events).stops).toHaveLength(life.events.length);
   });
 
+  it("gives every sample chapters covering every event, and a report", () => {
+    for (const { chapters, events, report } of SAMPLE_LIVES) {
+      expect(chapters.flatMap(({ eventIds }) => eventIds).sort()).toEqual(events.map(({ id }) => id).sort());
+      expect(report.headline).not.toBe("");
+      expect(report.highlights.length).toBeGreaterThanOrEqual(2);
+    }
+  });
+
   it("has unique ids and titles", () => {
     expect(new Set(SAMPLE_LIVES.map(({ id }) => id)).size).toBe(SAMPLE_LIVES.length);
     expect(new Set(SAMPLE_LIVES.map(({ title }) => title)).size).toBe(SAMPLE_LIVES.length);

@@ -6,6 +6,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- Four new worlds that tell your story as a different journey: Space mission, Ocean voyage, Mountain trek and Arcade level, each with its own vehicle.
+- Life Statistics, worked out from your events with no AI, including your biggest comeback and longest steady stretch.
+- Life Chapters and a playful Life Report, written by Claude in the same reading of your story.
+- Share my ride, which uses your device's share sheet or copies the image.
 - Preview cards for every theme, and a strip of themes on the landing page.
 
 ### Changed

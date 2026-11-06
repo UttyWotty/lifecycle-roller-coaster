@@ -8,6 +8,7 @@
 import { useState } from "react";
 import type { ExtractionResult } from "@/lib/ai/extraction";
 import { addBlankEvent, findInvalidFields } from "@/lib/events/editing";
+import type { LifeChapter, LifeReport } from "@/lib/events/insights";
 import type { LifeEvent } from "@/lib/events/schema";
 import { pickSample } from "@/lib/samples/pickSample";
 import { sampleStory, type SampleLife } from "@/lib/samples/sampleLives";
@@ -23,6 +24,8 @@ export interface RideState {
   story: string;
   events: readonly LifeEvent[];
   clarifications: readonly string[];
+  chapters: readonly LifeChapter[];
+  report: LifeReport | null;
   isDemo: boolean;
   sampleId: string | null;
   rideTitle: string;
@@ -52,6 +55,8 @@ export function useRideState(startWithSample: boolean): RideState {
   const [story, setStory] = useState(opening ? sampleStory(opening) : "");
   const [events, setEvents] = useState<readonly LifeEvent[]>(opening?.events ?? []);
   const [clarifications, setClarifications] = useState<readonly string[]>([]);
+  const [chapters, setChapters] = useState<readonly LifeChapter[]>(opening?.chapters ?? []);
+  const [report, setReport] = useState<LifeReport | null>(opening?.report ?? null);
   const [isDemo, setIsDemo] = useState(false);
   const [sample, setSample] = useState<SampleLife | null>(opening);
   const [rideTitle, setRideTitle] = useState(opening?.title ?? "");
@@ -76,6 +81,8 @@ export function useRideState(startWithSample: boolean): RideState {
     }
     setSample(next);
     setEvents(next.events);
+    setChapters(next.chapters);
+    setReport(next.report);
     setClarifications([]);
     setIsDemo(false);
     setRideTitle(next.title);
@@ -88,6 +95,8 @@ export function useRideState(startWithSample: boolean): RideState {
   function showResult(result: ExtractionResult): void {
     leaveSample();
     setEvents(result.events);
+    setChapters(result.chapters);
+    setReport(result.report);
     setClarifications(result.clarifications);
     setIsDemo(result.isDemo);
     setStage(result.events.length > 0 ? "ride" : "review");
@@ -101,6 +110,8 @@ export function useRideState(startWithSample: boolean): RideState {
   function addManually(): void {
     leaveSample();
     setEvents(addBlankEvent([]));
+    setChapters([]);
+    setReport(null);
     setClarifications([]);
     setIsDemo(false);
     setStage("review");
@@ -111,6 +122,8 @@ export function useRideState(startWithSample: boolean): RideState {
     story,
     events,
     clarifications,
+    chapters,
+    report,
     isDemo,
     sampleId: sample?.id ?? null,
     rideTitle,

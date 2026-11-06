@@ -1,6 +1,6 @@
 /**
- * Browser adapter that turns the ride drawing into a downloaded PNG file.
- * All work happens on the user's device, so the image and its contents are never uploaded.
+ * Browser adapter that turns the ride drawing into a PNG to download or share.
+ * All work happens on the user's device, and an image leaves it only through a share the user starts.
  * Failures surface as a single domain error that the interface can explain.
  */
 import {
@@ -12,7 +12,11 @@ import {
 
 const FILE_NAME = "my-roller-coaster.png";
 const IMAGE_TYPE = "image/png";
+const SHARE_TITLE = "My Life Roller Coaster";
+const ABORT_ERROR = "AbortError";
 const SVG_DATA_PREFIX = "data:image/svg+xml;charset=utf-8,";
+
+export type ShareOutcome = "shared" | "cancelled" | "copied" | "downloaded";
 
 export class RideExportError extends Error {
   constructor() {
@@ -64,8 +68,46 @@ function saveFile(blob: Blob): void {
   URL.revokeObjectURL(url);
 }
 
-export async function downloadRideImage(svg: SVGSVGElement, size: RideImageSize): Promise<void> {
+async function createRideImage(svg: SVGSVGElement, size: RideImageSize): Promise<Blob> {
   const markup = prepareRideSvg(serializeForExport(svg), size);
   const image = await loadImage(`${SVG_DATA_PREFIX}${encodeURIComponent(markup)}`);
-  saveFile(await drawToPng(image, size));
+  return drawToPng(image, size);
+}
+
+export async function downloadRideImage(svg: SVGSVGElement, size: RideImageSize): Promise<void> {
+  saveFile(await createRideImage(svg, size));
+}
+
+async function copyToClipboard(blob: Blob): Promise<boolean> {
+  if (typeof ClipboardItem === "undefined" || navigator.clipboard?.write === undefined) {
+    return false;
+  }
+  await navigator.clipboard.write([new ClipboardItem({ [IMAGE_TYPE]: blob })]);
+  return true;
+}
+
+/** Uses the device's share sheet, then the clipboard, and downloads the file as a last resort. */
+export async function shareRideImage(svg: SVGSVGElement, size: RideImageSize): Promise<ShareOutcome> {
+  const blob = await createRideImage(svg, size);
+  const file = new File([blob], FILE_NAME, { type: IMAGE_TYPE });
+  if (navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: SHARE_TITLE });
+      return "shared";
+    } catch (error) {
+      if (error instanceof DOMException && error.name === ABORT_ERROR) {
+        return "cancelled";
+      }
+    }
+  }
+  try {
+    if (await copyToClipboard(blob)) {
+      return "copied";
+    }
+  } catch {
+    saveFile(blob);
+    return "downloaded";
+  }
+  saveFile(blob);
+  return "downloaded";
 }

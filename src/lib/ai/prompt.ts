@@ -24,4 +24,8 @@ Fields:
 
 Clarifications: when a date is ambiguous or an event is unclear, add one short, friendly question to "clarifications", addressed to the person. Keep the event with your best reading and a lower confidence. Do not ask how the person felt just to confirm a suggested sentiment, because they can correct it when reviewing their events. Use an empty list when nothing is unclear.
 
-If the story contains no life events, return an empty events list.`;
+Chapters: group the events into 2 to 5 eras of the person's life, in order, with a short, warm name such as "University Era" or "Rebuilding Era". Give each chapter the numbers of its first and last event, counting from 1 in the order of your events list. Every event belongs to one chapter. Use an empty list when there are fewer than 3 events.
+
+Report: write a short, playful report on the story, in the language of the story, addressed to the person as "you". "headline" is one upbeat sentence, such as "Your biggest comeback happened in 2024." "highlights" is 2 to 4 short sentences. Base every line only on what the person said. Be warm and light. Never diagnose, give advice, score the person or judge their choices, and be gentle about hard events such as illness or loss.
+
+If the story contains no life events, return an empty events list, an empty chapters list, an empty headline and an empty highlights list.`;
