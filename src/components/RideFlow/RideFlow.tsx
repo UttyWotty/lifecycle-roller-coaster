@@ -12,6 +12,8 @@ import { StoryEditor } from "@/components/StoryEditor/StoryEditor";
 import type { ExtractionResult } from "@/lib/ai/extraction";
 import { addBlankEvent, findInvalidFields } from "@/lib/events/editing";
 import type { LifeEvent } from "@/lib/events/schema";
+import { DEFAULT_RIDE_STYLE } from "@/lib/track/rideStyles";
+import type { RideStyle } from "@/lib/track/types";
 
 type Stage = "story" | "review" | "ride";
 
@@ -21,6 +23,8 @@ export function RideFlow(): ReactElement {
   const [events, setEvents] = useState<LifeEvent[]>([]);
   const [clarifications, setClarifications] = useState<readonly string[]>([]);
   const [isDemo, setIsDemo] = useState(false);
+  const [rideTitle, setRideTitle] = useState("");
+  const [rideStyle, setRideStyle] = useState<RideStyle>(DEFAULT_RIDE_STYLE);
 
   function showResult(result: ExtractionResult): void {
     setEvents(result.events);
@@ -40,6 +44,10 @@ export function RideFlow(): ReactElement {
         events={events}
         clarifications={clarifications}
         isDemo={isDemo}
+        title={rideTitle}
+        rideStyle={rideStyle}
+        onTitleChange={setRideTitle}
+        onRideStyleChange={setRideStyle}
         onEventsChange={setEvents}
         onEditEvents={() => setStage("review")}
         onBackToStory={() => setStage("story")}

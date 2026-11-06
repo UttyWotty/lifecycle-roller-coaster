@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- Ride styles: choose the classic Coaster, Loop-the-loops with a full loop at every big moment, or a Metro map with one line for each part of your life.
+- Custom ride titles, shown on the ride and in the downloaded image.
+
 ## [0.2.0] - 2026-11-06
 
 ### Changed

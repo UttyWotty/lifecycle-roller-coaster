@@ -19,6 +19,8 @@ This is a playful, creative picture of a story. It is not a psychological assess
 - **You have the final say:** editing is optional, and you can change, add, delete and reorder every event. AI guesses are labelled there until you confirm them.
 - **No AI required:** skip it and add your events by hand.
 - **An adjustable ride:** select a stop and change how it felt or how much it mattered, and the track redraws at once.
+- **Ride styles:** draw your life as the classic coaster, with loop-the-loops at every big moment, or as a metro map with a line for each part of your life.
+- **Your title:** name your ride, and the title appears on the drawing and in the image.
 - **Image export:** download a PNG that is created on your device.
 
 ## Getting Started
@@ -66,6 +68,8 @@ Each event has a **sentiment** and an **impact** from 1 to 10, which are separat
 - Events with an impact of 8 or more get a larger marker.
 
 Height is cumulative, so the track shows the momentum of a story and not a score for each moment. Stops sit in the order of your list at even spacing, which keeps labels readable and gives undated events a place.
+
+On a metro map, each category is its own line. A stop sits above its line when it felt good and below when it felt hard, and every line meets at events with an impact of 8 or more.
 
 ## Privacy
 
