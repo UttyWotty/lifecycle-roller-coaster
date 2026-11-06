@@ -6,7 +6,7 @@ Lifecycle Roller Coaster is an open-source web app that turns a free-text life s
 
 ## Status
 
-Early development: the landing page and story editor work, and the event schema exists. AI extraction, event review, track rendering and export are not built yet, so the Generate button does not send your story anywhere. See the roadmap in the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md).
+Early development: you can write a story and see the events AI finds in it. Event review, track rendering and export are not built yet. See the roadmap in the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md).
 
 ## Getting Started
 
@@ -14,10 +14,11 @@ Requires Node.js 24 or later.
 
 ```bash
 npm install
+cp .env.example .env
 npm run dev
 ```
 
-Then open http://localhost:3000.
+Add your Anthropic API key to `.env`, then open http://localhost:3000. The app runs without a key, but Generate shows a setup message. `.env` is git-ignored, so never commit it or prefix its values with `NEXT_PUBLIC_`.
 
 ## Commands
 
@@ -35,15 +36,20 @@ Then open http://localhost:3000.
 
 | Path | Contents |
 | --- | --- |
-| `src/app/` | Routes and the root layout |
+| `src/app/` | Routes, the root layout and the extraction endpoint |
 | `src/components/` | UI components |
+| `src/lib/ai/` | Provider-agnostic extraction and the Claude adapter |
 | `src/lib/events/` | Event schema shared by AI extraction and rendering |
 | `src/lib/story/` | Pure rules for the story input |
 | `docs/` | Product blueprint |
 
 ## Privacy
 
-User stories can contain sensitive details. The app must not store raw narratives by default or log story content, and sharing is always opt-in.
+User stories can contain sensitive details. When you press Generate, your story is sent to the Anthropic API to find the events in it. This app does not store your story or log its content, and sharing is always opt-in.
+
+## Deployment
+
+Do not deploy publicly until the extraction endpoint has rate limiting and the API key has a spend limit, because every Generate request spends tokens.
 
 ## License
 

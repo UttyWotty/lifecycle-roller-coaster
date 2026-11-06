@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-Roadmap phase 1 is done: a single Next.js app with the landing page, the story editor, and the shared event schema. AI extraction, event review, track rendering, and export are not built yet, so Generate in `StoryEditor` is a stub until phase 2 connects it.
+Roadmap phases 1 and 2 are done: the landing page, story editor, shared event schema, and AI extraction. Event review, track rendering, and export are not built yet.
 
 `docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
 
@@ -31,9 +31,10 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 ## Architecture Constraints
 
 - **AI and rendering stay independent.** This is the key technical boundary (blueprint section 13). The LLM layer outputs structured event data; the visualization consumes only that data. Changing the AI provider must not touch the rendering engine, and manually entered events must render without any AI involved.
-- **The LLM sits behind a provider-agnostic adapter**, so a local model can be added later.
+- **The LLM sits behind a provider-agnostic adapter.** `src/lib/ai/extractor.ts` is the interface, and `src/lib/ai/anthropicExtractor.ts` is the only module that imports the SDK or reads its settings. `extractRequest.ts` takes the extractor as an argument, so tests use a fake and never call the API.
+- **Read the stop reason before the output.** Use `beta.messages.create` with `readModelOutput`, not `parse`: the SDK parser throws on truncated output before `stop_reason` can be read, and its error text can contain story fragments.
 - **Stack:** Next.js + TypeScript and Tailwind CSS, with zod validating data at the boundaries. Server logic lives in Next.js route handlers rather than a separate backend. Planned additions are SVG (optionally D3.js) track generation, SVG-to-PNG export, and browser local storage.
-- **Module layout:** `src/app` holds routes and `src/components` holds UI. `src/lib/events` is the shared contract and stays pure. AI code goes in `src/lib/ai` and track generation in `src/lib/track`; each may import `src/lib/events` but never the other.
+- **Module layout:** `src/app` holds routes and `src/components` holds UI. `src/lib/events` is the shared contract and stays pure. AI code is in `src/lib/ai` and track generation goes in `src/lib/track`; each may import `src/lib/events` but never the other. `eslint.config.mjs` enforces these boundaries.
 
 ## Event Data Model
 
@@ -56,5 +57,10 @@ User stories can contain sensitive personal details.
 
 - Do not store raw narratives by default, and do not log story content.
 - Tell users what is sent to an external AI provider.
-- Keep generated data in the browser where practical. The story currently lives only in React state in `StoryEditor`.
+- Keep generated data in the browser where practical. The story lives in React state in `StoryEditor`, and it leaves the browser only through `requestExtraction.ts` when the user presses Generate.
+- Log only error codes, never exception text from the provider or the parser.
 - Sharing is opt-in; never publish a ride automatically.
+
+## Before Public Deployment
+
+`/api/extract` spends real tokens on every call and has no rate limiting yet. Add rate limiting and set a spend limit on the API key before deploying publicly.

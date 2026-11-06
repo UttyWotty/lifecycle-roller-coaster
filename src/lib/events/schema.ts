@@ -27,11 +27,25 @@ export const CONFIDENCE_MAX = 1;
 const PARTIAL_DATE = /^\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?)?$/;
 
 const DUPLICATE_ID_MESSAGE = "Event ids must be unique";
+const IMPOSSIBLE_DATE_MESSAGE = "Date does not exist";
+const FIRST_MONTH = 1;
+const FIRST_DAY = 1;
+
+/** Confirms a partial date exists on the calendar, which rejects values such as 2015-02-31. */
+function isCalendarDate(date: string): boolean {
+  const [year, month = FIRST_MONTH, day = FIRST_DAY] = date.split("-").map(Number);
+  const calendarDate = new Date(Date.UTC(year, month - 1, day));
+  return calendarDate.getUTCMonth() === month - 1 && calendarDate.getUTCDate() === day;
+}
 
 export const lifeEventSchema = z.object({
   id: z.string().min(1),
   /** A null date means the event is unknown in time and gets approximate placement. */
-  date: z.string().regex(PARTIAL_DATE).nullable(),
+  date: z
+    .string()
+    .regex(PARTIAL_DATE)
+    .refine(isCalendarDate, IMPOSSIBLE_DATE_MESSAGE)
+    .nullable(),
   title: z.string().min(1),
   description: z.string(),
   category: z.enum(EVENT_CATEGORIES),

@@ -1,36 +1,32 @@
 /**
- * Client component where a user writes their life story and adds example prompts.
- * The story lives only in React state, so it is never stored, logged or sent anywhere.
- * Generate validates the story and reports that extraction has not been connected yet.
+ * Client component where a user writes their story and asks for it to be read.
+ * The story stays in React state until the user presses Generate, and is never stored or logged.
+ * Editing the story cancels any request in flight and clears earlier results.
  */
 "use client";
 
 import { useState, type ChangeEvent, type ReactElement } from "react";
-import {
-  MAX_STORY_LENGTH,
-  STORY_PROMPTS,
-  appendPrompt,
-  getStoryStatus,
-} from "@/lib/story/storyInput";
+import { MAX_STORY_LENGTH, appendPrompt, getStoryStatus } from "@/lib/story/storyInput";
+import { ExtractedEvents } from "./ExtractedEvents";
+import { StoryPrompts } from "./StoryPrompts";
+import { useExtraction } from "./useExtraction";
 
 const INPUT_ID = "story";
+const INPUT_ROWS = 12;
+const NUMBER_LOCALE = "en-US";
 const PLACEHOLDER = "I started university in 2015. I was really excited about it...";
 const TOO_LONG_MESSAGE = "This story is over the limit. Please shorten it to continue.";
-const NOT_CONNECTED_MESSAGE =
-  "Your story looks great. AI extraction is not connected yet, so nothing was sent.";
+const LOADING_MESSAGE = "Reading your story...";
 
 export function StoryEditor(): ReactElement {
   const [story, setStory] = useState("");
-  const [hasGenerated, setHasGenerated] = useState(false);
-  const status = getStoryStatus(story);
+  const { state, extract, reset } = useExtraction();
+  const storyStatus = getStoryStatus(story);
+  const isLoading = state.status === "loading";
 
   function updateStory(nextStory: string): void {
     setStory(nextStory);
-    setHasGenerated(false);
-  }
-
-  function handleChange(event: ChangeEvent<HTMLTextAreaElement>): void {
-    updateStory(event.target.value);
+    reset();
   }
 
   return (
@@ -41,41 +37,35 @@ export function StoryEditor(): ReactElement {
       <textarea
         id={INPUT_ID}
         value={story}
-        onChange={handleChange}
+        onChange={(event: ChangeEvent<HTMLTextAreaElement>) => updateStory(event.target.value)}
         placeholder={PLACEHOLDER}
-        rows={12}
+        rows={INPUT_ROWS}
         className="w-full rounded-lg border border-muted bg-background p-4 text-base"
       />
-      <div className="flex flex-wrap gap-2">
-        {STORY_PROMPTS.map((prompt) => (
-          <button
-            key={prompt}
-            type="button"
-            onClick={() => updateStory(appendPrompt(story, prompt))}
-            className="min-h-11 rounded-full border border-muted px-4 py-2 text-sm"
-          >
-            {prompt}...
-          </button>
-        ))}
-      </div>
+      <StoryPrompts onSelect={(prompt) => updateStory(appendPrompt(story, prompt))} />
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-muted">
-          {story.trim().length.toLocaleString("en-US")} of{" "}
-          {MAX_STORY_LENGTH.toLocaleString("en-US")} characters
+          {story.trim().length.toLocaleString(NUMBER_LOCALE)} of{" "}
+          {MAX_STORY_LENGTH.toLocaleString(NUMBER_LOCALE)} characters
         </p>
         <button
           type="button"
-          disabled={status !== "ready"}
-          onClick={() => setHasGenerated(true)}
+          disabled={storyStatus !== "ready" || isLoading}
+          onClick={() => void extract(story)}
           className="min-h-11 rounded-full bg-accent px-6 py-2 font-semibold text-on-accent disabled:opacity-50"
         >
-          Generate my ride
+          {isLoading ? LOADING_MESSAGE : "Generate my ride"}
         </button>
       </div>
-      <p role="status" className="text-sm">
-        {status === "too_long" && TOO_LONG_MESSAGE}
-        {status === "ready" && hasGenerated && NOT_CONNECTED_MESSAGE}
+      <p className="text-sm text-muted">
+        When you press Generate, your story is sent to Anthropic&apos;s Claude API to find the
+        events in it. This app does not save your story.
       </p>
+      <p role="status" className="text-sm">
+        {storyStatus === "too_long" && TOO_LONG_MESSAGE}
+        {state.status === "error" && state.message}
+      </p>
+      {state.status === "done" && <ExtractedEvents result={state.result} />}
     </div>
   );
 }

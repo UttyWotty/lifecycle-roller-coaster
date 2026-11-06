@@ -20,7 +20,7 @@ export default function StoryPage(): ReactElement {
       </header>
       <StoryEditor />
       <p className="text-sm text-muted">
-        Your story stays in this browser tab and disappears when you leave the page.
+        Nothing is sent until you press Generate, and your story disappears when you leave the page.
       </p>
     </main>
   );
