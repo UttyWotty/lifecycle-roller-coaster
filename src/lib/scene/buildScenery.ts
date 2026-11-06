@@ -174,7 +174,7 @@ function markerBeside(stop: TrackStop | null, track: Track): TrackPoint | null {
 export function buildScenery(track: Track, palette: ScenePalette): Scenery {
   const random = createRandom();
   const { kind, hasStars, orb } = palette;
-  const isRide = track.style !== "metro";
+  const hasMarkers = track.style !== "metro" && kind !== "line";
   return {
     clouds: buildClouds(track, random),
     skylineFar: kind === "fairground" ? [] : buildSkyline(track, FAR_HEIGHT_SHARE_MIN, FAR_HEIGHT_SHARE_RANGE, random),
@@ -183,7 +183,7 @@ export function buildScenery(track: Track, palette: ScenePalette): Scenery {
     orb: orb === null ? null : { x: track.width * ORB_X_SHARE, y: ORB_Y, radius: ORB_RADIUS },
     wheels: kind === "fairground" ? buildWheels(track) : [],
     bats: kind === "haunted" ? buildBats(track, random) : [],
-    balloon: isRide ? markerBeside(strongestStop(track.stops, "positive"), track) : null,
-    parachute: isRide ? markerBeside(strongestStop(track.stops, "negative"), track) : null,
+    balloon: hasMarkers ? markerBeside(strongestStop(track.stops, "positive"), track) : null,
+    parachute: hasMarkers ? markerBeside(strongestStop(track.stops, "negative"), track) : null,
   };
 }

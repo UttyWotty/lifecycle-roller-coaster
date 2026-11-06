@@ -4,13 +4,24 @@
  * This module holds data only, and the Simple theme has no scene at all.
  */
 
-export const RIDE_THEMES = ["sunny", "sunset", "night", "retro", "nightmare", "plain"] as const;
+export const RIDE_THEMES = [
+  "classic",
+  "nightmare",
+  "minimal",
+  "poster",
+  "sunny",
+  "sunset",
+  "night",
+  "retro",
+  "haunted",
+  "plain",
+] as const;
 export type RideTheme = (typeof RIDE_THEMES)[number];
 
 export const DEFAULT_RIDE_THEME: RideTheme = "sunny";
 
 /** Which landmarks a scene is built from. */
-export type SceneryKind = "city" | "fairground" | "haunted";
+export type SceneryKind = "city" | "fairground" | "haunted" | "toy" | "neon" | "line" | "poster";
 
 export interface ScenePalette {
   kind: SceneryKind;
@@ -31,6 +42,8 @@ export interface ScenePalette {
   hasStars: boolean;
   /** A sun or moon, or null when the sky has neither. */
   orb: string | null;
+  /** Extra canvas below the ground, for a floor or reflection. */
+  floor: number;
 }
 
 interface RideThemeDetails {
@@ -59,6 +72,7 @@ const SUNNY: ScenePalette = {
   cart: "#2563eb",
   hasStars: false,
   orb: null,
+  floor: 0,
 };
 
 const SUNSET: ScenePalette = {
@@ -79,6 +93,7 @@ const SUNSET: ScenePalette = {
   cart: "#f59e0b",
   hasStars: false,
   orb: null,
+  floor: 0,
 };
 
 const NIGHT: ScenePalette = {
@@ -99,6 +114,7 @@ const NIGHT: ScenePalette = {
   cart: "#f472b6",
   hasStars: true,
   orb: null,
+  floor: 0,
 };
 
 const RETRO: ScenePalette = {
@@ -119,9 +135,10 @@ const RETRO: ScenePalette = {
   cart: "#e76f51",
   hasStars: false,
   orb: "#f4a261",
+  floor: 0,
 };
 
-const NIGHTMARE: ScenePalette = {
+const HAUNTED: ScenePalette = {
   kind: "haunted",
   skyTop: "#33101f",
   skyBottom: "#7a1a2c",
@@ -139,13 +156,102 @@ const NIGHTMARE: ScenePalette = {
   cart: "#6b21a8",
   hasStars: false,
   orb: "#f5e6b3",
+  floor: 0,
+};
+
+const CLASSIC: ScenePalette = {
+  kind: "toy",
+  skyTop: "#dcecf2",
+  skyBottom: "#f3f7f4",
+  cloud: "#ffffff",
+  skylineFar: "#f4dcbb",
+  skylineNear: "#efc9a4",
+  steel: "#f3a3b4",
+  steelDark: "#d97e93",
+  rail: "#e8815f",
+  ground: "#fbeee6",
+  title: "#7a4453",
+  ink: "#5f3442",
+  muted: "#8d6573",
+  pill: "#fffaf5",
+  cart: "#6cc0d8",
+  hasStars: false,
+  orb: null,
+  floor: 40,
+};
+
+const NIGHTMARE: ScenePalette = {
+  kind: "neon",
+  skyTop: "#0a0620",
+  skyBottom: "#2a0f5c",
+  cloud: "#ffd27a",
+  skylineFar: "#1b1140",
+  skylineNear: "#120a2e",
+  steel: "#a855f7",
+  steelDark: "#0b0a1f",
+  rail: "#ff2d95",
+  ground: "#05030f",
+  title: "#f5f3ff",
+  ink: "#f5f3ff",
+  muted: "#c4b5fd",
+  pill: "#15103a",
+  cart: "#22d3ee",
+  hasStars: false,
+  orb: null,
+  floor: 150,
+};
+
+const MINIMAL: ScenePalette = {
+  kind: "line",
+  skyTop: "#ffffff",
+  skyBottom: "#ffffff",
+  cloud: "#ffffff",
+  skylineFar: "#ffffff",
+  skylineNear: "#ffffff",
+  steel: "#111111",
+  steelDark: "#111111",
+  rail: "#111111",
+  ground: "#ffffff",
+  title: "#111111",
+  ink: "#111111",
+  muted: "#555555",
+  pill: "#ffffff",
+  cart: "#ffffff",
+  hasStars: false,
+  orb: null,
+  floor: 0,
+};
+
+const POSTER: ScenePalette = {
+  kind: "poster",
+  skyTop: "#3c86a8",
+  skyBottom: "#f6e9cf",
+  cloud: "#d8473b",
+  skylineFar: "#f6e9cf",
+  skylineNear: "#17324f",
+  steel: "#d8473b",
+  steelDark: "#17324f",
+  rail: "#17324f",
+  ground: "#17324f",
+  title: "#fbf3df",
+  ink: "#17324f",
+  muted: "#3f5a72",
+  pill: "#fbf3df",
+  cart: "#d8473b",
+  hasStars: false,
+  orb: null,
+  floor: 0,
 };
 
 export const RIDE_THEME_DETAILS: Readonly<Record<RideTheme, RideThemeDetails>> = {
+  classic: { name: "Classic Ride", swatch: [CLASSIC.skyTop, CLASSIC.steel], palette: CLASSIC },
+  nightmare: { name: "Nightmare Mode", swatch: [NIGHTMARE.rail, NIGHTMARE.cart], palette: NIGHTMARE },
+  minimal: { name: "Minimal Mode", swatch: ["#ffffff", "#111111"], palette: MINIMAL },
+  poster: { name: "Retro Mode", swatch: [POSTER.skyTop, POSTER.steel], palette: POSTER },
   sunny: { name: "Sunny day", swatch: [SUNNY.skyTop, SUNNY.steel], palette: SUNNY },
   sunset: { name: "Golden sunset", swatch: [SUNSET.skyBottom, SUNSET.skyTop], palette: SUNSET },
   night: { name: "Starry night", swatch: [NIGHT.skyTop, NIGHT.steel], palette: NIGHT },
   retro: { name: "Retro fairground", swatch: [RETRO.skyTop, RETRO.steel], palette: RETRO },
-  nightmare: { name: "Nightmare mode", swatch: [NIGHTMARE.skyTop, NIGHTMARE.skyBottom], palette: NIGHTMARE },
+  haunted: { name: "Haunted night", swatch: [HAUNTED.skyTop, HAUNTED.skyBottom], palette: HAUNTED },
   plain: { name: "Simple", swatch: ["#ffffff", "#e11d48"], palette: null },
 };

@@ -33,6 +33,10 @@ interface RideChoices {
 /** Sky kept clear above the track, so the tallest flag and its label always fit. */
 export const SKY_HEADROOM = 130;
 
+function addFloor(track: Track, floor: number): Track {
+  return { ...track, height: track.height + floor };
+}
+
 function addHeadroom(track: Track, headroom: number): Track {
   return {
     ...track,
@@ -47,7 +51,7 @@ export function composeRide(events: readonly LifeEvent[], choices: RideChoices):
   if (palette === null) {
     return { track: addTitle(base, choices.title), scene: null };
   }
-  const track = addTitle(addHeadroom(base, SKY_HEADROOM), choices.title);
+  const track = addTitle(addHeadroom(addFloor(base, palette.floor), SKY_HEADROOM), choices.title);
   return {
     track,
     scene: {

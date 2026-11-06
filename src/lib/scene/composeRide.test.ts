@@ -112,16 +112,16 @@ describe("scenery", () => {
   });
 
   it("gives each kind of theme only its own landmarks", () => {
-    const scenery = (theme: "sunny" | "retro" | "nightmare") =>
+    const scenery = (theme: "sunny" | "retro" | "haunted") =>
       composeRide(MIXED, { style: "coaster", theme, title: "" }).scene?.scenery;
     expect(scenery("sunny")).toMatchObject({ orb: null, wheels: [], bats: [] });
     expect(scenery("retro")?.wheels.length).toBeGreaterThan(0);
     expect(scenery("retro")?.orb).not.toBeNull();
     expect(scenery("retro")?.skylineFar).toEqual([]);
     expect(scenery("retro")?.bats).toEqual([]);
-    expect(scenery("nightmare")?.bats.length).toBeGreaterThan(0);
-    expect(scenery("nightmare")?.orb).not.toBeNull();
-    expect(scenery("nightmare")?.wheels).toEqual([]);
+    expect(scenery("haunted")?.bats.length).toBeGreaterThan(0);
+    expect(scenery("haunted")?.orb).not.toBeNull();
+    expect(scenery("haunted")?.wheels).toEqual([]);
   });
 
   it.each(RIDE_STYLES)("keeps new landmarks inside the canvas in %s", (style) => {
@@ -133,13 +133,34 @@ describe("scenery", () => {
         expect(y + radius).toBeLessThanOrEqual(retro.track.height);
         expect(y - radius).toBeGreaterThanOrEqual(0);
       }
-      const haunted = composeRide(events, { style, theme: "nightmare", title: "" });
+      const haunted = composeRide(events, { style, theme: "haunted", title: "" });
       const orb = haunted.scene?.scenery.orb;
       expect(orb?.x).toBeLessThanOrEqual(haunted.track.width);
       expect((orb?.y ?? 0) + (orb?.radius ?? 0)).toBeLessThanOrEqual(haunted.track.height);
       for (const { y } of haunted.scene?.scenery.bats ?? []) {
         expect(y).toBeLessThanOrEqual(haunted.track.height);
       }
+    }
+  });
+
+  it("adds a floor below the ground only where a mode needs one", () => {
+    const sized = (theme: "sunny" | "nightmare") => composeRide(MIXED, { style: "coaster", theme, title: "" }).track;
+    expect(sized("sunny").height).toBe(sized("sunny").contentOffset + sized("sunny").groundY);
+    expect(sized("nightmare").height).toBeGreaterThan(sized("nightmare").contentOffset + sized("nightmare").groundY);
+  });
+
+  it("keeps Minimal Mode free of sky markers", () => {
+    const { scene } = composeRide(MIXED, { style: "coaster", theme: "minimal", title: "" });
+    expect(scene?.scenery.balloon).toBeNull();
+    expect(scene?.scenery.parachute).toBeNull();
+  });
+
+  it("uses only black, white and greys in Minimal Mode", () => {
+    const palette = RIDE_THEME_DETAILS.minimal.palette ?? {};
+    const colors = Object.values(palette).filter((value) => typeof value === "string" && value.startsWith("#"));
+    for (const color of colors as string[]) {
+      expect(color.slice(1, 3)).toBe(color.slice(3, 5));
+      expect(color.slice(3, 5)).toBe(color.slice(5, 7));
     }
   });
 
