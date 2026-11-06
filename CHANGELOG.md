@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-06
+
 ### Added
 
 - Four art modes that each draw the ride in a different way: Classic Ride, a soft pastel toy; Nightmare Mode, a glowing neon city; Minimal Mode, black line art; and Retro Mode, a vintage poster.
