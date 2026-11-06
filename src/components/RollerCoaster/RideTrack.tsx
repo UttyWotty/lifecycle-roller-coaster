@@ -1,7 +1,7 @@
 /**
  * SVG drawing of a generated roller-coaster track.
- * Markers can be selected by mouse or keyboard, and major events are drawn larger.
- * The same drawing is used for image export, so the ride on screen and in the file always match.
+ * Markers can be selected when a handler is given, and major events are drawn larger.
+ * The same drawing serves the landing page, the ride stage and image export, so they always match.
  */
 import type { KeyboardEvent, ReactElement, Ref } from "react";
 import { EXPORT_HIDDEN_ATTRIBUTE } from "@/lib/export/rideImage";
@@ -10,9 +10,11 @@ import type { Track, TrackStop } from "@/lib/track/buildTrack";
 
 interface RideTrackProps {
   track: Track;
-  selectedId: string | null;
-  onSelect: (id: string) => void;
-  svgRef: Ref<SVGSVGElement>;
+  label: string;
+  selectedId?: string | null;
+  /** Without a handler the track is a plain picture that scales to fit its container. */
+  onSelect?: (id: string) => void;
+  svgRef?: Ref<SVGSVGElement>;
 }
 
 /** Smallest allowed drawing scale. Below this the track scrolls instead, so labels stay readable. */
@@ -42,7 +44,7 @@ const LABEL_HALO = {
   strokeLinejoin: "round",
 } as const;
 
-function StopMarker(props: { stop: TrackStop; isSelected: boolean; onSelect: () => void }): ReactElement {
+function StopMarker(props: { stop: TrackStop; isSelected: boolean; onSelect?: () => void }): ReactElement {
   const { stop, isSelected, onSelect } = props;
   const radius = stop.isMajor ? MAJOR_MARKER_RADIUS : MARKER_RADIUS;
   const isAbove = stop.labelSide === "above";
@@ -52,20 +54,22 @@ function StopMarker(props: { stop: TrackStop; isSelected: boolean; onSelect: () 
   function handleKeyDown(event: KeyboardEvent<SVGGElement>): void {
     if (ACTIVATION_KEYS.includes(event.key)) {
       event.preventDefault();
-      onSelect();
+      onSelect?.();
     }
   }
 
+  const interactiveProps = onSelect && {
+    role: "button",
+    tabIndex: 0,
+    "aria-label": `${stop.title}, ${date}, ${stop.sentiment}, impact ${stop.impact}`,
+    "aria-pressed": isSelected,
+    onClick: onSelect,
+    onKeyDown: handleKeyDown,
+    className: "cursor-pointer",
+  };
+
   return (
-    <g
-      role="button"
-      tabIndex={0}
-      aria-label={`${stop.title}, ${date}, ${stop.sentiment}, impact ${stop.impact}`}
-      aria-pressed={isSelected}
-      onClick={onSelect}
-      onKeyDown={handleKeyDown}
-      className="cursor-pointer"
-    >
+    <g {...interactiveProps}>
       <circle cx={stop.x} cy={stop.y} r={HIT_RADIUS} fill="transparent" />
       {isSelected && (
         <circle
@@ -89,14 +93,15 @@ function StopMarker(props: { stop: TrackStop; isSelected: boolean; onSelect: () 
   );
 }
 
-export function RideTrack({ track, selectedId, onSelect, svgRef }: RideTrackProps): ReactElement {
+export function RideTrack(props: RideTrackProps): ReactElement {
+  const { track, label, selectedId = null, onSelect, svgRef } = props;
   return (
     <svg
       ref={svgRef}
       viewBox={`0 0 ${track.width} ${track.height}`}
-      role="group"
-      aria-label="Your life as a roller coaster"
-      style={{ minWidth: track.width * MIN_TRACK_SCALE }}
+      role={onSelect ? "group" : "img"}
+      aria-label={label}
+      style={onSelect && { minWidth: track.width * MIN_TRACK_SCALE }}
       className="h-auto w-full"
     >
       {track.supports.map(({ x, y }) => (
@@ -133,7 +138,7 @@ export function RideTrack({ track, selectedId, onSelect, svgRef }: RideTrackProp
           key={stop.id}
           stop={stop}
           isSelected={stop.id === selectedId}
-          onSelect={() => onSelect(stop.id)}
+          onSelect={onSelect && (() => onSelect(stop.id))}
         />
       ))}
     </svg>

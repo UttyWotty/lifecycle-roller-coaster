@@ -49,7 +49,13 @@ export function RideResult({ events, onEventsChange, onBack }: RideResultProps):
         aria-label="Roller coaster, scrolls sideways on small screens"
         className="overflow-x-auto"
       >
-        <RideTrack track={track} selectedId={selectedId} onSelect={setSelectedId} svgRef={svg} />
+        <RideTrack
+          track={track}
+          label="Your life as a roller coaster"
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+          svgRef={svg}
+        />
       </div>
       <CategoryLegend events={events} />
       {selected ? (

@@ -9,7 +9,11 @@ import { SECRET, STORY, button, hasPageOverflow, openReview, storyBox } from "./
 test("landing page leads to the story editor", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Lifecycle Roller Coaster" })).toBeVisible();
-  await expect(page.getByRole("img", { name: /example roller-coaster track/ })).toBeVisible();
+  const exampleRide = page.getByRole("img", { name: /example roller-coaster track/ });
+  await expect(exampleRide).toBeVisible();
+  await expect(exampleRide.getByTestId("ride-path")).toHaveCount(1);
+  await expect(exampleRide.getByText("Started university")).toBeVisible();
+  await expect(page.locator('svg g[role="button"]')).toHaveCount(0);
   expect(await hasPageOverflow(page)).toBe(false);
   await page.getByRole("link", { name: "Start your ride" }).click();
   await expect(page).toHaveURL(/\/story$/);
