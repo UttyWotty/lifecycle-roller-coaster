@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-06
+
 ### Added
 
 - Retro fairground and Nightmare mode themes, each with its own scenery: tents and Ferris wheels, or haunted towers, a moon and bats.
