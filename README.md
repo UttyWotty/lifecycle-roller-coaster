@@ -5,7 +5,7 @@
 
 **Your life is a journey. Let's see what the ride looks like.**
 
-Write your life story in your own words, and watch it turn into a roller coaster. The highs climb, the lows drop, and the quiet years run flat. Correct anything that does not feel right, then download your ride as an image.
+Write your life story in your own words, and the AI turns it straight into a roller coaster. The highs climb, the lows drop, and the quiet years run flat. Adjust anything that does not feel right, then download your ride as an image.
 
 ![An example roller coaster with stops for starting university, losing a job, getting married and running a first marathon](docs/images/example-ride.png)
 
@@ -15,7 +15,8 @@ This is a playful, creative picture of a story. It is not a psychological assess
 
 - **Free-form writing:** no questionnaire and no account. Just tell your story.
 - **AI event extraction:** Claude finds the events, dates, categories and feelings in your text. It does not invent events, and it asks about anything unclear.
-- **You have the final say:** edit, add, delete and reorder every event. AI guesses are labelled until you confirm them.
+- **From text to ride in one step:** you do not have to fill in any forms.
+- **You have the final say:** editing is optional, and you can change, add, delete and reorder every event. AI guesses are labelled there until you confirm them.
 - **No AI required:** skip it and add your events by hand.
 - **An adjustable ride:** select a stop and change how it felt or how much it mattered, and the track redraws at once.
 - **Image export:** download a PNG that is created on your device.
@@ -36,7 +37,7 @@ Then open http://localhost:3000.
 
 ### Demo mode and real stories
 
-The app starts in demo mode, so Generate returns four labelled sample events and costs nothing. Your story is not read in this mode.
+The app starts in demo mode, so Generate ignores what you wrote and returns the same four sample events, with a clear notice on the review screen. This costs nothing, and lets you try the app without a key.
 
 To have Claude read real stories, edit `.env`:
 
@@ -84,12 +85,12 @@ A single Next.js app, with TypeScript, Tailwind CSS, zod and hand-drawn SVG.
 ```text
 Story text --> POST /api/extract --> Provider adapter --> Validated events
                                                                 |
-                               Manual entry --------------------+
-                                                                v
-                                                          Review stage
-                                                                |
+                 Manual entry --> event editing ----------------+
                                                                 v
                                      buildTrack --> Ride stage --> PNG export
+                                                        ^
+                                                        |
+                                              Optional event editing
 ```
 
 The AI layer and the rendering engine are independent. The AI produces structured events, and the track generator reads only those events, so changing the provider never touches the visuals, and manual events work with no AI at all. Lint rules enforce this boundary.
@@ -103,6 +104,7 @@ The AI layer and the rendering engine are independent. The AI produces structure
 | `src/lib/story/` | Pure rules for the story input |
 | `src/lib/track/` | The pure roller-coaster track generator |
 | `src/lib/export/` | Pure preparation of the ride image |
+| `e2e/` | Browser tests for the full user journey |
 | `docs/` | The product blueprint |
 
 To add a provider, implement the `EventExtractor` interface in `src/lib/ai/extractor.ts`.
@@ -116,12 +118,15 @@ To add a provider, implement the `EventExtractor` interface in `src/lib/ai/extra
 | `npm start` | Serve the production build |
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Generate route types and run the TypeScript compiler |
-| `npm test` | Run the tests once, with no network or API key needed |
-| `npm run test:watch` | Run the tests in watch mode |
+| `npm test` | Run the unit tests once, with no network or API key needed |
+| `npm run test:watch` | Run the unit tests in watch mode |
+| `npm run test:e2e` | Build the app and run the browser tests |
+
+Browser tests need a browser, so run `npx playwright install chromium` once first. They always run in demo mode with an empty API key, so they never spend tokens, even if your `.env` holds a real key.
 
 ## Roadmap
 
-Version 0.1.0 covers the full path from story to image. Ideas for later releases include visual themes, life statistics, shareable links and a local-model option. See the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md) for the thinking behind them, and the [changelog](CHANGELOG.md) for what has shipped.
+The app covers the full path from story to image. Ideas for later releases include visual themes, life statistics, shareable links and a local-model option. See the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md) for the thinking behind them, and the [changelog](CHANGELOG.md) for what has shipped.
 
 ## Contributing
 

@@ -1,5 +1,5 @@
 /**
- * Review stage where a user corrects their events before the ride is drawn.
+ * Optional stage where a user corrects their events by hand.
  * It wires list actions to the pure editing logic, and a deletion can be undone.
  * Keyboard focus moves to the heading on arrival, so screen reader users know the page changed.
  */
@@ -16,6 +16,7 @@ import {
   sortEventsByDate,
   updateEvent,
 } from "@/lib/events/editing";
+import { ReadingNotes } from "@/components/RideFlow/ReadingNotes";
 import type { LifeEvent } from "@/lib/events/schema";
 import { EventCard } from "./EventCard";
 import { SECONDARY_BUTTON_CLASS } from "./fieldStyles";
@@ -23,6 +24,7 @@ import { SECONDARY_BUTTON_CLASS } from "./fieldStyles";
 interface EventReviewProps {
   events: readonly LifeEvent[];
   clarifications: readonly string[];
+  isDemo: boolean;
   onEventsChange: (events: LifeEvent[]) => void;
   onBack: () => void;
   onContinue: () => void;
@@ -37,7 +39,7 @@ const NO_EVENTS_MESSAGE = "No events yet. Add what happened and roughly when.";
 const UNTITLED = "Untitled event";
 
 export function EventReview(props: EventReviewProps): ReactElement {
-  const { events, clarifications, onEventsChange, onBack, onContinue } = props;
+  const { events, clarifications, isDemo, onEventsChange, onBack, onContinue } = props;
   const [removed, setRemoved] = useState<RemovedEvent | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const invalidFields = findInvalidFields(events);
@@ -61,21 +63,12 @@ export function EventReview(props: EventReviewProps): ReactElement {
         <h1 ref={heading} tabIndex={-1} className="text-3xl font-bold outline-none">
           Review your events
         </h1>
-        <p>You have the final say. Change anything that does not feel right.</p>
+        <p>This step is optional. Change anything that does not feel right.</p>
         <button type="button" onClick={onBack} className={`${SECONDARY_BUTTON_CLASS} self-start`}>
           Back to my story
         </button>
       </header>
-      {clarifications.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h2 className="font-semibold">A few questions</h2>
-          <ul className="list-disc pl-5 text-sm">
-            {clarifications.map((question) => (
-              <li key={question}>{question}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <ReadingNotes isDemo={isDemo} clarifications={clarifications} />
       {events.length === 0 && <p>{NO_EVENTS_MESSAGE}</p>}
       <ol className="flex flex-col gap-4">
         {events.map((event, index) => (

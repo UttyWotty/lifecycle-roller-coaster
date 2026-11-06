@@ -22,13 +22,14 @@ export const extractionDraftSchema = z.object({
 export const extractionResultSchema = z.object({
   events: z.array(lifeEventSchema),
   clarifications: z.array(z.string()),
+  isDemo: z.boolean().default(false),
 });
 
 export type ExtractionDraft = z.infer<typeof extractionDraftSchema>;
 export type ExtractionResult = z.infer<typeof extractionResultSchema>;
 
 /** Assigns sequential ids and re-validates the list against the shared event contract. */
-export function finalizeDraft(draft: ExtractionDraft): ExtractionResult {
+export function finalizeDraft(draft: ExtractionDraft, isDemo: boolean): ExtractionResult {
   const events: LifeEvent[] = draft.events.map((event, index) => ({
     ...event,
     id: formatEventId(index + 1),
@@ -37,7 +38,7 @@ export function finalizeDraft(draft: ExtractionDraft): ExtractionResult {
   if (!validated.success) {
     throw new ExtractionError("provider_failed");
   }
-  return { events: validated.data.events, clarifications: draft.clarifications };
+  return { events: validated.data.events, clarifications: draft.clarifications, isDemo };
 }
 
 function parseDraftText(text: string): ExtractionDraft {

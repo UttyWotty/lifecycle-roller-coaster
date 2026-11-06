@@ -1,61 +1,59 @@
 /**
- * Static illustration of a sample roller coaster for the landing page.
+ * Example ride for the landing page, drawn by the real track generator.
  * It uses a fictional life story to show what a finished ride looks like.
- * The track is hand-drawn here and is separate from the real rendering engine.
+ * The landing page therefore always matches what the app actually produces.
  */
 import type { ReactElement } from "react";
-
-interface RideStop {
-  x: number;
-  y: number;
-  label: string;
-  labelX: number;
-  labelY: number;
-  anchor: "middle" | "end";
-}
-
-const VIEW_BOX = "0 0 640 240";
-const STOP_RADIUS = 8;
-const TRACK_WIDTH = 6;
-const LABEL_SIZE = 18;
-const TRACK_PATH =
-  "M20 170 C70 170 90 70 130 70 S240 190 290 190 S370 60 420 60 S460 170 500 170 S560 40 600 40";
-
-const RIDE_STOPS: readonly RideStop[] = [
-  { x: 130, y: 70, label: "Started university", labelX: 130, labelY: 50, anchor: "middle" },
-  { x: 290, y: 190, label: "Lost a job", labelX: 290, labelY: 222, anchor: "middle" },
-  { x: 420, y: 60, label: "Got married", labelX: 420, labelY: 40, anchor: "middle" },
-  { x: 500, y: 170, label: "Money crisis", labelX: 500, labelY: 202, anchor: "middle" },
-  { x: 600, y: 40, label: "Built a company", labelX: 620, labelY: 20, anchor: "end" },
-];
+import { RideTrack } from "@/components/RollerCoaster/RideTrack";
+import type { LifeEvent } from "@/lib/events/schema";
+import { buildTrack } from "@/lib/track/buildTrack";
 
 const DESCRIPTION =
   "An example roller-coaster track that rises at happy life events and drops at hard ones.";
 
+const EXAMPLE_EVENTS: readonly LifeEvent[] = [
+  {
+    id: "example_1",
+    date: "2015",
+    title: "Started university",
+    description: "",
+    category: "education",
+    sentiment: "positive",
+    impact: 7,
+    confidence: 1,
+  },
+  {
+    id: "example_2",
+    date: "2020",
+    title: "Lost a job",
+    description: "",
+    category: "career",
+    sentiment: "negative",
+    impact: 9,
+    confidence: 1,
+  },
+  {
+    id: "example_3",
+    date: "2022",
+    title: "Got married",
+    description: "",
+    category: "relationships",
+    sentiment: "positive",
+    impact: 9,
+    confidence: 1,
+  },
+  {
+    id: "example_4",
+    date: "2026",
+    title: "Built a company",
+    description: "",
+    category: "business",
+    sentiment: "positive",
+    impact: 8,
+    confidence: 1,
+  },
+];
+
 export function ExampleRide(): ReactElement {
-  return (
-    <svg viewBox={VIEW_BOX} role="img" aria-label={DESCRIPTION} className="h-auto w-full">
-      <path
-        d={TRACK_PATH}
-        fill="none"
-        stroke="var(--accent)"
-        strokeWidth={TRACK_WIDTH}
-        strokeLinecap="round"
-      />
-      {RIDE_STOPS.map((stop) => (
-        <g key={stop.label}>
-          <circle cx={stop.x} cy={stop.y} r={STOP_RADIUS} fill="var(--foreground)" />
-          <text
-            x={stop.labelX}
-            y={stop.labelY}
-            textAnchor={stop.anchor}
-            fontSize={LABEL_SIZE}
-            fill="currentColor"
-          >
-            {stop.label}
-          </text>
-        </g>
-      ))}
-    </svg>
-  );
+  return <RideTrack track={buildTrack(EXAMPLE_EVENTS)} label={DESCRIPTION} />;
 }

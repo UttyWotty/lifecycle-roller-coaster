@@ -18,6 +18,8 @@ npm run typecheck            # generate route types, then tsc
 npm test                     # all tests once
 npx vitest run src/lib/events/schema.test.ts   # one test file
 npx vitest run -t "rejects duplicate ids"      # one test by name
+npm run test:e2e             # build, then run the browser tests in e2e/
+npx playwright test e2e/ride.spec.ts           # one browser spec, after a build
 ```
 
 This Next.js version differs from older releases. Read the guide in `node_modules/next/dist/docs/` before using framework APIs. `AGENTS.md` is written by `next dev`, so keep it committed.
@@ -34,7 +36,7 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 - **The LLM sits behind a provider-agnostic adapter.** `src/lib/ai/extractor.ts` is the interface, and `src/lib/ai/anthropicExtractor.ts` is the only module that imports the SDK or reads its settings. `extractRequest.ts` takes the extractor as an argument, so tests use a fake and never call the API.
 - **Read the stop reason before the output.** Use `beta.messages.create` with `readModelOutput`, not `parse`: the SDK parser throws on truncated output before `stop_reason` can be read, and its error text can contain story fragments.
 - **Stack:** Next.js + TypeScript and Tailwind CSS, with zod validating data at the boundaries. Server logic lives in Next.js route handlers rather than a separate backend. Planned additions are SVG (optionally D3.js) track generation, SVG-to-PNG export, and browser local storage.
-- **Module layout:** `src/app` holds routes and `src/components` holds UI. `src/lib/events` is the shared contract and its editing logic, and stays pure. `RideFlow` owns the story and events and switches between the writing, review and ride stages, which stay separate so editing the story cannot wipe event edits. AI code is in `src/lib/ai` and track generation goes in `src/lib/track`; each may import `src/lib/events` but never the other. `eslint.config.mjs` enforces these boundaries.
+- **Module layout:** `src/app` holds routes and `src/components` holds UI. `src/lib/events` is the shared contract and its editing logic, and stays pure. `RideFlow` owns the story and events and switches between the writing, ride and review stages. Generate goes straight to the ride, and the review stage is optional, reached through Edit my events. Stages stay separate so editing the story cannot wipe event edits. Anything the user must see, such as the demo notice, belongs in `ReadingNotes`, which both stages show. AI code is in `src/lib/ai` and track generation goes in `src/lib/track`; each may import `src/lib/events` but never the other. `eslint.config.mjs` enforces these boundaries.
 
 ## Track Model
 
@@ -60,7 +62,7 @@ Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites it
 
 ## Token Use
 
-Real extraction spends the owner's money, so ask before any live API call and keep runs few. Unit tests use fake extractors, and CI has no key. For manual and browser testing, use `EXTRACTOR_MODE=fixture`, which returns labelled demo events for free. Server logs record the token count of each real extraction.
+Real extraction spends the owner's money, so ask before any live API call and keep runs few. Unit tests use fake extractors, and CI has no key. `playwright.config.ts` forces `EXTRACTOR_MODE=fixture` and an empty key, so browser tests can never spend tokens. For manual testing, use `EXTRACTOR_MODE=fixture`, which returns labelled demo events for free. Server logs record the token count of each real extraction.
 
 ## Privacy Requirements
 

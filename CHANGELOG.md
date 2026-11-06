@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-06
+
+### Changed
+
+- Generate now goes straight from the story to the ride, and editing events is an optional step.
+- Demo mode now shows a clear notice that the events are samples and the story was not read.
+- The landing page example now comes from the real track generator.
+
+### Added
+
+- Playwright browser tests for the full user journey, which run on every pull request and never call a real AI provider.
+
 ## [0.1.1] - 2026-11-06
 
 ### Changed

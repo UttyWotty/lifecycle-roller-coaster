@@ -6,5 +6,7 @@
 import type { ExtractionDraft } from "./extraction";
 
 export interface EventExtractor {
+  /** True when output is sample data rather than a real reading of the story. */
+  readonly isDemo: boolean;
   extract(story: string, signal: AbortSignal): Promise<ExtractionDraft>;
 }
