@@ -57,7 +57,7 @@ export function sampleStory(life: SampleLife): string {
 }
 
 export const SAMPLE_LIVES: readonly SampleLife[] = [
-  buildLife("maya", "Maya's Startup Rollercoaster", "loops", "sunny", "robot", [
+  buildLife("maya", "Maya's Startup Rollercoaster", "loops", "nightmare", "robot", [
     ["2009", "Coded her first game", "education", "positive", 5, "At fifteen, Maya coded her first game and showed the whole class."],
     ["2012", "Began computer science", "education", "positive", 7, "She started computer science at university, the first in her family to go."],
     ["2014", "Failed her first exam", "education", "negative", 4, "She failed her first exam and nearly switched courses."],
@@ -89,7 +89,7 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2023", "Head of nursing", "career", "positive", 9, "He became head of nursing at the hospital where he started."],
     [null, "Still bakes on Sundays", "personal", "neutral", 3, "He still bakes his father's bread on Sundays."],
   ]),
-  buildLife("priya", "Priya's Encore", "loops", "sunset", "cat", [
+  buildLife("priya", "Priya's Encore", "loops", "poster", "cat", [
     ["2001", "Got her first guitar", "personal", "positive", 7, "Priya got her first guitar, a battered gift from an uncle."],
     ["2004", "Formed a school band", "relationships", "positive", 5, "She formed a band with three school friends."],
     ["2007", "Dropped out of law", "education", "negative", 6, "She dropped out of law school and upset her parents."],
@@ -105,7 +105,7 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2022", "Sang at the big hall", "career", "positive", 10, "She sang to a full hall with her parents in the front row."],
     [null, "Opened a music school", "business", "positive", 6, "She opened a free music school in her old neighbourhood."],
   ]),
-  buildLife("jonah", "Jonah's Second Act", "coaster", "retro", "smiley", [
+  buildLife("jonah", "Jonah's Second Act", "coaster", "classic", "smiley", [
     ["1998", "Started teaching", "career", "positive", 7, "Jonah started teaching maths at his old school."],
     ["2000", "Married Claire", "relationships", "positive", 9, "He married Claire in the rain."],
     ["2003", "Bought the old house", "finance", "positive", 6, "They bought an old house that needed everything fixed."],
@@ -137,7 +137,7 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2023", "Paid off the loan", "finance", "positive", 7, "She paid off the last of the loan."],
     [null, "Wrote a cookbook", "personal", "positive", 6, "She wrote her grandmother's recipes into a cookbook."],
   ]),
-  buildLife("sam", "Sam Goes the Distance", "coaster", "nightmare", "dino", [
+  buildLife("sam", "Sam Goes the Distance", "coaster", "haunted", "dino", [
     ["2006", "Joined a running club", "health", "positive", 6, "Sam joined a running club at twelve."],
     ["2010", "Won the county race", "personal", "positive", 7, "Sam won the county race, in borrowed shoes."],
     ["2012", "Sports scholarship", "education", "positive", 9, "A sports scholarship paid for university."],
@@ -153,7 +153,7 @@ export const SAMPLE_LIVES: readonly SampleLife[] = [
     ["2023", "Ran with an old rival", "relationships", "positive", 4, "Sam ran a charity race beside an old rival."],
     ["2025", "Became a parent", "relationships", "positive", 10, "Sam became a parent, and now runs much more slowly."],
   ]),
-  buildLife("amara", "Amara Crosses the Ocean", "metro", "sunny", "astronaut", [
+  buildLife("amara", "Amara Crosses the Ocean", "metro", "minimal", "astronaut", [
     ["1996", "Left Lagos at sixteen", "personal", "neutral", 9, "Amara left Lagos at sixteen to live with an aunt in Toronto."],
     ["1997", "Bullied for her accent", "education", "negative", 5, "She was teased at school for her accent."],
     ["1999", "Won a science prize", "education", "positive", 7, "She won a provincial science prize."],

@@ -109,15 +109,14 @@ function HauntedTower({ building, groundY, color }: ShapeProps): ReactElement {
   );
 }
 
-const SHAPES: Readonly<Record<SceneryKind, (props: ShapeProps) => ReactElement>> = {
-  city: CityBlock,
+const SHAPES: Readonly<Partial<Record<SceneryKind, (props: ShapeProps) => ReactElement>>> = {
   fairground: Tent,
   haunted: HauntedTower,
 };
 
 export function SceneBuildings(props: SceneBuildingsProps): ReactElement {
   const { buildings, groundY, color, kind, palette, opacity = 1 } = props;
-  const Shape = SHAPES[kind];
+  const Shape = SHAPES[kind] ?? CityBlock;
   return (
     <g opacity={opacity}>
       {buildings.map((building) => (

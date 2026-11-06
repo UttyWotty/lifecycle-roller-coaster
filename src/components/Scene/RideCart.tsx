@@ -15,6 +15,8 @@ interface RideCartProps {
   stopCount: number;
   color: string;
   rider: Rider;
+  /** Removes colour from the cart and rider, for line art. */
+  isMonochrome: boolean;
 }
 
 const SECONDS_PER_STOP = 1.3;
@@ -26,6 +28,7 @@ const BODY_PATH = "M-30 -10 V-28 Q-30 -36 -23 -30 L-10 -17 H12 Q22 -30 30 -23 Q3
 const WHEEL_POSITIONS = [-20, -7, 7, 20];
 const RIDER_POSITION = "translate(-3 -35)";
 const CART_SCALE = 1.25;
+const MONOCHROME_STYLE = { filter: "grayscale(1)" };
 
 function CartArt({ color, rider }: { color: string; rider: Rider }): ReactElement {
   return (
@@ -44,10 +47,10 @@ function CartArt({ color, rider }: { color: string; rider: Rider }): ReactElemen
   );
 }
 
-export function RideCart({ path, parkedAt, stopCount, color, rider }: RideCartProps): ReactElement {
+export function RideCart({ path, parkedAt, stopCount, color, rider, isMonochrome }: RideCartProps): ReactElement {
   const seconds = Math.max(SHORTEST_RIDE_SECONDS, stopCount * SECONDS_PER_STOP);
   return (
-    <g aria-hidden="true">
+    <g aria-hidden="true" style={isMonochrome ? MONOCHROME_STYLE : undefined}>
       <g className="ride-cart-moving" data-testid="ride-cart-moving" {...{ [EXPORT_HIDDEN_ATTRIBUTE]: true }}>
         <animateMotion path={path} dur={`${seconds}s`} rotate="auto" fill="freeze" />
         <CartArt color={color} rider={rider} />
