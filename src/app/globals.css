@@ -43,6 +43,32 @@ body {
   }
 }
 
+.ride-cart-moving {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ride-track-ties {
+    animation: ride-track-ties 0.4s 2.2s ease-out both;
+  }
+}
+
+@keyframes ride-track-ties {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ride-cart-moving {
+    display: inline;
+  }
+
+  .ride-cart-parked {
+    display: none;
+  }
+}
+
 @keyframes ride-track-draw {
   from {
     stroke-dashoffset: 1;

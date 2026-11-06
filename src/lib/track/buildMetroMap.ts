@@ -92,6 +92,7 @@ export function buildMetroMap(events: readonly LifeEvent[]): Track {
     lines: categories.map((category, index) => buildLine(category, index, categories.length, stops)),
     stops,
     supports: [],
+    profile: [],
     contentOffset: 0,
     title: null,
   };

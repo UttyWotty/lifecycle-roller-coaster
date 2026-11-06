@@ -44,6 +44,8 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 
 Every ride style is a generator that returns the same `Track` type from `src/lib/track/types.ts`, registered in `rideStyles.ts`, so `RideTrack` and image export need no per-style code paths. Styles change only how events are drawn, never the events. Loop-the-loops adds a circle at each major stop. The metro map gives each category a full-width line, brings all lines through major stops, and returns them to their lanes between distant stops. `addTitle` runs last and shifts the ride down with `contentOffset`; style and title live in `RideFlow` so they survive stage changes.
 
+Themes are separate from styles. `src/lib/scene` holds palettes and scenery, and `composeRide` is the one place that builds a style, adds headroom, a title and scenery. Scenery uses a fixed seed, never `Math.random`, so redraws do not flicker. All art is original and drawn in code. Scene colours are fixed hex values, so they export unchanged. The moving cart is hidden from exports with `EXPORT_HIDDEN_ATTRIBUTE`, and page CSS shows it instead of the parked cart, which is all an exported image sees.
+
 Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites its markup with a fixed light palette, and `downloadRideImage.ts` converts it to PNG in the browser, so nothing is uploaded.
 
 ## Event Data Model

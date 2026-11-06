@@ -18,7 +18,6 @@ export default function Home(): ReactElement {
           coaster. No account needed.
         </p>
       </header>
-      <ExampleRide />
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Link
           href="/story"
@@ -33,6 +32,7 @@ export default function Home(): ReactElement {
           Try a sample life
         </Link>
       </div>
+      <ExampleRide />
     </main>
   );
 }

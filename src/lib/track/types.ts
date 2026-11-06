@@ -47,6 +47,8 @@ export interface Track {
   lines: TrackLine[];
   stops: TrackStop[];
   supports: TrackPoint[];
+  /** The rail's height along its length, without loops, for drawing what holds it up. */
+  profile: TrackPoint[];
   /** How far the ride sits below the top of the canvas, to leave room for a title. */
   contentOffset: number;
   title: TrackTitle | null;

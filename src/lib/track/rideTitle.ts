@@ -36,7 +36,7 @@ export function addTitle(track: Track, title: string): Track {
     ...track,
     width: Math.max(track.width, Math.ceil(widthPerFontSize * fontSize + TITLE_INSET * 2)),
     height: track.height + TITLE_BAND,
-    contentOffset: TITLE_BAND,
+    contentOffset: track.contentOffset + TITLE_BAND,
     title: { text, fontSize, x: TITLE_INSET, y: TITLE_BASELINE },
   };
 }

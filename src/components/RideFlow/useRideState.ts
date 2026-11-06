@@ -11,6 +11,7 @@ import { addBlankEvent, findInvalidFields } from "@/lib/events/editing";
 import type { LifeEvent } from "@/lib/events/schema";
 import { pickSample } from "@/lib/samples/pickSample";
 import { sampleStory, type SampleLife } from "@/lib/samples/sampleLives";
+import { DEFAULT_RIDE_THEME, type RideTheme } from "@/lib/scene/themes";
 import { DEFAULT_RIDE_STYLE } from "@/lib/track/rideStyles";
 import type { RideStyle } from "@/lib/track/types";
 
@@ -25,11 +26,13 @@ export interface RideState {
   sampleId: string | null;
   rideTitle: string;
   rideStyle: RideStyle;
+  rideTheme: RideTheme;
   setStage: (stage: Stage) => void;
   setStory: (story: string) => void;
   setEvents: (events: LifeEvent[]) => void;
   setRideTitle: (title: string) => void;
   setRideStyle: (style: RideStyle) => void;
+  setRideTheme: (theme: RideTheme) => void;
   showResult: (result: ExtractionResult) => void;
   showSample: () => void;
   returnToEvents: () => void;
@@ -48,6 +51,7 @@ export function useRideState(startWithSample: boolean): RideState {
   const [sample, setSample] = useState<SampleLife | null>(opening);
   const [rideTitle, setRideTitle] = useState(opening?.title ?? "");
   const [rideStyle, setRideStyle] = useState<RideStyle>(opening?.rideStyle ?? DEFAULT_RIDE_STYLE);
+  const [rideTheme, setRideTheme] = useState<RideTheme>(opening?.rideTheme ?? DEFAULT_RIDE_THEME);
 
   /** Drops what belongs to a sample, so its title never ends up on the user's own ride. */
   function leaveSample(): void {
@@ -69,6 +73,7 @@ export function useRideState(startWithSample: boolean): RideState {
     setIsDemo(false);
     setRideTitle(next.title);
     setRideStyle(next.rideStyle);
+    setRideTheme(next.rideTheme);
     setStage("ride");
   }
 
@@ -102,11 +107,13 @@ export function useRideState(startWithSample: boolean): RideState {
     sampleId: sample?.id ?? null,
     rideTitle,
     rideStyle,
+    rideTheme,
     setStage,
     setStory,
     setEvents,
     setRideTitle,
     setRideStyle,
+    setRideTheme,
     showResult,
     showSample,
     returnToEvents,
