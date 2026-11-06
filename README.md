@@ -103,6 +103,7 @@ The AI layer and the rendering engine are independent. The AI produces structure
 | `src/lib/story/` | Pure rules for the story input |
 | `src/lib/track/` | The pure roller-coaster track generator |
 | `src/lib/export/` | Pure preparation of the ride image |
+| `e2e/` | Browser tests for the full user journey |
 | `docs/` | The product blueprint |
 
 To add a provider, implement the `EventExtractor` interface in `src/lib/ai/extractor.ts`.
@@ -116,8 +117,11 @@ To add a provider, implement the `EventExtractor` interface in `src/lib/ai/extra
 | `npm start` | Serve the production build |
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Generate route types and run the TypeScript compiler |
-| `npm test` | Run the tests once, with no network or API key needed |
-| `npm run test:watch` | Run the tests in watch mode |
+| `npm test` | Run the unit tests once, with no network or API key needed |
+| `npm run test:watch` | Run the unit tests in watch mode |
+| `npm run test:e2e` | Build the app and run the browser tests |
+
+Browser tests need a browser, so run `npx playwright install chromium` once first. They always run in demo mode with an empty API key, so they never spend tokens, even if your `.env` holds a real key.
 
 ## Roadmap
 

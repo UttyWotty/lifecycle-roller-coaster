@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- Playwright browser tests for the full user journey, which run on every pull request and never call a real AI provider.
+
 ## [0.1.1] - 2026-11-06
 
 ### Changed
