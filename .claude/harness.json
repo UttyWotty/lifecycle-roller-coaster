@@ -1,0 +1,8 @@
+{
+  "commands": [
+    {"name": "lint", "run": "npm run lint", "timeout_s": 120},
+    {"name": "typecheck", "run": "npm run typecheck", "timeout_s": 120},
+    {"name": "test", "run": "npm test", "timeout_s": 120}
+  ],
+  "required_commit_email": "ugulbardak@gmail.com"
+}

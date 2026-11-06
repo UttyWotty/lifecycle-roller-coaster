@@ -1,0 +1,53 @@
+/*
+ * Global stylesheet for the application.
+ * It loads Tailwind CSS and defines the base color tokens.
+ * Dark mode follows the operating system preference.
+ */
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --muted: #5b5b66;
+  --accent: #e11d48;
+  --on-accent: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --muted: #a3a3ad;
+    --accent: #fb7185;
+    --on-accent: #0a0a0a;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ride-track-draw {
+    stroke-dasharray: 1;
+    animation: ride-track-draw 2.4s ease-in-out both;
+  }
+}
+
+@keyframes ride-track-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}

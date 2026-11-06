@@ -1,0 +1,60 @@
+/**
+ * Pure preparation of a ride drawing for export as a standalone image.
+ * It swaps theme variables for a fixed light palette, so exports look the same in any theme.
+ * It works on serialized markup and performs no DOM, canvas or file operations.
+ */
+
+/** Elements with this attribute appear on screen but are left out of exported images. */
+export const EXPORT_HIDDEN_ATTRIBUTE = "data-export-hidden";
+
+export interface RideImageSize {
+  width: number;
+  height: number;
+}
+
+const EXPORT_PALETTE: Readonly<Record<string, string>> = {
+  "--background": "#ffffff",
+  "--foreground": "#171717",
+  "--muted": "#5b5b66",
+  "--accent": "#e11d48",
+};
+const FALLBACK_COLOR = EXPORT_PALETTE["--foreground"];
+const FONT_FAMILY = "Arial, Helvetica, sans-serif";
+const WORDMARK = "Lifecycle Roller Coaster";
+const WORDMARK_SIZE = 14;
+const WORDMARK_INSET = 16;
+const WORDMARK_HALO_WIDTH = 6;
+const PREFERRED_SCALE = 2;
+/** Browsers refuse larger canvases, so very long rides are drawn at a lower scale. */
+const MAX_CANVAS_EDGE = 8192;
+
+/** Matches only whole attribute values, so words in a user's title are never rewritten. */
+const THEME_VARIABLE = /="var\((--[\w-]+)\)"/g;
+const CURRENT_COLOR = /="currentColor"/g;
+const ROOT_TAG = /<svg\b([^>]*)>/;
+const CLOSING_TAG = "</svg>";
+
+export function exportScale({ width, height }: RideImageSize): number {
+  return Math.min(PREFERRED_SCALE, MAX_CANVAS_EDGE / Math.max(width, height));
+}
+
+function applyPalette(markup: string): string {
+  return markup
+    .replace(THEME_VARIABLE, (_match, name: string) => `="${EXPORT_PALETTE[name] ?? FALLBACK_COLOR}"`)
+    .replace(CURRENT_COLOR, `="${FALLBACK_COLOR}"`);
+}
+
+/** Turns on-screen SVG markup into a self-contained image with a background and wordmark. */
+export function prepareRideSvg(markup: string, { width, height }: RideImageSize): string {
+  const background = `<rect width="${width}" height="${height}" fill="${EXPORT_PALETTE["--background"]}"/>`;
+  const wordmark =
+    `<text x="${width - WORDMARK_INSET}" y="${height - WORDMARK_INSET}" text-anchor="end" ` +
+    `font-size="${WORDMARK_SIZE}" fill="${EXPORT_PALETTE["--muted"]}" paint-order="stroke" ` +
+    `stroke="${EXPORT_PALETTE["--background"]}" stroke-width="${WORDMARK_HALO_WIDTH}">${WORDMARK}</text>`;
+  return applyPalette(markup)
+    .replace(
+      ROOT_TAG,
+      `<svg$1 width="${width}" height="${height}" font-family="${FONT_FAMILY}">${background}`,
+    )
+    .replace(CLOSING_TAG, `${wordmark}${CLOSING_TAG}`);
+}
