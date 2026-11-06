@@ -23,6 +23,7 @@ interface RideResultProps {
   events: readonly LifeEvent[];
   clarifications: readonly string[];
   isDemo: boolean;
+  isSample: boolean;
   title: string;
   rideStyle: RideStyle;
   onTitleChange: (title: string) => void;
@@ -30,14 +31,15 @@ interface RideResultProps {
   onEventsChange: (events: LifeEvent[]) => void;
   onEditEvents: () => void;
   onBackToStory: () => void;
+  onShowAnotherSample: () => void;
 }
 
 const SELECT_PROMPT = "Select a stop on the track to adjust how it felt and how much it mattered.";
 const CREATIVE_NOTE = "This ride is a creative picture of your story, not a measurement of your life.";
 
 export function RideResult(props: RideResultProps): ReactElement {
-  const { events, clarifications, isDemo, title, rideStyle } = props;
-  const { onTitleChange, onRideStyleChange, onEventsChange, onEditEvents, onBackToStory } = props;
+  const { events, clarifications, isDemo, isSample, title, rideStyle } = props;
+  const { onTitleChange, onRideStyleChange, onEventsChange, onEditEvents, onBackToStory, onShowAnotherSample } = props;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const svg = useRef<SVGSVGElement>(null);
@@ -60,9 +62,14 @@ export function RideResult(props: RideResultProps): ReactElement {
           <button type="button" onClick={onEditEvents} className={SECONDARY_BUTTON_CLASS}>
             Edit my events
           </button>
+          {isSample && (
+            <button type="button" onClick={onShowAnotherSample} className={SECONDARY_BUTTON_CLASS}>
+              Show me another life
+            </button>
+          )}
         </div>
       </header>
-      <ReadingNotes isDemo={isDemo} clarifications={clarifications} />
+      <ReadingNotes isDemo={isDemo} isSample={isSample} clarifications={clarifications} />
       <RideControls
         title={title}
         style={rideStyle}

@@ -25,6 +25,7 @@ interface EventReviewProps {
   events: readonly LifeEvent[];
   clarifications: readonly string[];
   isDemo: boolean;
+  isSample: boolean;
   onEventsChange: (events: LifeEvent[]) => void;
   onBack: () => void;
   onContinue: () => void;
@@ -39,7 +40,7 @@ const NO_EVENTS_MESSAGE = "No events yet. Add what happened and roughly when.";
 const UNTITLED = "Untitled event";
 
 export function EventReview(props: EventReviewProps): ReactElement {
-  const { events, clarifications, isDemo, onEventsChange, onBack, onContinue } = props;
+  const { events, clarifications, isDemo, isSample, onEventsChange, onBack, onContinue } = props;
   const [removed, setRemoved] = useState<RemovedEvent | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const invalidFields = findInvalidFields(events);
@@ -68,7 +69,7 @@ export function EventReview(props: EventReviewProps): ReactElement {
           Back to my story
         </button>
       </header>
-      <ReadingNotes isDemo={isDemo} clarifications={clarifications} />
+      <ReadingNotes isDemo={isDemo} isSample={isSample} clarifications={clarifications} />
       {events.length === 0 && <p>{NO_EVENTS_MESSAGE}</p>}
       <ol className="flex flex-col gap-4">
         {events.map((event, index) => (
