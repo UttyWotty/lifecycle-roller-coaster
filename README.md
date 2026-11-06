@@ -6,7 +6,7 @@ Lifecycle Roller Coaster is an open-source web app that turns a free-text life s
 
 ## Status
 
-Early scaffold: the app runs and shows a placeholder landing page. The event schema exists, but the story editor, AI extraction, track rendering and export are not built yet. See the roadmap in the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md).
+Early development: the landing page and story editor work, and the event schema exists. AI extraction, event review, track rendering and export are not built yet, so the Generate button does not send your story anywhere. See the roadmap in the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md).
 
 ## Getting Started
 
@@ -36,7 +36,9 @@ Then open http://localhost:3000.
 | Path | Contents |
 | --- | --- |
 | `src/app/` | Routes and the root layout |
+| `src/components/` | UI components |
 | `src/lib/events/` | Event schema shared by AI extraction and rendering |
+| `src/lib/story/` | Pure rules for the story input |
 | `docs/` | Product blueprint |
 
 ## Privacy

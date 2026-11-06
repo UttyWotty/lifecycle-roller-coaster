@@ -10,3 +10,9 @@ All notable changes to this project are documented in this file. The format foll
 - Shared event schema with validation and tests.
 - ESLint, typecheck, Vitest, CI workflow and harness configuration.
 - README, MIT license and changelog.
+- Landing page with an example ride and a link to the story editor.
+- Story editor with example prompts, a length limit and a privacy note.
+
+### Security
+
+- CI workflow runs with a read-only repository token.
