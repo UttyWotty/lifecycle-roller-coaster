@@ -5,14 +5,9 @@
  */
 import type { ChangeEvent, ReactElement } from "react";
 import type { EventField, EventPatch } from "@/lib/events/editing";
-import {
-  EVENT_CATEGORIES,
-  EVENT_SENTIMENTS,
-  IMPACT_MAX,
-  IMPACT_MIN,
-  type LifeEvent,
-} from "@/lib/events/schema";
+import { EVENT_CATEGORIES, type LifeEvent } from "@/lib/events/schema";
 import { ERROR_CLASS, FIELD_CLASS, LABEL_CLASS, toLabel } from "./fieldStyles";
+import { IntensityFields } from "./IntensityFields";
 
 interface EventFieldsProps {
   event: LifeEvent;
@@ -76,33 +71,7 @@ export function EventFields({ event, invalidFields, onChange }: EventFieldsProps
           className={FIELD_CLASS}
         />
       </label>
-      <label className={LABEL_CLASS}>
-        How it felt
-        <select
-          value={event.sentiment}
-          onChange={({ target }) =>
-            onChange({ sentiment: target.value as LifeEvent["sentiment"] })
-          }
-          className={FIELD_CLASS}
-        >
-          {EVENT_SENTIMENTS.map((sentiment) => (
-            <option key={sentiment} value={sentiment}>
-              {toLabel(sentiment)}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className={LABEL_CLASS}>
-        Impact: {event.impact} of {IMPACT_MAX}
-        <input
-          type="range"
-          min={IMPACT_MIN}
-          max={IMPACT_MAX}
-          value={event.impact}
-          onChange={({ target }) => onChange({ impact: Number(target.value) })}
-          className="min-h-11 w-full accent-accent"
-        />
-      </label>
+      <IntensityFields event={event} onChange={onChange} />
     </div>
   );
 }

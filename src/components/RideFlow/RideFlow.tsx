@@ -1,18 +1,19 @@
 /**
- * Holds the story and events, and switches between writing and reviewing.
- * The two stages are separate, so editing the story can never wipe a user's event edits.
+ * Holds the story and events, and moves the user between writing, reviewing and the ride.
+ * The stages are separate, so editing the story can never wipe a user's event edits.
  * All of this state lives in React only and disappears when the page closes.
  */
 "use client";
 
 import { useState, type ReactElement } from "react";
 import { EventReview } from "@/components/EventReview/EventReview";
+import { RideResult } from "@/components/RollerCoaster/RideResult";
 import { StoryEditor } from "@/components/StoryEditor/StoryEditor";
 import type { ExtractionResult } from "@/lib/ai/extraction";
 import { addBlankEvent } from "@/lib/events/editing";
 import type { LifeEvent } from "@/lib/events/schema";
 
-type Stage = "story" | "review";
+type Stage = "story" | "review" | "ride";
 
 export function RideFlow(): ReactElement {
   const [stage, setStage] = useState<Stage>("story");
@@ -26,6 +27,16 @@ export function RideFlow(): ReactElement {
     setStage("review");
   }
 
+  if (stage === "ride") {
+    return (
+      <RideResult
+        events={events}
+        onEventsChange={setEvents}
+        onBack={() => setStage("review")}
+      />
+    );
+  }
+
   if (stage === "review") {
     return (
       <EventReview
@@ -33,6 +44,7 @@ export function RideFlow(): ReactElement {
         clarifications={clarifications}
         onEventsChange={setEvents}
         onBack={() => setStage("story")}
+        onContinue={() => setStage("ride")}
       />
     );
   }

@@ -6,7 +6,7 @@ Lifecycle Roller Coaster is an open-source web app that turns a free-text life s
 
 ## Status
 
-Early development: you can write a story, have AI find the events, and review and correct them, or add events by hand. Track rendering and export are not built yet. See the roadmap in the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md).
+Early development: you can write a story, have AI find the events, review and correct them or add your own, and see them as a roller coaster you can adjust. Export is not built yet. See the roadmap in the [product blueprint](docs/lifecycle-roller-coaster-blueprint.md).
 
 ## Getting Started
 
@@ -41,6 +41,7 @@ Then open http://localhost:3000. `.env.example` sets `EXTRACTOR_MODE=fixture`, s
 | `src/lib/ai/` | Provider-agnostic extraction and the Claude adapter |
 | `src/lib/events/` | Event schema shared by AI extraction and rendering |
 | `src/lib/story/` | Pure rules for the story input |
+| `src/lib/track/` | Pure roller-coaster track generator |
 | `docs/` | Product blueprint |
 
 ## Privacy

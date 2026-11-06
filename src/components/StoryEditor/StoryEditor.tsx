@@ -41,7 +41,7 @@ export function StoryEditor(props: StoryEditorProps): ReactElement {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <header className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold">Tell your story</h1>
         <p>Write about the moments that shaped your life, in your own words and in any order.</p>

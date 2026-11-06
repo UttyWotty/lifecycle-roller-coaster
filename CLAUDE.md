@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-Roadmap phases 1 to 3 are done: the landing page, story editor, shared event schema, AI extraction, and event review. Track rendering and export are not built yet.
+Roadmap phases 1 to 4 are done: the landing page, story editor, shared event schema, AI extraction, event review, and the ride. Export is not built yet.
 
 `docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
 
@@ -34,7 +34,11 @@ v0.1 excludes accounts, payments, social networking, complex analytics, and a da
 - **The LLM sits behind a provider-agnostic adapter.** `src/lib/ai/extractor.ts` is the interface, and `src/lib/ai/anthropicExtractor.ts` is the only module that imports the SDK or reads its settings. `extractRequest.ts` takes the extractor as an argument, so tests use a fake and never call the API.
 - **Read the stop reason before the output.** Use `beta.messages.create` with `readModelOutput`, not `parse`: the SDK parser throws on truncated output before `stop_reason` can be read, and its error text can contain story fragments.
 - **Stack:** Next.js + TypeScript and Tailwind CSS, with zod validating data at the boundaries. Server logic lives in Next.js route handlers rather than a separate backend. Planned additions are SVG (optionally D3.js) track generation, SVG-to-PNG export, and browser local storage.
-- **Module layout:** `src/app` holds routes and `src/components` holds UI. `src/lib/events` is the shared contract and its editing logic, and stays pure. `RideFlow` owns the story and events and switches between the writing and review stages, which stay separate so editing the story cannot wipe event edits. AI code is in `src/lib/ai` and track generation goes in `src/lib/track`; each may import `src/lib/events` but never the other. `eslint.config.mjs` enforces these boundaries.
+- **Module layout:** `src/app` holds routes and `src/components` holds UI. `src/lib/events` is the shared contract and its editing logic, and stays pure. `RideFlow` owns the story and events and switches between the writing, review and ride stages, which stay separate so editing the story cannot wipe event edits. AI code is in `src/lib/ai` and track generation goes in `src/lib/track`; each may import `src/lib/events` but never the other. `eslint.config.mjs` enforces these boundaries.
+
+## Track Model
+
+`buildTrack` in `src/lib/track` returns geometry only. Height is cumulative: positive events add their impact, negative events subtract it, and neutral events stay flat. Stops sit in list order at even spacing, not on a true time scale, so the user's order is respected and undated events have a place.
 
 ## Event Data Model
 
