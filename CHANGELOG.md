@@ -18,6 +18,10 @@ All notable changes to this project are documented in this file. The format foll
 - Ocean voyage shows open sea behind deep troughs, and its loops are drawn as curling waves.
 - The Arcade level ground uses calm, staggered bricks.
 
+### Tests
+
+- The export tests now open every exported image and check its sky colour, its wordmark badge and that the ride is drawn, for every theme, style and rider, instead of only checking that the file is a PNG.
+
 ### Security
 
 - Every page and API response now sends a content security policy and refuses to be framed, along with other standard security headers.
