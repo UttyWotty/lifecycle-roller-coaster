@@ -10,6 +10,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Fixed
 
+- Claude now marks every feeling it guesses as a best guess, even for events where the feeling seems obvious, such as a divorce or an injury, and gives life chapters varied names instead of ending each with "Era".
 - The balloon and parachute now float clear of every label and of each other, in every theme.
 - Exported images carry the wordmark on a small badge in the top-right corner, so it reads cleanly on dark themes and never covers the chapter bands.
 - Minimal Mode keeps less empty sky above the ride, and its supports no longer run through labels.
