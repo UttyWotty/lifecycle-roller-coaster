@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-06
+
 ### Added
 
 - Four new worlds that tell your story as a different journey: Space mission, Ocean voyage, Mountain trek and Arcade level, each with its own vehicle.
