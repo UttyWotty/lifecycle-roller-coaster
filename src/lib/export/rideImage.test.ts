@@ -41,6 +41,23 @@ describe("prepareRideSvg", () => {
     expect(prepared).toMatch(/Lifecycle Roller Coaster<\/text><\/svg>$/);
   });
 
+  it("puts the wordmark on its own badge instead of a stroked halo, so it reads on dark scenes", () => {
+    expect(prepared).toMatch(/<rect [^>]*rx="8" fill="#ffffff" fill-opacity="0.85"\/><text [^>]*>Lifecycle Roller Coaster/);
+    expect(prepared).not.toMatch(/paint-order="stroke"[^>]*>Lifecycle/);
+  });
+
+  it("keeps the badge inside the image, in the top-right corner away from the chapter bands", () => {
+    const badge = /<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/.exec(prepared);
+    expect(badge).not.toBeNull();
+    const [x, y, width, height] = (badge ?? []).slice(1).map(Number);
+    expect(x).toBeGreaterThan(0);
+    expect(y).toBeGreaterThan(0);
+    expect(x + width).toBeLessThanOrEqual(SIZE.width);
+    expect(y + height).toBeLessThanOrEqual(SIZE.height);
+    expect(y + height).toBeLessThan(SIZE.height / 2);
+    expect(x).toBeGreaterThan(SIZE.width / 2);
+  });
+
   it("does not rewrite words in a user's title", () => {
     const titled = '<svg><text fill="currentColor">var(--accent) and currentColor</text></svg>';
     expect(prepareRideSvg(titled, SIZE)).toContain(">var(--accent) and currentColor<");

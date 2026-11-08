@@ -36,6 +36,8 @@ interface RideChoices {
 
 /** Sky kept clear above the track, so the tallest flag and its label always fit. */
 export const SKY_HEADROOM = 130;
+/** Minimal Mode draws no flags, so it needs only a little sky above its highest label. */
+export const BARE_HEADROOM = 30;
 
 function addFloor(track: Track, floor: number): Track {
   return { ...track, height: track.height + floor };
@@ -55,7 +57,8 @@ export function composeRide(events: readonly LifeEvent[], choices: RideChoices):
   if (palette === null) {
     return { track: addTitle(base, choices.title), scene: null };
   }
-  const track = addTitle(addHeadroom(addFloor(base, palette.floor), SKY_HEADROOM), choices.title);
+  const headroom = palette.kind === "line" ? BARE_HEADROOM : SKY_HEADROOM;
+  const track = addTitle(addHeadroom(addFloor(base, palette.floor), headroom), choices.title);
   return {
     track,
     scene: {

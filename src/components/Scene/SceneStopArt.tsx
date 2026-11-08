@@ -4,6 +4,7 @@
  * Metro stations and low stops skip the pole, and Minimal Mode draws bare text with an open circle.
  */
 import type { ReactElement } from "react";
+import { hasFlag as stopHasFlag, PILL_HEIGHT, pillTop as stopPillTop, pillWidth, POLE_HEIGHT, TALL_POLE_HEIGHT } from "@/lib/scene/labelLayout";
 import type { ScenePalette } from "@/lib/scene/themes";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
 import type { TrackStop } from "@/lib/track/types";
@@ -18,42 +19,28 @@ interface SceneStopArtProps {
   palette: ScenePalette;
 }
 
-const POLE_HEIGHT = 34;
-const TALL_POLE_HEIGHT = 84;
 const POLE_WIDTH = 3;
 const FLAG_WIDTH = 34;
 const FLAG_HEIGHT = 20;
-const PILL_HEIGHT = 44;
-const PILL_PADDING = 14;
 const PILL_RADIUS = 14;
-const PILL_GAP = 14;
 const PILL_EDGE_WIDTH = 2;
 const TITLE_SIZE = 13;
 const DATE_SIZE = 11;
 const TITLE_BASELINE = 19;
 const DATE_BASELINE = 34;
-const CHARACTER_WIDTH = 7;
 const HUB_RING_WIDTH = 4;
 const STATION_RING_WIDTH = 4;
-
-function pillWidth(stop: TrackStop, date: string): number {
-  return Math.max(stop.title.length, date.length) * CHARACTER_WIDTH + PILL_PADDING * 2;
-}
 
 export function SceneStopArt(props: SceneStopArtProps): ReactElement {
   const { stop, date, isStation, isTall, markerRadius, palette } = props;
   const isBare = palette.kind === "line";
   const color = isBare ? palette.ink : CATEGORY_COLORS[stop.category];
-  const isAbove = stop.labelSide === "above";
-  const hasFlag = isAbove && !isStation && !isBare;
+  const options = { isStation, isBare };
+  const hasFlag = stopHasFlag(stop, options);
   const poleHeight = isTall ? TALL_POLE_HEIGHT : POLE_HEIGHT;
   const poleTop = stop.y - poleHeight;
-  const width = pillWidth(stop, date);
-  const pillTop = !isAbove
-    ? stop.y + markerRadius + PILL_GAP
-    : hasFlag
-      ? poleTop - PILL_HEIGHT - PILL_GAP / 2
-      : stop.y - markerRadius - PILL_GAP - PILL_HEIGHT;
+  const width = pillWidth(stop.title, date);
+  const pillTop = stopPillTop(stop, isTall, options);
   return (
     <>
       {hasFlag && (
