@@ -12,6 +12,7 @@ All notable changes to this project are documented in this file. The format foll
 
 - Life chapter bands stay apart after events are reordered; a chapter split by the new order is shown as separate bands.
 - Rockets, boats and other vehicles parked at the end of the ride are no longer cut off at the edge of the drawing or the exported image.
+- Claude now marks every feeling it guesses as a best guess, even for events where the feeling seems obvious, such as a divorce or an injury, and gives life chapters varied names instead of ending each with "Era".
 - The balloon and parachute now float clear of every label and of each other, in every theme.
 - Exported images carry the wordmark on a small badge in the top-right corner, so it reads cleanly on dark themes and never covers the chapter bands.
 - Minimal Mode keeps less empty sky above the ride, and its supports no longer run through labels.
@@ -19,6 +20,10 @@ All notable changes to this project are documented in this file. The format foll
 - The Retro fairground Ferris wheel is a soft silhouette that stays behind the steel and labels.
 - Ocean voyage shows open sea behind deep troughs, and its loops are drawn as curling waves.
 - The Arcade level ground uses calm, staggered bricks.
+
+### Tests
+
+- The export tests now open every exported image and check its sky colour, its wordmark badge and that the ride is drawn, for every theme, style and rider, instead of only checking that the file is a PNG.
 
 ### Security
 

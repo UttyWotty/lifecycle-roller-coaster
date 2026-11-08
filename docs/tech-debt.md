@@ -2,6 +2,7 @@
 
 Known follow-ups, oldest first. None of these block normal use.
 
-- **Live test of Life Chapters and the Life Report.** They are built and tested with fixtures only. Run one or two real stories and check the wording, the tone and the token cost, which is estimated at about 1.2 cents per story.
-- **Worlds and life features.** These skipped independent QA to meet a deadline, and only automated tests and screenshots covered them.
-- **Export tests.** The per-rider and per-theme tests check the PNG signature, not the picture.
+- **Space metro map.** A planet can sit behind a lane label, because planets do not avoid labels the way the balloon and parachute do.
+- **Chapter strip on dark worlds.** The strip under the chapter bands is a plain light colour, which stands out on Space and Arcade.
+- **Single-year statistics.** When every event is in one year, Years covered reads "2015 to 2015".
+- **Ocean loops.** The curling waves read as round swells; a curling lip would look more like a breaking wave.

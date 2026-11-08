@@ -58,12 +58,19 @@ function applyPaletteToTag(tag: string): string {
     .replace(CURRENT_COLOR, `="${FALLBACK_COLOR}"`);
 }
 
+/** Where the wordmark badge sits in an image of the given width, in image units before scaling. */
+export function wordmarkBadgeBox(width: number): RideImageSize & { x: number; y: number } {
+  const badgeWidth = WORDMARK.length * WORDMARK_CHARACTER_WIDTH + WORDMARK_PADDING_X * 2;
+  return {
+    x: width - WORDMARK_INSET - badgeWidth,
+    y: WORDMARK_INSET,
+    width: badgeWidth,
+    height: WORDMARK_SIZE + WORDMARK_PADDING_Y * 2,
+  };
+}
+
 function wordmarkBadge(width: number): string {
-  const textWidth = WORDMARK.length * WORDMARK_CHARACTER_WIDTH;
-  const badgeWidth = textWidth + WORDMARK_PADDING_X * 2;
-  const badgeHeight = WORDMARK_SIZE + WORDMARK_PADDING_Y * 2;
-  const badgeX = width - WORDMARK_INSET - badgeWidth;
-  const badgeY = WORDMARK_INSET;
+  const { x: badgeX, y: badgeY, width: badgeWidth, height: badgeHeight } = wordmarkBadgeBox(width);
   const baseline = badgeY + WORDMARK_PADDING_Y + WORDMARK_SIZE * (1 - WORDMARK_BASELINE_DROP) + WORDMARK_PADDING_Y / 2;
   return (
     `<rect x="${badgeX}" y="${badgeY}" width="${badgeWidth}" height="${badgeHeight}" rx="${WORDMARK_BADGE_RADIUS}" ` +
