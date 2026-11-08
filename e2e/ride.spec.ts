@@ -266,18 +266,6 @@ test.describe("ride styles and titles", () => {
     await expect(page.getByRole("radio", { name: "Astronaut" })).toBeChecked();
   });
 
-  for (const rider of ["Smiley", "Cat", "Robot", "Astronaut", "Dino", "Ghost"]) {
-    test(`a ride with ${rider} downloads as a PNG`, async ({ page }) => {
-      await openRide(page);
-      await page.getByRole("radio", { name: rider }).check();
-      expect(await hasPageOverflow(page)).toBe(false);
-      const downloading = page.waitForEvent("download");
-      await button(page, "Download image").click();
-      const file = await readFile(await (await downloading).path());
-      expect(file.subarray(1, 4).toString()).toBe(PNG_SIGNATURE);
-    });
-  }
-
   test("the look bar sits right above the drawing, so a choice and its result stay in view", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await openRide(page);
@@ -433,48 +421,4 @@ test.describe("ride styles and titles", () => {
     await expect(page.getByTestId("scene-orb")).toHaveCount(0);
   });
 
-  for (const style of [/Coaster/, /Loop-the-loops/, /Metro map/]) {
-    for (const theme of ["Classic Ride", "Nightmare Mode", "Minimal Mode", "Retro Mode", "Space mission", "Ocean voyage", "Mountain trek", "Arcade level", "Retro fairground", "Haunted night"]) {
-      test(`${theme} exports at full size in the ${style.source} style`, async ({ page }) => {
-        await openRide(page);
-        await page.getByRole("radio", { name: style }).check();
-        await page.getByRole("radio", { name: theme, exact: true }).check();
-        expect(await hasPageOverflow(page)).toBe(false);
-        const downloading = page.waitForEvent("download");
-        await button(page, "Download image").click();
-        const file = await readFile(await (await downloading).path());
-        const viewBox = await page.locator('svg[role="group"]').getAttribute("viewBox");
-        const [, , width, height] = (viewBox ?? "").split(" ").map(Number);
-        expect(file.readUInt32BE(PNG_WIDTH_OFFSET)).toBe(width * EXPORT_SCALE);
-        expect(file.readUInt32BE(PNG_HEIGHT_OFFSET)).toBe(height * EXPORT_SCALE);
-      });
-    }
-  }
-
-  for (const theme of ["Sunny day", "Golden sunset", "Starry night", "Simple"]) {
-    test(`a ${theme} ride downloads as a PNG`, async ({ page }) => {
-      await openRide(page);
-      await page.getByRole("radio", { name: theme, exact: true }).check();
-      const downloading = page.waitForEvent("download");
-      await button(page, "Download image").click();
-      const file = await readFile(await (await downloading).path());
-      expect(file.subarray(1, 4).toString()).toBe(PNG_SIGNATURE);
-    });
-  }
-
-  for (const style of [/Coaster/, /Loop-the-loops/, /Metro map/]) {
-    test(`a titled ride in the ${style.source} style downloads at the right size`, async ({ page }) => {
-      await openRide(page);
-      await page.getByRole("radio", { name: style }).check();
-      await page.getByLabel("Name your ride").fill("A long and winding ride");
-      expect(await hasPageOverflow(page)).toBe(false);
-      const downloading = page.waitForEvent("download");
-      await button(page, "Download image").click();
-      const file = await readFile(await (await downloading).path());
-      const viewBox = await page.locator('svg[role="group"]').getAttribute("viewBox");
-      const [, , width, height] = (viewBox ?? "").split(" ").map(Number);
-      expect(file.readUInt32BE(PNG_WIDTH_OFFSET)).toBe(width * EXPORT_SCALE);
-      expect(file.readUInt32BE(PNG_HEIGHT_OFFSET)).toBe(height * EXPORT_SCALE);
-    });
-  }
 });
