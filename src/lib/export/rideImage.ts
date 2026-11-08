@@ -37,7 +37,12 @@ const PREFERRED_SCALE = 2;
 /** Browsers refuse larger canvases, so very long rides are drawn at a lower scale. */
 const MAX_CANVAS_EDGE = 8192;
 
-/** Matches only whole attribute values, so words in a user's title are never rewritten. */
+/**
+ * Serialized markup escapes "<" in text and attribute values, so every "<...>" span is a tag.
+ * Colours are swapped only inside tags, so words in a user's title are never rewritten, even if they look like markup.
+ */
+const TAG = /<[^>]*>/g;
+/** Matches only whole attribute values inside a tag. */
 const THEME_VARIABLE = /="var\((--[\w-]+)\)"/g;
 const CURRENT_COLOR = /="currentColor"/g;
 const ROOT_TAG = /<svg\b([^>]*)>/;
@@ -47,8 +52,8 @@ export function exportScale({ width, height }: RideImageSize): number {
   return Math.min(PREFERRED_SCALE, MAX_CANVAS_EDGE / Math.max(width, height));
 }
 
-function applyPalette(markup: string): string {
-  return markup
+function applyPaletteToTag(tag: string): string {
+  return tag
     .replace(THEME_VARIABLE, (_match, name: string) => `="${EXPORT_PALETTE[name] ?? FALLBACK_COLOR}"`)
     .replace(CURRENT_COLOR, `="${FALLBACK_COLOR}"`);
 }
@@ -66,6 +71,10 @@ function wordmarkBadge(width: number): string {
     `<text x="${badgeX + badgeWidth / 2}" y="${baseline}" text-anchor="middle" ` +
     `font-size="${WORDMARK_SIZE}" fill="${EXPORT_PALETTE["--muted"]}">${WORDMARK}</text>`
   );
+}
+
+function applyPalette(markup: string): string {
+  return markup.replace(TAG, applyPaletteToTag);
 }
 
 /** Turns on-screen SVG markup into a self-contained image with a background and wordmark. */

@@ -14,6 +14,13 @@ All notable changes to this project are documented in this file. The format foll
 - Ocean voyage shows open sea behind deep troughs, and its loops are drawn as curling waves.
 - The Arcade level ground uses calm, staggered bricks.
 
+### Security
+
+- Every page and API response now sends a content security policy and refuses to be framed, along with other standard security headers.
+- AI output is capped in size, so a story cannot make the model return a huge or unreadable ride.
+- Image export no longer rewrites a title that happens to look like a colour attribute.
+- Added a security policy for private vulnerability reports, and Dependabot updates for npm packages and GitHub Actions.
+
 ## [0.6.0] - 2026-11-06
 
 ### Added

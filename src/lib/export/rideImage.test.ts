@@ -62,6 +62,13 @@ describe("prepareRideSvg", () => {
     const titled = '<svg><text fill="currentColor">var(--accent) and currentColor</text></svg>';
     expect(prepareRideSvg(titled, SIZE)).toContain(">var(--accent) and currentColor<");
   });
+
+  it("does not rewrite a title that looks like an attribute value", () => {
+    const titled = '<svg><text fill="currentColor">Set ="currentColor" and ="var(--accent)"</text></svg>';
+    const prepared = prepareRideSvg(titled, SIZE);
+    expect(prepared).toContain('>Set ="currentColor" and ="var(--accent)"<');
+    expect(prepared).toContain('<text fill="#171717">');
+  });
 });
 
 describe("exportScale", () => {
