@@ -11,6 +11,8 @@ const PNG_SIGNATURE = "PNG";
 const PNG_WIDTH_OFFSET = 16;
 const PNG_HEIGHT_OFFSET = 20;
 const EXPORT_SCALE = 2;
+/** At 1280x800 the pinned bar may cover at most this much of the screen, down from about 204 pixels. */
+const MAX_PINNED_BAR_HEIGHT = 130;
 
 test("the ride shows every event, the legend and the creative note", async ({ page }) => {
   await openRide(page);
@@ -287,6 +289,14 @@ test.describe("ride styles and titles", () => {
     expect(title?.y).toBeGreaterThan(drawing?.y ?? 0);
     await page.mouse.wheel(0, 500);
     await expect.poll(async () => (await page.getByTestId("ride-look-bar").boundingBox())?.y).toBe(0);
+  });
+
+  test("the pinned look bar stays short on a laptop screen, so it hides little of the drawing", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await openRide(page);
+    const bar = await page.getByTestId("ride-look-bar").boundingBox();
+    expect(bar?.height).toBeLessThanOrEqual(MAX_PINNED_BAR_HEIGHT);
+    await expect(page.getByRole("radio", { name: "Metro map" })).toBeVisible();
   });
 
   test("every theme has a preview card, and choosing one works from the keyboard", async ({ page }) => {

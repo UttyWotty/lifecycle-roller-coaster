@@ -10,6 +10,5 @@ Known follow-ups, oldest first. None of these block normal use.
 - **Retro fairground.** The Ferris wheel is busy behind the steel and labels.
 - **Ocean voyage.** Sky shows through deep troughs, and the loops look odd on water.
 - **Arcade level.** The brick pattern is loud.
-- **Pinned bar.** It is about 204 pixels tall at 1280x800 and covers the top of the drawing while scrolling.
 - **Worlds and life features.** These skipped independent QA to meet a deadline, and only automated tests and screenshots covered them.
 - **Export tests.** The per-rider and per-theme tests check the PNG signature, not the picture.
