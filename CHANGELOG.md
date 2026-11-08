@@ -4,6 +4,16 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Fixed
+
+- The balloon and parachute now float clear of every label and of each other, in every theme.
+- Exported images carry the wordmark on a small badge in the top-right corner, so it reads cleanly on dark themes and never covers the chapter bands.
+- Minimal Mode keeps less empty sky above the ride, and its supports no longer run through labels.
+- Haunted night has arched, framed windows on the near towers only, so none seem to float in the sky.
+- The Retro fairground Ferris wheel is a soft silhouette that stays behind the steel and labels.
+- Ocean voyage shows open sea behind deep troughs, and its loops are drawn as curling waves.
+- The Arcade level ground uses calm, staggered bricks.
+
 ## [0.6.0] - 2026-11-06
 
 ### Added

@@ -7,7 +7,8 @@ import type { ReactElement } from "react";
 import type { Scene } from "@/lib/scene/composeRide";
 import type { Rider } from "@/lib/scene/riders";
 import type { ScenePalette } from "@/lib/scene/themes";
-import type { Track } from "@/lib/track/types";
+import { loopRadius } from "@/lib/track/buildTrack";
+import type { Track, TrackPoint } from "@/lib/track/types";
 import { DRAW_TEST_ID, type RailProps } from "../Rail";
 import { RiderArt } from "../RiderArt";
 
@@ -15,6 +16,16 @@ const SKY_ID = "ocean-sky";
 const WATER_ID = "ocean-water";
 const WAVE_DROPS = [34, 74, 122];
 const SAND_HEIGHT = 34;
+/** The open sea behind the waves is paler, so deep troughs show distant water instead of sky. */
+const FAR_SEA_OPACITY = 0.55;
+/** A loop on the water is a curling wave, filled with sea so it reads as part of the ocean. */
+const CURL_OPACITY = 0.8;
+
+/** The middle height of the waves, where the open sea meets the sky behind them. */
+function horizonY(profile: readonly TrackPoint[]): number {
+  const heights = profile.map(({ y }) => y).sort((a, b) => a - b);
+  return heights[Math.floor(heights.length / 2)];
+}
 
 function points(list: readonly { x: number; y: number }[]): string {
   return list.map(({ x, y }) => `${x},${y}`).join(" ");
@@ -67,7 +78,14 @@ export function OceanStructure({ track, palette }: { track: Track; palette: Scen
   const outline = points([...surface, { x: width, y: groundY }, { x: 0, y: groundY }]);
   return (
     <g aria-hidden="true" data-testid="mode-structure">
+      <rect y={horizonY(profile)} width={width} height={groundY - horizonY(profile)} fill={`url(#${WATER_ID})`} opacity={FAR_SEA_OPACITY} data-testid="ocean-far-sea" />
       <polygon points={outline} fill={`url(#${WATER_ID})`} />
+      {track.style === "loops" &&
+        stops
+          .filter(({ isMajor }) => isMajor)
+          .map(({ id, x, y, impact }) => (
+            <circle key={id} cx={x} cy={y - loopRadius(impact)} r={loopRadius(impact)} fill={`url(#${WATER_ID})`} opacity={CURL_OPACITY} data-testid="ocean-curl" />
+          ))}
       <g fill="none" stroke={palette.pill} strokeOpacity={0.28} strokeWidth={3}>
         {WAVE_DROPS.map((drop) => (
           <polyline key={drop} points={points(surface.map(({ x, y }) => ({ x, y: Math.min(y + drop, groundY - SAND_HEIGHT) })))} />

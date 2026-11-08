@@ -6,7 +6,7 @@
 import { describe, expect, it } from "vitest";
 import type { LifeEvent } from "@/lib/events/schema";
 import { RIDE_STYLES } from "@/lib/track/types";
-import { SKY_HEADROOM, composeRide } from "./composeRide";
+import { BARE_HEADROOM, SKY_HEADROOM, composeRide } from "./composeRide";
 import { DEFAULT_RIDER } from "./riders";
 import { RIDE_THEMES, RIDE_THEME_DETAILS, RIDE_THEME_GROUPS } from "./themes";
 
@@ -44,6 +44,10 @@ describe("composeRide", () => {
     expect(plain.contentOffset).toBe(SKY_HEADROOM);
     expect(titled.contentOffset).toBeGreaterThan(SKY_HEADROOM);
     expect(titled.height - titled.contentOffset).toBe(plain.height - plain.contentOffset);
+  });
+
+  it("keeps only a little sky in Minimal Mode, which has no flags", () => {
+    expect(composeRide(MIXED, { style: "coaster", theme: "minimal", title: "" }).track.contentOffset).toBe(BARE_HEADROOM);
   });
 
   it("gives the same scene for the same ride", () => {

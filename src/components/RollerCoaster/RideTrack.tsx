@@ -11,6 +11,7 @@ import { SkyMarkers } from "@/components/Scene/SkyMarkers";
 import { DRAW_TEST_ID, Rail } from "@/components/Scene/Rail";
 import { sceneModeFor } from "@/components/Scene/sceneModes";
 import type { Scene } from "@/lib/scene/composeRide";
+import { isTallStop } from "@/lib/scene/labelLayout";
 import type { ScenePalette, SceneryKind } from "@/lib/scene/themes";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
 import type { Track, TrackLine } from "@/lib/track/types";
@@ -156,7 +157,7 @@ export function RideTrack(props: RideTrackProps): ReactElement {
             key={stop.id}
             stop={stop}
             isStation={isStation}
-            isTall={index % 2 === 0 || index === track.stops.length - 1}
+            isTall={isTallStop(index, track.stops.length)}
             palette={palette}
             isSelected={stop.id === selectedId}
             onSelect={onSelect && (() => onSelect(stop.id))}

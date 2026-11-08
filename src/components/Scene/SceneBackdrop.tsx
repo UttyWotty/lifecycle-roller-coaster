@@ -69,6 +69,7 @@ export function SceneBackdrop({ scene, track }: SceneBackdropProps): ReactElemen
         color={palette.skylineNear}
         kind={palette.kind}
         palette={palette}
+        hasWindows
       />
     </g>
   );
