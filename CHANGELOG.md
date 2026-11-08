@@ -8,6 +8,23 @@ All notable changes to this project are documented in this file. The format foll
 
 - On wide screens the pinned style and theme bar is one short row, about 120 pixels tall instead of about 204, so it covers much less of the drawing while you scroll.
 
+### Fixed
+
+- The balloon and parachute now float clear of every label and of each other, in every theme.
+- Exported images carry the wordmark on a small badge in the top-right corner, so it reads cleanly on dark themes and never covers the chapter bands.
+- Minimal Mode keeps less empty sky above the ride, and its supports no longer run through labels.
+- Haunted night has arched, framed windows on the near towers only, so none seem to float in the sky.
+- The Retro fairground Ferris wheel is a soft silhouette that stays behind the steel and labels.
+- Ocean voyage shows open sea behind deep troughs, and its loops are drawn as curling waves.
+- The Arcade level ground uses calm, staggered bricks.
+
+### Security
+
+- Every page and API response now sends a content security policy and refuses to be framed, along with other standard security headers.
+- AI output is capped in size, so a story cannot make the model return a huge or unreadable ride.
+- Image export no longer rewrites a title that happens to look like a colour attribute.
+- Added a security policy for private vulnerability reports, and Dependabot updates for npm packages and GitHub Actions.
+
 ## [0.6.0] - 2026-11-06
 
 ### Added

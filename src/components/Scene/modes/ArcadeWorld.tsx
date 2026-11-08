@@ -14,6 +14,11 @@ import { RiderArt } from "../RiderArt";
 const PIXEL = 24;
 const BRICK_ID = "arcade-brick";
 const CRISP = { shapeRendering: "crispEdges" } as const;
+/** Bricks are laid in a running bond, two rows to a block, with quiet mortar so the ground stays calm behind labels. */
+const BRICK_ROW = PIXEL / 2;
+const MORTAR = 2;
+const MORTAR_OPACITY = 0.55;
+const HIGHLIGHT_OPACITY = 0.3;
 
 function snap(value: number): number {
   return Math.round(value / PIXEL) * PIXEL;
@@ -25,10 +30,19 @@ export function ArcadeBackdrop({ scene, track }: { scene: Scene; track: Track })
   return (
     <g aria-hidden="true" data-testid="mode-backdrop" {...CRISP}>
       <defs>
-        <pattern id={BRICK_ID} width={PIXEL} height={PIXEL} patternUnits="userSpaceOnUse">
-          <rect width={PIXEL} height={PIXEL} fill={palette.steel} />
-          <rect x={2} y={2} width={PIXEL - 4} height={PIXEL - 4} fill={palette.steelDark} />
-          <rect x={2} y={2} width={8} height={4} fill={palette.steel} />
+        <pattern id={BRICK_ID} width={PIXEL * 2} height={PIXEL} patternUnits="userSpaceOnUse">
+          <rect width={PIXEL * 2} height={PIXEL} fill={palette.steelDark} />
+          <g fill={palette.skyTop} opacity={MORTAR_OPACITY}>
+            <rect y={BRICK_ROW - MORTAR} width={PIXEL * 2} height={MORTAR} />
+            <rect y={PIXEL - MORTAR} width={PIXEL * 2} height={MORTAR} />
+            <rect x={0} width={MORTAR} height={BRICK_ROW} />
+            <rect x={PIXEL} y={BRICK_ROW} width={MORTAR} height={BRICK_ROW} />
+          </g>
+          <g fill={palette.steel} opacity={HIGHLIGHT_OPACITY}>
+            <rect x={MORTAR} width={PIXEL * 2 - MORTAR} height={MORTAR} />
+            <rect y={BRICK_ROW} width={PIXEL - MORTAR} height={MORTAR} />
+            <rect x={PIXEL + MORTAR} y={BRICK_ROW} width={PIXEL - MORTAR} height={MORTAR} />
+          </g>
         </pattern>
       </defs>
       <rect width={track.width} height={track.height} fill={palette.skyTop} data-testid="scene-sky" />

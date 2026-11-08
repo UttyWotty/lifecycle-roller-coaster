@@ -10,10 +10,12 @@ import type { ScenePalette, SceneryKind } from "@/lib/scene/themes";
 const SPOKES = 8;
 const FULL_TURN = Math.PI * 2;
 const GONDOLA_RADIUS_SHARE = 0.11;
-const SPOKE_WIDTH = 2.5;
-const RIM_WIDTH = 6;
-const LEG_WIDTH = 7;
-const HUB_RADIUS = 7;
+const SPOKE_WIDTH = 1.5;
+const RIM_WIDTH = 4;
+const LEG_WIDTH = 5;
+const HUB_RADIUS = 6;
+/** The wheel is a soft silhouette in the skyline colour, so it stays behind the steel and the labels. */
+const WHEEL_OPACITY = 0.6;
 const BAT_COLOR = "#0a0307";
 const BAT_PATH =
   "M0 0 Q-6 -8 -12 -4 Q-20 -10 -28 -2 Q-20 -2 -16 4 Q-10 0 -6 6 Q-3 2 0 6 Q3 2 6 6 Q10 0 16 4 Q20 -2 28 -2 Q20 -10 12 -4 Q6 -8 0 0 Z";
@@ -47,27 +49,28 @@ export function SceneOrb(props: { orb: Orb; color: string; kind: SceneryKind }):
 export function FerrisWheel(props: { wheel: Wheel; groundY: number; palette: ScenePalette }): ReactElement {
   const { wheel, groundY, palette } = props;
   const { x, y, radius } = wheel;
+  const color = palette.skylineNear;
   const angles = Array.from({ length: SPOKES }, (_, index) => (index / SPOKES) * FULL_TURN);
   return (
-    <g data-testid="scene-wheel">
-      <g stroke={palette.steelDark} strokeWidth={LEG_WIDTH} strokeLinecap="round">
+    <g data-testid="scene-wheel" opacity={WHEEL_OPACITY} stroke={color} fill={color}>
+      <g strokeWidth={LEG_WIDTH} strokeLinecap="round">
         <line x1={x} y1={y} x2={x - radius * 0.7} y2={groundY} />
         <line x1={x} y1={y} x2={x + radius * 0.7} y2={groundY} />
       </g>
-      <g stroke={palette.steelDark} strokeWidth={SPOKE_WIDTH}>
+      <g strokeWidth={SPOKE_WIDTH}>
         {angles.map((angle) => (
           <line key={angle} x1={x} y1={y} x2={x + Math.cos(angle) * radius} y2={y + Math.sin(angle) * radius} />
         ))}
       </g>
-      <circle cx={x} cy={y} r={radius} fill="none" stroke={palette.rail} strokeWidth={RIM_WIDTH} />
-      <circle cx={x} cy={y} r={HUB_RADIUS} fill={palette.rail} />
-      {angles.map((angle, index) => (
+      <circle cx={x} cy={y} r={radius} fill="none" strokeWidth={RIM_WIDTH} />
+      <circle cx={x} cy={y} r={HUB_RADIUS} stroke="none" />
+      {angles.map((angle) => (
         <circle
           key={angle}
           cx={x + Math.cos(angle) * radius}
           cy={y + Math.sin(angle) * radius}
           r={radius * GONDOLA_RADIUS_SHARE}
-          fill={index % 2 === 0 ? palette.cart : palette.steel}
+          stroke="none"
         />
       ))}
     </g>

@@ -15,14 +15,45 @@ const STOP_REASON_MAX_TOKENS = "max_tokens";
 /** Below this confidence an event is a suggestion, and the UI labels it as a best guess. */
 export const LOW_CONFIDENCE_THRESHOLD = 0.6;
 
+/**
+ * Upper bounds on what a model may return. A story is capped at 20,000 characters, so a real reading stays
+ * far inside them; they exist so an instruction hidden in a story cannot make a huge or unreadable ride.
+ */
+export const DRAFT_LIMITS = {
+  events: 100,
+  title: 200,
+  description: 2_000,
+  clarifications: 20,
+  clarification: 500,
+  chapters: 20,
+  chapterTitle: 120,
+  headline: 300,
+  highlights: 10,
+  highlight: 500,
+} as const;
+
+const draftEventSchema = lifeEventSchema.omit({ id: true }).extend({
+  title: z.string().min(1).max(DRAFT_LIMITS.title),
+  description: z.string().max(DRAFT_LIMITS.description),
+});
+
 export const extractionDraftSchema = z.object({
-  events: z.array(lifeEventSchema.omit({ id: true })),
-  clarifications: z.array(z.string()),
+  events: z.array(draftEventSchema).max(DRAFT_LIMITS.events),
+  clarifications: z.array(z.string().max(DRAFT_LIMITS.clarification)).max(DRAFT_LIMITS.clarifications),
   /** Event numbers count from 1, in the order of the events list. */
-  chapters: z.array(
-    z.object({ title: z.string(), firstEvent: z.number().int(), lastEvent: z.number().int() }),
-  ),
-  report: z.object({ headline: z.string(), highlights: z.array(z.string()) }),
+  chapters: z
+    .array(
+      z.object({
+        title: z.string().max(DRAFT_LIMITS.chapterTitle),
+        firstEvent: z.number().int(),
+        lastEvent: z.number().int(),
+      }),
+    )
+    .max(DRAFT_LIMITS.chapters),
+  report: z.object({
+    headline: z.string().max(DRAFT_LIMITS.headline),
+    highlights: z.array(z.string().max(DRAFT_LIMITS.highlight)).max(DRAFT_LIMITS.highlights),
+  }),
 });
 
 export const extractionResultSchema = z.object({

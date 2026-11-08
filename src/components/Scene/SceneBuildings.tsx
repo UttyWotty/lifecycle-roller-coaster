@@ -14,9 +14,12 @@ interface SceneBuildingsProps {
   kind: SceneryKind;
   palette: ScenePalette;
   opacity?: number;
+  /** Only the near row gets lit windows; on the faint far row they would seem to float in the sky. Defaults to false. */
+  hasWindows?: boolean;
 }
 
 interface ShapeProps {
+  hasWindows: boolean;
   building: Building;
   groundY: number;
   color: string;
@@ -33,9 +36,36 @@ const TENT_FLAG_WIDTH = 12;
 const TENT_FLAG_HEIGHT = 7;
 const TOWER_ROOF_SHARE = 0.7;
 const TOWER_ROOF_OVERHANG = 5;
-const WINDOW_SIZE = 8;
+const WINDOW_WIDTH = 10;
+const WINDOW_HEIGHT = 18;
+const WINDOW_ARCH = 6;
 const WINDOW_DROP = 26;
-const WINDOW_COLOR = "#facc15";
+const WINDOW_COLOR = "#f59e0b";
+const WINDOW_GLOW_OPACITY = 0.75;
+const MULLION_WIDTH = 1.5;
+/** Towers this narrow are too slim for a window that reads as part of the wall. */
+const WINDOW_MIN_TOWER_WIDTH = 40;
+
+/** A pointed gothic window with a cross frame, so it reads as part of the tower rather than a floating square. */
+function TowerWindow({ x, y, frame }: { x: number; y: number; frame: string }): ReactElement {
+  const left = x - WINDOW_WIDTH / 2;
+  const right = x + WINDOW_WIDTH / 2;
+  const bottom = y + WINDOW_HEIGHT;
+  const shoulder = y + WINDOW_ARCH;
+  return (
+    <g data-testid="scene-window">
+      <path
+        d={`M${left} ${bottom} V${shoulder} Q${left} ${y} ${x} ${y - WINDOW_ARCH / 2} Q${right} ${y} ${right} ${shoulder} V${bottom} Z`}
+        fill={WINDOW_COLOR}
+        opacity={WINDOW_GLOW_OPACITY}
+      />
+      <g stroke={frame} strokeWidth={MULLION_WIDTH}>
+        <line x1={x} y1={y} x2={x} y2={bottom} />
+        <line x1={left} y1={shoulder + WINDOW_ARCH / 2} x2={right} y2={shoulder + WINDOW_ARCH / 2} />
+      </g>
+    </g>
+  );
+}
 
 function CityBlock({ building, groundY, color }: ShapeProps): ReactElement {
   const { x, width, height, hasSpire } = building;
@@ -85,7 +115,7 @@ function Tent({ building, groundY, palette }: ShapeProps): ReactElement {
   );
 }
 
-function HauntedTower({ building, groundY, color }: ShapeProps): ReactElement {
+function HauntedTower({ building, groundY, color, hasWindows }: ShapeProps): ReactElement {
   const { x, width, height, hasSpire } = building;
   const top = groundY - height;
   const roofHeight = width * TOWER_ROOF_SHARE;
@@ -96,15 +126,7 @@ function HauntedTower({ building, groundY, color }: ShapeProps): ReactElement {
       <path
         d={`M${x - TOWER_ROOF_OVERHANG} ${top} L${peakX} ${top - roofHeight} L${x + width + TOWER_ROOF_OVERHANG} ${top} Z`}
       />
-      {hasSpire && (
-        <rect
-          x={peakX - WINDOW_SIZE / 2}
-          y={top + WINDOW_DROP}
-          width={WINDOW_SIZE}
-          height={WINDOW_SIZE * 1.5}
-          fill={WINDOW_COLOR}
-        />
-      )}
+      {hasWindows && hasSpire && width >= WINDOW_MIN_TOWER_WIDTH && <TowerWindow x={peakX} y={top + WINDOW_DROP} frame={color} />}
     </g>
   );
 }
@@ -115,12 +137,12 @@ const SHAPES: Readonly<Partial<Record<SceneryKind, (props: ShapeProps) => ReactE
 };
 
 export function SceneBuildings(props: SceneBuildingsProps): ReactElement {
-  const { buildings, groundY, color, kind, palette, opacity = 1 } = props;
+  const { buildings, groundY, color, kind, palette, opacity = 1, hasWindows = false } = props;
   const Shape = SHAPES[kind] ?? CityBlock;
   return (
     <g opacity={opacity}>
       {buildings.map((building) => (
-        <Shape key={building.x} building={building} groundY={groundY} color={color} palette={palette} />
+        <Shape key={building.x} hasWindows={hasWindows} building={building} groundY={groundY} color={color} palette={palette} />
       ))}
     </g>
   );

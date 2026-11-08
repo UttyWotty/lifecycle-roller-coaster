@@ -4,6 +4,7 @@
  * It uses a fixed seed, so the same ride always gets the same scene and never flickers when redrawn.
  */
 import type { Track, TrackPoint, TrackStop } from "@/lib/track/types";
+import { type Box, boxesOverlap, isTallStop, labelBox } from "./labelLayout";
 import type { ScenePalette, SceneryKind } from "./themes";
 
 export interface Cloud extends TrackPoint {
@@ -80,10 +81,18 @@ const BAT_SKY_SHARE = 0.5;
 const BAT_SCALE_MIN = 0.6;
 const BAT_SCALE_RANGE = 0.8;
 const KINDS_WITHOUT_MARKERS: readonly SceneryKind[] = ["line", "space", "arcade"];
-const MARKER_SIDE_OFFSET = 85;
-const MARKER_LIFT = 150;
+const MARKER_SIDE_OFFSETS = [85, -85, 150, -150, 0];
+const MARKER_LIFTS = [150, 200, 250, 110, 300];
 const MARKER_TOP = 70;
 const MARKER_EDGE = 60;
+/** The space the balloon or parachute covers around its anchor point, including ropes and basket. */
+const MARKER_HALF_WIDTH = 46;
+const MARKER_REACH_UP = 52;
+const MARKER_REACH_DOWN = 72;
+/** Markers only appear in themes with flags and pills, never in metro or bare-text modes. */
+const MARKER_LABEL_OPTIONS = { isStation: false, isBare: false } as const;
+
+const NO_MARKERS = { balloon: null, parachute: null } as const;
 
 function createRandom(): () => number {
   let state = SEED;
@@ -162,14 +171,48 @@ function strongestStop(stops: readonly TrackStop[], sentiment: TrackStop["sentim
     .reduce<TrackStop | null>((best, stop) => (best && best.impact >= stop.impact ? best : stop), null);
 }
 
-function markerBeside(stop: TrackStop | null, track: Track): TrackPoint | null {
+/** The area a balloon or parachute covers, from the top of its canopy to its basket. */
+export function markerBox({ x, y }: TrackPoint): Box {
+  return {
+    x: x - MARKER_HALF_WIDTH,
+    y: y - MARKER_REACH_UP,
+    width: MARKER_HALF_WIDTH * 2,
+    height: MARKER_REACH_UP + MARKER_REACH_DOWN,
+  };
+}
+
+function markerCandidates(stop: TrackStop, track: Track): TrackPoint[] {
+  const top = MARKER_TOP - track.contentOffset;
+  return MARKER_LIFTS.flatMap((lift) =>
+    MARKER_SIDE_OFFSETS.map((offset) => ({
+      x: Math.min(Math.max(stop.x + offset, MARKER_EDGE), track.width - MARKER_EDGE),
+      y: Math.max(stop.y - lift, top),
+    })),
+  );
+}
+
+/** Every label on the ride, so a balloon or parachute never hides one. */
+export function stopLabelBoxes(track: Track): Box[] {
+  return track.stops.map((stop, index) =>
+    labelBox(stop, isTallStop(index, track.stops.length), MARKER_LABEL_OPTIONS),
+  );
+}
+
+/** The first spot beside the stop that keeps clear of every label and earlier marker, or the usual spot if none is clear. */
+function markerBeside(stop: TrackStop | null, track: Track, avoid: readonly Box[]): TrackPoint | null {
   if (stop === null) {
     return null;
   }
-  return {
-    x: Math.min(stop.x + MARKER_SIDE_OFFSET, track.width - MARKER_EDGE),
-    y: Math.max(stop.y - MARKER_LIFT, MARKER_TOP - track.contentOffset),
-  };
+  const candidates = markerCandidates(stop, track);
+  const isClear = (point: TrackPoint): boolean => avoid.every((box) => !boxesOverlap(markerBox(point), box));
+  return candidates.find(isClear) ?? candidates[0];
+}
+
+function placeMarkers(track: Track): Pick<Scenery, "balloon" | "parachute"> {
+  const labels = stopLabelBoxes(track);
+  const balloon = markerBeside(strongestStop(track.stops, "positive"), track, labels);
+  const taken = balloon === null ? labels : [...labels, markerBox(balloon)];
+  return { balloon, parachute: markerBeside(strongestStop(track.stops, "negative"), track, taken) };
 }
 
 export function buildScenery(track: Track, palette: ScenePalette): Scenery {
@@ -184,7 +227,6 @@ export function buildScenery(track: Track, palette: ScenePalette): Scenery {
     orb: orb === null ? null : { x: track.width * ORB_X_SHARE, y: ORB_Y, radius: ORB_RADIUS },
     wheels: kind === "fairground" ? buildWheels(track) : [],
     bats: kind === "haunted" ? buildBats(track, random) : [],
-    balloon: hasMarkers ? markerBeside(strongestStop(track.stops, "positive"), track) : null,
-    parachute: hasMarkers ? markerBeside(strongestStop(track.stops, "negative"), track) : null,
+    ...(hasMarkers ? placeMarkers(track) : NO_MARKERS),
   };
 }

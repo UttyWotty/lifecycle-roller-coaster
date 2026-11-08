@@ -6,6 +6,7 @@
 import type { CSSProperties, KeyboardEvent, ReactElement } from "react";
 import { SceneStopArt } from "@/components/Scene/SceneStopArt";
 import { EXPORT_HIDDEN_ATTRIBUTE } from "@/lib/export/rideImage";
+import { markerRadius, UNKNOWN_DATE } from "@/lib/scene/labelLayout";
 import type { ScenePalette } from "@/lib/scene/themes";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
 import type { TrackStop } from "@/lib/track/types";
@@ -19,8 +20,6 @@ interface StopMarkerProps {
   onSelect?: () => void;
 }
 
-const MARKER_RADIUS = 9;
-const MAJOR_MARKER_RADIUS = 15;
 const SELECTED_RING_GAP = 6;
 const HIT_RADIUS = 26;
 const RING_WIDTH = 2;
@@ -31,7 +30,6 @@ const LABEL_GAP = 26;
 const DATE_LINE_GAP = 17;
 const LABEL_HALO_WIDTH = 6;
 const ACTIVATION_KEYS = ["Enter", " "];
-const UNKNOWN_DATE = "Date unknown";
 
 /** Paints a background-coloured outline behind text, so nothing runs through a label. */
 export const LABEL_HALO = {
@@ -43,7 +41,7 @@ export const LABEL_HALO = {
 
 export function StopMarker(props: StopMarkerProps): ReactElement {
   const { stop, isStation, isSelected, isTall, palette, onSelect } = props;
-  const radius = stop.isMajor ? MAJOR_MARKER_RADIUS : MARKER_RADIUS;
+  const radius = markerRadius(stop);
   const isAbove = stop.labelSide === "above";
   const titleY = isAbove ? stop.y - radius - LABEL_GAP : stop.y + radius + LABEL_GAP;
   const date = stop.date ?? UNKNOWN_DATE;
