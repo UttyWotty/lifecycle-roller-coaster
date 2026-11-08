@@ -15,19 +15,19 @@ interface ThemePickerProps {
 }
 
 const CARD_CLASS =
-  "flex w-36 shrink-0 flex-col gap-1 rounded-lg border border-muted p-1.5 text-xs font-semibold has-checked:border-accent has-checked:outline-2 has-checked:outline-accent";
+  "flex w-36 shrink-0 flex-col gap-1 rounded-lg border border-muted p-1.5 text-xs font-semibold lg:w-24 lg:gap-0.5 lg:p-1 lg:text-[11px] has-checked:border-accent has-checked:outline-2 has-checked:outline-accent";
 
 export function ThemePicker({ theme, onThemeChange }: ThemePickerProps): ReactElement {
   return (
     <fieldset className="min-w-0">
       <legend className="sr-only">Theme</legend>
-      <div className="flex gap-4 overflow-x-auto pb-2">
+      <div className="flex gap-4 overflow-x-auto pb-2 lg:gap-3">
         {RIDE_THEME_GROUPS.map((group) => (
           <div key={group} className="flex shrink-0 flex-col gap-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted">{group}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted lg:text-[10px]">{group}</p>
             <div className="flex gap-2 p-0.5">
               {RIDE_THEMES.filter((option) => RIDE_THEME_DETAILS[option].group === group).map((option) => (
-                <label key={option} className={CARD_CLASS}>
+                <label key={option} title={RIDE_THEME_DETAILS[option].name} className={CARD_CLASS}>
                   <ThemePreview theme={option} />
                   <span className="flex items-center gap-1">
                     <input

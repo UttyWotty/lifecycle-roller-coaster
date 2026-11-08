@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Changed
+
+- On wide screens the pinned style and theme bar is one short row, about 120 pixels tall instead of about 204, so it covers much less of the drawing while you scroll.
+
 ### Fixed
 
 - The balloon and parachute now float clear of every label and of each other, in every theme.

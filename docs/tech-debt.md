@@ -3,6 +3,5 @@
 Known follow-ups, oldest first. None of these block normal use.
 
 - **Live test of Life Chapters and the Life Report.** They are built and tested with fixtures only. Run one or two real stories and check the wording, the tone and the token cost, which is estimated at about 1.2 cents per story.
-- **Pinned bar.** It is about 204 pixels tall at 1280x800 and covers the top of the drawing while scrolling.
 - **Worlds and life features.** These skipped independent QA to meet a deadline, and only automated tests and screenshots covered them.
 - **Export tests.** The per-rider and per-theme tests check the PNG signature, not the picture.
