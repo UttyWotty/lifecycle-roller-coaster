@@ -57,7 +57,7 @@ ANTHROPIC_API_KEY=your-key-here
 EXTRACTOR_MODE=anthropic
 ```
 
-You need your own [Anthropic API key](https://console.anthropic.com/). With the default model, Claude Sonnet 5.5, a short story costs about one cent. Each extraction logs its token count to the server console.
+You need your own [Anthropic API key](https://console.anthropic.com/). With the default model, Claude Sonnet 5.5, a short story of a paragraph or two costs about 1.5 cents, including its chapters and report (about 2,500 input and 1,000 output tokens). Each extraction logs its token count to the server console.
 
 Keep your key safe: `.env` is git-ignored, so never commit it, and never prefix its values with `NEXT_PUBLIC_`, because that would send them to the browser.
 
