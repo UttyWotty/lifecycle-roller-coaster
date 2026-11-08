@@ -39,6 +39,11 @@ const SHARPNESS_GAIN = 0.3;
 const MIN_LEVEL_SPAN = 10;
 const PROFILE_STEPS = 12;
 const LEAD_OUT = 60;
+/**
+ * Room kept past the end of the rail, where the cart parks. It is wider than half of the widest vehicle,
+ * the rocket with its flame, so no vehicle is cut off at the edge on screen or in an exported image.
+ */
+export const PARKING_ROOM = 72;
 const ELLIPSIS = "...";
 
 const CLASSIC_SHAPE: CoasterShape = {
@@ -206,7 +211,7 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track 
   );
   return {
     style: shape.style,
-    width: lastX + SIDE_PADDING,
+    width: end.x + PARKING_ROOM,
     height: shape.height,
     groundY: shape.height,
     lines: [{ category: null, path, start }],
