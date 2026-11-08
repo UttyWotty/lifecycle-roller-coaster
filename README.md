@@ -145,6 +145,10 @@ The app covers the full path from story to image. Ideas for later releases inclu
 
 Contributions are welcome. Branch from `develop`, keep each change focused, and open a pull request into `develop`. Lint, typecheck, tests and the build must pass, and CI checks them on every pull request. Please use demo mode for manual testing, and never include real personal stories in issues, tests or examples.
 
+## Security
+
+Please report vulnerabilities privately, as described in [SECURITY.md](SECURITY.md), rather than in a public issue. Every response carries a strict content security policy and refuses framing; the policy lives in `src/lib/security/securityHeaders.ts`.
+
 ## Deploying
 
 Public hosting is not supported yet. Every Generate request spends tokens on the host's API key and the endpoint has no rate limiting, so anyone deploying this publicly should add rate limiting and set a spend limit first.
