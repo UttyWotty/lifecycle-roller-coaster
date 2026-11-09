@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Security
+
+- Lint tooling now uses minimatch 11, which fixes a moderate denial-of-service advisory (GHSA-g3hv-75wg-m249). It is forced with an npm override until ESLint and typescript-eslint upgrade on their own; remove the override then.
+
 ## [0.7.1] - 2026-11-09
 
 ### Changed
