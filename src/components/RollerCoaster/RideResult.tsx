@@ -22,7 +22,7 @@ import { LifeReportPanel } from "./LifeReportPanel";
 import { LifeStatsPanel } from "./LifeStatsPanel";
 import { RideControls } from "./RideControls";
 import { RideLookBar } from "./RideLookBar";
-import { RideTrack } from "./RideTrack";
+import { RideDrawing } from "./RideDrawing";
 import { SavedRideNote } from "./SavedRideNote";
 import { StopDetails } from "./StopDetails";
 
@@ -52,7 +52,6 @@ interface RideResultProps {
   onStartOver: () => void;
 }
 
-const FIRST_RIDE = 0;
 const SELECT_PROMPT = "Select a stop on the track to adjust how it felt and how much it mattered.";
 const CREATIVE_NOTE = "This ride is a creative picture of your story, not a measurement of your life.";
 
@@ -62,7 +61,6 @@ export function RideResult(props: RideResultProps): ReactElement {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const svg = useRef<SVGSVGElement>(null);
-  const [rideNumber, setRideNumber] = useState(FIRST_RIDE);
   const { track, scene } = useMemo(
     () => composeRide(events, { style: rideStyle, theme: rideTheme, title, rider, chapters }),
     [events, rideStyle, rideTheme, title, rider, chapters],
@@ -100,42 +98,18 @@ export function RideResult(props: RideResultProps): ReactElement {
         onStyleChange={onRideStyleChange}
         onThemeChange={onRideThemeChange}
       />
-      <div
-        tabIndex={0}
-        role="region"
-        aria-label="Roller coaster, scrolls sideways on small screens"
-        className="overflow-x-auto lg:scroll-mt-36"
-      >
-        <RideTrack
-          key={`${rideStyle}-${rideNumber}`}
-          track={track}
-          scene={scene}
-          label={RIDE_STYLE_DETAILS[rideStyle].drawingLabel}
-          fitToScreen={fitToScreen}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          svgRef={svg}
-        />
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {hasCart && (
-          <button
-            type="button"
-            onClick={() => setRideNumber((number) => number + 1)}
-            className={`${SECONDARY_BUTTON_CLASS} motion-reduce:hidden`}
-          >
-            Ride again
-          </button>
-        )}
-        <button
-          type="button"
-          aria-pressed={fitToScreen}
-          onClick={() => onFitToScreenChange(!fitToScreen)}
-          className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
-        >
-          Fit to screen
-        </button>
-      </div>
+      <RideDrawing
+        track={track}
+        scene={scene}
+        label={RIDE_STYLE_DETAILS[rideStyle].drawingLabel}
+        events={events}
+        report={report}
+        fitToScreen={fitToScreen}
+        selectedId={selectedId}
+        svgRef={svg}
+        onSelect={setSelectedId}
+        onFitToScreenChange={onFitToScreenChange}
+      />
       {scene?.palette.kind !== "line" && <CategoryLegend events={events} />}
       {selected ? (
         <StopDetails
