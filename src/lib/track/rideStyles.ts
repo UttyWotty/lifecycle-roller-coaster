@@ -6,13 +6,14 @@
 import type { LifeEvent } from "@/lib/events/schema";
 import { buildMetroMap } from "./buildMetroMap";
 import { buildLoopTrack, buildTrack } from "./buildTrack";
-import type { RideStyle, Track } from "./types";
+import type { RideStyle, StopLayout, Track } from "./types";
 
 interface RideStyleDetails {
   name: string;
   description: string;
   drawingLabel: string;
-  build: (events: readonly LifeEvent[]) => Track;
+  /** A layout places stops at given x positions; styles that cannot follow one ignore it. */
+  build: (events: readonly LifeEvent[], layout: StopLayout | null) => Track;
 }
 
 export const DEFAULT_RIDE_STYLE: RideStyle = "coaster";
@@ -34,6 +35,6 @@ export const RIDE_STYLE_DETAILS: Readonly<Record<RideStyle, RideStyleDetails>> =
     name: "Metro map",
     description: "One line for each part of your life, meeting at big moments.",
     drawingLabel: "Your life as a metro map",
-    build: buildMetroMap,
+    build: (events) => buildMetroMap(events),
   },
 };

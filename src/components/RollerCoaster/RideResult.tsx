@@ -19,6 +19,7 @@ import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import type { RideStyle } from "@/lib/track/types";
 import { CategoryLegend } from "./CategoryLegend";
 import { ShareLinkPanel } from "@/components/Share/ShareLinkPanel";
+import { RideTogetherInvite } from "@/components/Together/TogetherEntry";
 import { ExportButton } from "./ExportButton";
 import { LifeReportPanel } from "./LifeReportPanel";
 import { LifeStatsPanel } from "./LifeStatsPanel";
@@ -76,6 +77,7 @@ export function RideResult(props: RideResultProps): ReactElement {
   );
   /** A ride the user has not named takes its lens's title, ready for sharing. */
   const drawingTitle = title.trim() === "" && lens ? lens.title : title;
+  const shareable = { title: drawingTitle, style: rideStyle, theme: rideTheme, rider, events: lensEvents, chapters };
   const { track, scene } = useMemo(
     () => composeRide(lensEvents, { style: rideStyle, theme: rideTheme, title: drawingTitle, rider, chapters }),
     [lensEvents, rideStyle, rideTheme, drawingTitle, rider, chapters],
@@ -149,9 +151,8 @@ export function RideResult(props: RideResultProps): ReactElement {
         onRiderChange={onRiderChange}
       />
       <ExportButton svg={svg} width={track.width} height={track.height} />
-      <ShareLinkPanel
-        ride={{ title: drawingTitle, style: rideStyle, theme: rideTheme, rider, events: lensEvents, chapters }}
-      />
+      <ShareLinkPanel ride={shareable} />
+      <RideTogetherInvite mine={shareable} />
       {report && <LifeReportPanel report={report} isSample={isSample} />}
       <LifeStatsPanel events={lensEvents} />
       <p className="text-sm text-muted">{CREATIVE_NOTE}</p>

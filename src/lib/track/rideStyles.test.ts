@@ -176,7 +176,7 @@ describe("every ride style", () => {
   );
 
   it.each(cases)("%s stays inside the canvas for %s", (style, _label, overrides) => {
-    const track = RIDE_STYLE_DETAILS[style].build(makeEvents(overrides));
+    const track = RIDE_STYLE_DETAILS[style].build(makeEvents(overrides), null);
     expect(track.style).toBe(style);
     for (const { x, y } of [...track.stops, ...track.lines.flatMap(({ path }) => pointsOf(path))]) {
       expect(Number.isFinite(x) && Number.isFinite(y)).toBe(true);
@@ -190,8 +190,8 @@ describe("every ride style", () => {
   it.each(RIDE_STYLES)("%s keeps every event, in order, and is deterministic", (style) => {
     const events = makeEvents([{ impact: 9 }, { sentiment: "negative" }, { category: "career" }]);
     const { build } = RIDE_STYLE_DETAILS[style];
-    expect(build(events).stops.map(({ id }) => id)).toEqual(["event_0", "event_1", "event_2"]);
-    expect(build(events)).toEqual(build(events));
+    expect(build(events, null).stops.map(({ id }) => id)).toEqual(["event_0", "event_1", "event_2"]);
+    expect(build(events, null)).toEqual(build(events, null));
   });
 });
 
@@ -205,7 +205,7 @@ describe("time-based spacing", () => {
 
   for (const style of RIDE_STYLES) {
     it(`puts close dates closer together in the ${style} style`, () => {
-      const { stops } = RIDE_STYLE_DETAILS[style].build(makeEvents(timeline));
+      const { stops } = RIDE_STYLE_DETAILS[style].build(makeEvents(timeline), null);
       const [sameYear, oneYear, fiveYears] = stops.slice(1).map((stop, index) => stop.x - stops[index].x);
       expect(sameYear).toBeLessThan(oneYear);
       expect(oneYear).toBeLessThan(fiveYears);
@@ -223,7 +223,7 @@ describe("time-based spacing", () => {
         { date: "2010", sentiment: "negative", impact: 5, title: "A very long first title here" },
         { date: "2010", sentiment: "negative", impact: IMPACT_MAX, title: "A very long second title" },
       ]);
-      const { stops } = RIDE_STYLE_DETAILS[style].build(events);
+      const { stops } = RIDE_STYLE_DETAILS[style].build(events, null);
       const halfWidths = stops.map((stop) => labelWidth(stop.title, stop.date) / 2);
       expect(stops[0].labelSide).toBe(stops[1].labelSide);
       expect(stops[1].x - stops[0].x).toBeGreaterThan(halfWidths[0] + halfWidths[1]);

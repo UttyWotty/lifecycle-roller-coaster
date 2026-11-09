@@ -10,6 +10,7 @@ import {
   moveSeconds,
   polylineSamples,
   poseAt,
+  poseAtX,
   positionAt,
   stopLengths,
   stopStartTime,
@@ -109,5 +110,24 @@ describe("buildTimeline and positionAt", () => {
   it("handles a ride with no stops", () => {
     const empty = buildTimeline(FLAT, [], { trackHeight: HEIGHT, isInstant: false });
     expect(positionAt(empty, empty.duration).isFinished).toBe(true);
+  });
+});
+
+describe("poseAtX", () => {
+  const profile = [
+    { x: 0, y: 100 },
+    { x: 100, y: 0 },
+    { x: 200, y: 0 },
+  ];
+
+  it("follows the profile by x and faces along it", () => {
+    const pose = poseAtX(profile, 50);
+    expect(pose.y).toBe(50);
+    expect(pose.angle).toBeCloseTo(-45);
+  });
+
+  it("parks at either end beyond the profile", () => {
+    expect(poseAtX(profile, -10)).toEqual({ x: 0, y: 100, angle: 0 });
+    expect(poseAtX(profile, 999)).toEqual({ x: 200, y: 0, angle: 0 });
   });
 });

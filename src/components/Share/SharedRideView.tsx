@@ -15,6 +15,7 @@ import { RideDrawing } from "@/components/RollerCoaster/RideDrawing";
 import { RideLookBar } from "@/components/RollerCoaster/RideLookBar";
 import { composeRide } from "@/lib/scene/composeRide";
 import type { RideTheme } from "@/lib/scene/themes";
+import { RideTogetherWithMine } from "@/components/Together/TogetherEntry";
 import { decodeSharedRide, type SharedRide } from "@/lib/share/sharedRide";
 import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import type { RideStyle } from "@/lib/track/types";
@@ -74,6 +75,7 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
       {scene?.palette.kind !== "line" && <CategoryLegend events={ride.events} />}
       <ExportButton svg={svg} width={track.width} height={track.height} />
       <LifeStatsPanel events={ride.events} />
+      <RideTogetherWithMine theirs={ride} />
       <MakeYourOwn />
     </section>
   );
