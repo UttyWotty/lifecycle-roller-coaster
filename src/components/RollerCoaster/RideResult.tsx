@@ -145,6 +145,7 @@ export function RideResult(props: RideResultProps): ReactElement {
       )}
       <RideControls
         title={title}
+        suggestedTitle={lens?.title ?? null}
         rider={rider}
         hasCart={hasCart}
         onTitleChange={onTitleChange}

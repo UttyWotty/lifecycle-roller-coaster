@@ -1,7 +1,8 @@
 /**
  * Browser tests for ride lenses.
  * They confirm a lens redraws only its events with its own title, and that a title the user typed always wins.
- * They also confirm age lenses need a valid birth year, and that the lens survives a reload but not a new reading.
+ * They also confirm age lenses need a valid birth year, the lens survives a reload but not a new reading, a lapsed lens
+ * stays off, and the title placeholder matches the drawing.
  */
 import { expect, test, type Page } from "@playwright/test";
 import { button, openRide, storyBox } from "./helpers";
@@ -66,4 +67,24 @@ test("Ride it rides only the lens's stops", async ({ page }) => {
   await button(page, "Ride it").click();
   await button(page, "Next").click();
   await expect(page.getByRole("region", { name: "Ride it" }).getByText(/^Stop 1 of 2/)).toBeVisible();
+});
+
+test("a lens that lapses stays off when it could apply again", async ({ page }) => {
+  await openRide(page);
+  const born = page.getByRole("textbox", { name: /Born in/ });
+  await born.fill("1995");
+  await lens(page, "My 20s").check();
+  await born.fill("");
+  await expect(lens(page, "Whole life")).toBeChecked();
+  await born.fill("1995");
+  await expect(lens(page, "Whole life")).toBeChecked();
+  await expect(lens(page, "My 20s")).not.toBeChecked();
+});
+
+test("the title placeholder shows the title the drawing uses", async ({ page }) => {
+  await openRide(page);
+  const title = page.getByRole("textbox", { name: "Name your ride" });
+  await expect(title).toHaveAttribute("placeholder", "My Life Roller Coaster");
+  await lens(page, "2020s").check();
+  await expect(title).toHaveAttribute("placeholder", "My 2020s");
 });
