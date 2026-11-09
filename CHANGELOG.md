@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-11-10
+
 ### Changed
 
 - Tech-debt list updated with the follow-ups from v0.10.0 and v0.11.0.
