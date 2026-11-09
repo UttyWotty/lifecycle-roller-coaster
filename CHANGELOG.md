@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- Your ride is saved in your browser on this device, so a reload or a later visit brings it back with its title, style, theme and rider. The story text you typed is never saved. Start over on the ride page deletes the saved ride after asking once.
+
 ## [0.9.0] - 2026-11-09
 
 ### Changed

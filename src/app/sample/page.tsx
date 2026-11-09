@@ -5,7 +5,7 @@
  */
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
-import { SampleRideFlow } from "@/components/RideFlow/SampleRideFlow";
+import { BrowserRideFlow } from "@/components/RideFlow/BrowserRideFlow";
 
 export const metadata: Metadata = {
   title: "Try a sample life | Lifecycle Roller Coaster",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function SamplePage(): ReactElement {
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-12">
-      <SampleRideFlow />
+      <BrowserRideFlow startWithSample />
     </main>
   );
 }

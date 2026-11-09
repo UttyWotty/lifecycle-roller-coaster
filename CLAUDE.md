@@ -75,6 +75,7 @@ User stories can contain sensitive personal details.
 - Do not store raw narratives by default, and do not log story content.
 - Tell users what is sent to an external AI provider.
 - Keep generated data in the browser where practical. The story lives in React state in `StoryEditor`, and it leaves the browser only through `requestExtraction.ts` when the user presses Generate.
+- The user's own ride (events, insights and look) is saved in their browser's local storage through `src/components/RideFlow/rideStorage.ts`, and `src/lib/saved/savedRide.ts` has no field for the story text, by the owner's choice. Samples are never saved, and Start over deletes the save. The flow renders in the browser only (`BrowserRideFlow`), so the saved ride is read as initial state.
 - Log only error codes, never exception text from the provider or the parser.
 - Sharing is opt-in; never publish a ride automatically.
 

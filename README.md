@@ -86,7 +86,7 @@ Life stories can be personal, so the app is built to hold on to as little as pos
 
 - Nothing leaves your browser until you press Generate. The page tells you this before you do.
 - In `anthropic` mode, pressing Generate sends your story to the Anthropic API. Anthropic's own data policies apply to that request.
-- The app has no database of stories and no accounts. Your story and events live in the page and disappear when you close it.
+- The app has no database of stories and no accounts. Your own ride (its events, chapters, report and look) is saved in your browser on this device only, so it is still there when you come back. The story text you typed is never saved, and **Start over** on the ride page deletes the saved ride. Sample lives are never saved.
 - On the public site, a small counter store keeps how many readings each visitor started this hour and day, and the day's total spend. A visitor is a keyed one-way hash of their network address, never the address itself, and every counter deletes itself within two days.
 - The server never logs story content, only error codes and token counts.
 - Images are created on your device and are never uploaded. They contain titles, dates and markers, but not descriptions or your story.
