@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- Share a link to your ride, with one-tap buttons for X, WhatsApp, Telegram and email, or your device's share sheet. The ride lives only in the link (after "#", never sent to a server) and leaves out descriptions, the life report and your story. Whoever opens it can take the ride, change its look for themselves, download it, and make their own.
+- Social preview picture and metadata for links to the site.
+
 ## [0.10.0] - 2026-11-09
 
 ### Added
