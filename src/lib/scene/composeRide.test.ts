@@ -10,10 +10,13 @@ import { BARE_HEADROOM, SKY_HEADROOM, composeRide } from "./composeRide";
 import { DEFAULT_RIDER } from "./riders";
 import { RIDE_THEMES, RIDE_THEME_DETAILS, RIDE_THEME_GROUPS } from "./themes";
 
+/** One year apart, the normal gap, so stops keep the style's regular spacing unless a test sets dates. */
+const FIRST_YEAR = 2010;
+
 function makeEvents(overrides: Partial<LifeEvent>[]): LifeEvent[] {
   return overrides.map((over, index) => ({
     id: `event_${index}`,
-    date: "2015",
+    date: String(FIRST_YEAR + index),
     title: `Event ${index}`,
     description: "",
     category: "other",

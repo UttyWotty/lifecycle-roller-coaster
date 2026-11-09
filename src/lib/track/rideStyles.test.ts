@@ -4,9 +4,10 @@
  * They also confirm each style keeps the user's events and stays deterministic.
  */
 import { describe, expect, it } from "vitest";
-import type { EventCategory, LifeEvent } from "@/lib/events/schema";
+import { IMPACT_MAX, type EventCategory, type LifeEvent } from "@/lib/events/schema";
 import { MAJOR_IMPACT, buildLoopTrack, buildTrack, loopRadius } from "./buildTrack";
 import { buildMetroMap } from "./buildMetroMap";
+import { labelWidth } from "./labelWidth";
 import { RIDE_STYLE_DETAILS } from "./rideStyles";
 import { RIDE_STYLES } from "./types";
 
@@ -22,10 +23,13 @@ const ALL_CATEGORIES: EventCategory[] = [
   "other",
 ];
 
+/** One year apart, the normal gap, so stops keep the style's regular spacing unless a test sets dates. */
+const FIRST_YEAR = 2010;
+
 function makeEvents(overrides: Partial<LifeEvent>[]): LifeEvent[] {
   return overrides.map((over, index) => ({
     id: `event_${index}`,
-    date: "2015",
+    date: String(FIRST_YEAR + index),
     title: `Event ${index}`,
     description: "",
     category: "other",
@@ -189,4 +193,40 @@ describe("every ride style", () => {
     expect(build(events).stops.map(({ id }) => id)).toEqual(["event_0", "event_1", "event_2"]);
     expect(build(events)).toEqual(build(events));
   });
+});
+
+describe("time-based spacing", () => {
+  /** Good and hard moments alternate, so neighbouring labels sit on opposite sides and only time sets the gap. */
+  const timeline = ["2010", "2010", "2011", "2016"].map((date, index) => ({
+    date,
+    title: `Moment ${index}`,
+    sentiment: index % 2 === 0 ? ("positive" as const) : ("negative" as const),
+  }));
+
+  for (const style of RIDE_STYLES) {
+    it(`puts close dates closer together in the ${style} style`, () => {
+      const { stops } = RIDE_STYLE_DETAILS[style].build(makeEvents(timeline));
+      const [sameYear, oneYear, fiveYears] = stops.slice(1).map((stop, index) => stop.x - stops[index].x);
+      expect(sameYear).toBeLessThan(oneYear);
+      expect(oneYear).toBeLessThan(fiveYears);
+    });
+  }
+
+  it("keeps two big loops in the same year clear of each other", () => {
+    const { stops } = buildLoopTrack(makeEvents([{ date: "2010", impact: IMPACT_MAX }, { date: "2010", impact: IMPACT_MAX }]));
+    expect(stops[1].x - stops[0].x).toBeGreaterThan(loopRadius(IMPACT_MAX) * 2);
+  });
+
+  for (const style of RIDE_STYLES) {
+    it(`never lets close labels on the same side run into each other in the ${style} style`, () => {
+      const events = makeEvents([
+        { date: "2010", sentiment: "negative", impact: 5, title: "A very long first title here" },
+        { date: "2010", sentiment: "negative", impact: IMPACT_MAX, title: "A very long second title" },
+      ]);
+      const { stops } = RIDE_STYLE_DETAILS[style].build(events);
+      const halfWidths = stops.map((stop) => labelWidth(stop.title, stop.date) / 2);
+      expect(stops[0].labelSide).toBe(stops[1].labelSide);
+      expect(stops[1].x - stops[0].x).toBeGreaterThan(halfWidths[0] + halfWidths[1]);
+    });
+  }
 });
