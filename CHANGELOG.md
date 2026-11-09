@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-09
+
 ### Added
 
 - Ride together: put your ride and a friend's on one timeline with the same years lined up, ride both carts through time side by side, see the years you both had big moments, and share the pair as a link. Start from a friend's ride link or paste one on your own ride. The same link rules apply: nothing is stored on a server and no descriptions are included.
