@@ -59,6 +59,8 @@ test("the story is sent only on Generate and is never stored", async ({ page }) 
   );
   expect(stored).not.toContain(SECRET);
   await page.reload();
+  await page.getByRole("heading", { name: "Your ride" }).waitFor();
+  await button(page, "Back to my story").click();
   await expect(storyBox(page)).toHaveValue("");
 });
 

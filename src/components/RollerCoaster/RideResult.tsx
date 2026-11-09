@@ -23,6 +23,7 @@ import { LifeStatsPanel } from "./LifeStatsPanel";
 import { RideControls } from "./RideControls";
 import { RideLookBar } from "./RideLookBar";
 import { RideTrack } from "./RideTrack";
+import { SavedRideNote } from "./SavedRideNote";
 import { StopDetails } from "./StopDetails";
 
 interface RideResultProps {
@@ -30,6 +31,8 @@ interface RideResultProps {
   clarifications: readonly string[];
   isDemo: boolean;
   isSample: boolean;
+  /** The user's own ride, kept on this device, which Start over can delete. */
+  isSavedOnDevice: boolean;
   title: string;
   rideStyle: RideStyle;
   rideTheme: RideTheme;
@@ -46,6 +49,7 @@ interface RideResultProps {
   onEditEvents: () => void;
   onBackToStory: () => void;
   onShowAnotherSample: () => void;
+  onStartOver: () => void;
 }
 
 const FIRST_RIDE = 0;
@@ -53,8 +57,8 @@ const SELECT_PROMPT = "Select a stop on the track to adjust how it felt and how 
 const CREATIVE_NOTE = "This ride is a creative picture of your story, not a measurement of your life.";
 
 export function RideResult(props: RideResultProps): ReactElement {
-  const { events, clarifications, isDemo, isSample, title, rideStyle, rideTheme, chapters, report, rider, fitToScreen } = props;
-  const { onFitToScreenChange, onTitleChange, onRideStyleChange, onRideThemeChange, onRiderChange, onEventsChange, onEditEvents, onBackToStory, onShowAnotherSample } = props;
+  const { events, clarifications, isDemo, isSample, isSavedOnDevice, title, rideStyle, rideTheme, chapters, report, rider, fitToScreen } = props;
+  const { onFitToScreenChange, onTitleChange, onRideStyleChange, onRideThemeChange, onRiderChange, onEventsChange, onEditEvents, onBackToStory, onShowAnotherSample, onStartOver } = props;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const svg = useRef<SVGSVGElement>(null);
@@ -87,6 +91,7 @@ export function RideResult(props: RideResultProps): ReactElement {
             </button>
           )}
         </div>
+        {isSavedOnDevice && <SavedRideNote onStartOver={onStartOver} />}
       </header>
       <ReadingNotes isDemo={isDemo} isSample={isSample} clarifications={clarifications} />
       <RideLookBar
