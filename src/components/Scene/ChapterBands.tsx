@@ -4,6 +4,7 @@
  * Long names are shortened to fit their band.
  */
 import type { ReactElement } from "react";
+import { chapterStripColors } from "@/lib/scene/chapterStrip";
 import type { ScenePalette } from "@/lib/scene/themes";
 import { CHAPTER_BAND_HEIGHT } from "@/lib/track/rideChapters";
 import type { Track } from "@/lib/track/types";
@@ -29,9 +30,10 @@ export function ChapterBands({ track, palette }: ChapterBandsProps): ReactElemen
   const bottom = track.height - track.contentOffset;
   const top = bottom - CHAPTER_BAND_HEIGHT;
   const middle = top + CHAPTER_BAND_HEIGHT / 2;
+  const strip = palette ? chapterStripColors(palette) : null;
   return (
     <g data-testid="chapter-bands">
-      <rect y={top} width={track.width} height={CHAPTER_BAND_HEIGHT} fill={palette?.pill ?? "var(--background)"} />
+      <rect y={top} width={track.width} height={CHAPTER_BAND_HEIGHT} fill={strip?.fill ?? "var(--background)"} />
       {track.chapterBands.map(({ title, start, end }) => (
         <g key={`${title}-${start}`}>
           <rect
@@ -41,7 +43,7 @@ export function ChapterBands({ track, palette }: ChapterBandsProps): ReactElemen
             height={CHAPTER_BAND_HEIGHT - BAND_GAP * 2}
             rx={BAND_RADIUS}
             fill="none"
-            stroke={palette?.ink ?? "currentColor"}
+            stroke={strip?.ink ?? "currentColor"}
             strokeWidth={2}
           />
           <text
@@ -50,7 +52,7 @@ export function ChapterBands({ track, palette }: ChapterBandsProps): ReactElemen
             textAnchor="middle"
             fontSize={TEXT_SIZE}
             fontWeight={700}
-            fill={palette?.ink ?? "currentColor"}
+            fill={strip?.ink ?? "currentColor"}
           >
             {fitTitle(title, end - start)}
           </text>

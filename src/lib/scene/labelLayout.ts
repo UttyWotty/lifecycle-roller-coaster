@@ -1,9 +1,9 @@
 /**
- * Pure geometry of the label pill, flag pole and marker drawn at each stop of an illustrated ride.
+ * Pure geometry of the label pill, flag pole and marker at each stop, and of the name at the start of each metro line.
  * The drawing components and the scenery planner both read it, so decorations can keep clear of labels.
  * It has no behaviour beyond arithmetic on a stop's position, title and date.
  */
-import type { TrackStop } from "@/lib/track/types";
+import type { TrackPoint, TrackStop } from "@/lib/track/types";
 
 export interface Box {
   x: number;
@@ -72,4 +72,24 @@ export function labelBox(stop: TrackStop, isTall: boolean, options: LabelOptions
 
 export function boxesOverlap(a: Box, b: Box): boolean {
   return a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+}
+
+/** Metro line names sit just left of where each line starts, right-aligned and level with the line. */
+export const LINE_NAME_SIZE = 13;
+export const LINE_NAME_GAP = 10;
+export const LINE_NAME_DROP = 4;
+const LINE_NAME_CHARACTER_WIDTH = 8;
+/** The text descends a little below its baseline. */
+const LINE_NAME_DESCENT = 4;
+
+/** The area a metro line's name covers, so scenery can keep clear of it. */
+export function laneLabelBox(start: TrackPoint, name: string): Box {
+  const width = name.length * LINE_NAME_CHARACTER_WIDTH;
+  const baseline = start.y + LINE_NAME_DROP;
+  return {
+    x: start.x - LINE_NAME_GAP - width,
+    y: baseline - LINE_NAME_SIZE,
+    width,
+    height: LINE_NAME_SIZE + LINE_NAME_DESCENT,
+  };
 }

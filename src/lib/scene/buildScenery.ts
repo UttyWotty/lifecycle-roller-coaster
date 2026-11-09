@@ -5,6 +5,7 @@
  */
 import type { Track, TrackPoint, TrackStop } from "@/lib/track/types";
 import { type Box, boxesOverlap, isTallStop, labelBox } from "./labelLayout";
+import { type Planet, placePlanets } from "./placePlanets";
 import type { ScenePalette, SceneryKind } from "./themes";
 
 export interface Cloud extends TrackPoint {
@@ -42,6 +43,8 @@ export interface Scenery {
   orb: Orb | null;
   wheels: Wheel[];
   bats: Bat[];
+  /** Space only, in canvas coordinates, clear of every label. */
+  planets: Planet[];
   /** In the same coordinates as the track, so they sit beside their stops. */
   balloon: TrackPoint | null;
   parachute: TrackPoint | null;
@@ -219,14 +222,16 @@ export function buildScenery(track: Track, palette: ScenePalette): Scenery {
   const random = createRandom();
   const { kind, hasStars, orb } = palette;
   const hasMarkers = track.style !== "metro" && !KINDS_WITHOUT_MARKERS.includes(kind);
+  const clouds = buildClouds(track, random);
   return {
-    clouds: buildClouds(track, random),
+    clouds,
     skylineFar: kind === "fairground" ? [] : buildSkyline(track, FAR_HEIGHT_SHARE_MIN, FAR_HEIGHT_SHARE_RANGE, random),
     skylineNear: buildSkyline(track, NEAR_HEIGHT_SHARE_MIN, NEAR_HEIGHT_SHARE_RANGE, random),
     stars: hasStars ? buildStars(track, random) : [],
     orb: orb === null ? null : { x: track.width * ORB_X_SHARE, y: ORB_Y, radius: ORB_RADIUS },
     wheels: kind === "fairground" ? buildWheels(track) : [],
     bats: kind === "haunted" ? buildBats(track, random) : [],
+    planets: kind === "space" ? placePlanets(track, clouds) : [],
     ...(hasMarkers ? placeMarkers(track) : NO_MARKERS),
   };
 }
