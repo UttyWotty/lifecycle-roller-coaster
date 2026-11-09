@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from "vitest";
 import type { LifeEvent } from "@/lib/events/schema";
-import { WHOLE_LIFE, activeLens, applyLens, availableLenses, parseBirthYear } from "./rideLenses";
+import { WHOLE_LIFE, activeLens, applyLens, availableLenses, keptLens, parseBirthYear } from "./rideLenses";
 
 function event(index: number, date: string | null, category: LifeEvent["category"]): LifeEvent {
   return {
@@ -76,6 +76,18 @@ describe("applyLens", () => {
     expect(applyLens(LIFE, "part:volcano", null)).toBe(LIFE);
     expect(applyLens(LIFE, "age:20", null)).toBe(LIFE);
     expect(activeLens(LIFE, "part:health", null)).toBeNull();
+  });
+});
+
+describe("keptLens", () => {
+  it("keeps a lens that still has a ride", () => {
+    expect(keptLens(LIFE, "part:career", null)).toBe("part:career");
+  });
+
+  it("drops a lens that lost its events or its birth year to the whole life", () => {
+    expect(keptLens(LIFE.slice(0, 3), "part:career", null)).toBe(WHOLE_LIFE);
+    expect(keptLens(LIFE, "age:20", null)).toBe(WHOLE_LIFE);
+    expect(keptLens(LIFE, WHOLE_LIFE, BORN)).toBe(WHOLE_LIFE);
   });
 });
 

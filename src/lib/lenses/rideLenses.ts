@@ -131,6 +131,11 @@ export function activeLens(events: readonly LifeEvent[], lensId: string, birthYe
   return availableLenses(events, birthYear).find((lens) => lens.id === lensId) ?? null;
 }
 
+/** The chosen lens id while it still has a ride, otherwise the whole life, so a lens that lapsed never comes back. */
+export function keptLens(events: readonly LifeEvent[], lensId: string, birthYear: number | null): string {
+  return activeLens(events, lensId, birthYear)?.id ?? WHOLE_LIFE;
+}
+
 /** The events a lens shows, in their original order; the whole life when the lens is not available. */
 export function applyLens(events: readonly LifeEvent[], lensId: string, birthYear: number | null): readonly LifeEvent[] {
   const lens = allLenses(events, birthYear).find((option) => option.id === lensId);

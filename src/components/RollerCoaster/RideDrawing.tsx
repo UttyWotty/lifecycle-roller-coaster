@@ -13,6 +13,7 @@ import type { LifeReport } from "@/lib/events/insights";
 import type { LifeEvent } from "@/lib/events/schema";
 import type { Scene } from "@/lib/scene/composeRide";
 import type { Track } from "@/lib/track/types";
+import { railPathOf } from "./measureRail";
 import { RideItPanel } from "./RideItPanel";
 import { MIN_TRACK_SCALE, RideTrack } from "./RideTrack";
 import { useRidePlayback } from "./useRidePlayback";
@@ -42,9 +43,9 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
   const [rideNumber, setRideNumber] = useState(FIRST_RIDE);
   const scroller = useRef<HTMLDivElement>(null);
   const drawing = useRef<HTMLDivElement>(null);
-  const rail = track.lines.find(({ category }) => category === null) ?? null;
-  const hasCart = scene !== null && rail !== null;
-  const playback = useRidePlayback({ track, railPath: hasCart ? rail.path : null, scroller, drawing });
+  const railPath = railPathOf(track);
+  const hasCart = scene !== null && railPath !== null;
+  const playback = useRidePlayback({ track, railPath: hasCart ? railPath : null, scroller, drawing });
   const isRiding = playback.status !== null;
   const ridingStop = playback.stopIndex === null ? null : track.stops[playback.stopIndex];
   const ridingEvent = events.find((event) => event.id === ridingStop?.id) ?? null;
@@ -56,6 +57,14 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
         isMonochrome: scene.palette.kind === "line",
       }
     : null;
+
+  /** Resizing the drawing mid-ride moves the page, so bring the drawing back once the new size is laid out. */
+  function toggleFitToScreen(): void {
+    onFitToScreenChange(!fitToScreen);
+    if (isRiding) {
+      requestAnimationFrame(() => drawing.current?.scrollIntoView({ block: "nearest" }));
+    }
+  }
 
   return (
     <>
@@ -119,7 +128,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
         <button
           type="button"
           aria-pressed={fitToScreen}
-          onClick={() => onFitToScreenChange(!fitToScreen)}
+          onClick={toggleFitToScreen}
           className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
           Fit to screen

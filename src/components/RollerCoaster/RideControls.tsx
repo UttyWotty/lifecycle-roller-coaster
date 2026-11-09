@@ -13,6 +13,8 @@ import { RiderPicker } from "./RiderPicker";
 
 interface RideControlsProps {
   title: string;
+  /** The title the drawing shows when the ride is unnamed, such as the lens title, or null when it shows none. */
+  suggestedTitle: string | null;
   rider: Rider;
   /** Only rides with a cart have someone to choose. */
   hasCart: boolean;
@@ -20,10 +22,11 @@ interface RideControlsProps {
   onRiderChange: (rider: Rider) => void;
 }
 
-const TITLE_PLACEHOLDER = "My 20s Roller Coaster";
+/** An example name for a ride whose drawing has no title yet. */
+const TITLE_EXAMPLE = "My Life Roller Coaster";
 
 export function RideControls(props: RideControlsProps): ReactElement {
-  const { title, rider, hasCart, onTitleChange, onRiderChange } = props;
+  const { title, suggestedTitle, rider, hasCart, onTitleChange, onRiderChange } = props;
   return (
     <div className="flex flex-col gap-4">
       <label className={LABEL_CLASS}>
@@ -32,7 +35,7 @@ export function RideControls(props: RideControlsProps): ReactElement {
           type="text"
           value={title}
           maxLength={MAX_TITLE_LENGTH}
-          placeholder={TITLE_PLACEHOLDER}
+          placeholder={suggestedTitle ?? TITLE_EXAMPLE}
           onChange={(event) => onTitleChange(event.target.value)}
           className={FIELD_CLASS}
         />

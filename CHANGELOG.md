@@ -8,6 +8,15 @@ All notable changes to this project are documented in this file. The format foll
 
 - Tech-debt list updated with the follow-ups from v0.10.0 and v0.11.0.
 
+### Fixed
+
+- Ride together in Loop-the-loops style: both carts now ride round every loop instead of passing under it.
+- Ride it and Ride together pause the cart just before each stop, so it no longer covers the stop's marker, flag or label.
+- Fit to screen during Ride it keeps the drawing and the cart in view instead of scrolling the page away.
+- A lens that loses its events, or its birth year, now switches back to the whole life for good, instead of quietly coming back later.
+- Ride together has had its independent review, with new tests for undated, non-overlapping, out-of-order and mixed-precision rides.
+- The "Name your ride" placeholder shows the lens title the drawing uses, or a plain example, instead of always "My 20s Roller Coaster".
+
 ## [0.11.0] - 2026-11-09
 
 ### Added

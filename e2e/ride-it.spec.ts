@@ -1,7 +1,8 @@
 /**
  * Browser tests for Ride it, the guided playback of a ride.
  * They confirm the cart rides and stops at each event with its story, and that every control works by button and key.
- * They also confirm the ride ends on the report, styles without a cart still step through stops, and exports stay clean.
+ * They also confirm the ride ends on the report, styles without a cart still step through stops, exports stay clean,
+ * and Fit to screen mid-ride keeps the cart in view.
  */
 import { expect, test, type Page } from "@playwright/test";
 import { button, openRide } from "./helpers";
@@ -90,6 +91,21 @@ test.describe("with reduced motion", () => {
     await startRide(page);
     await expect(panel(page).getByText(/^Stop 1 of/)).toBeVisible({ timeout: 1_000 });
   });
+});
+
+test("Fit to screen during a ride keeps the cart in view", async ({ page }) => {
+  await openRide(page);
+  await startRide(page);
+  await button(page, "Next").click();
+  await button(page, "Pause").click();
+  await button(page, "Fit to screen").click();
+  await expect(async () => {
+    const cart = await page.getByTestId("playback-cart").boundingBox();
+    const height = page.viewportSize()?.height ?? 0;
+    expect(cart).not.toBeNull();
+    expect(cart!.y).toBeGreaterThanOrEqual(0);
+    expect(cart!.y + cart!.height).toBeLessThanOrEqual(height);
+  }).toPass({ timeout: 3_000 });
 });
 
 test("an export taken during a ride has no playback cart", async ({ page }) => {
