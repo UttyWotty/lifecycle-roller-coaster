@@ -1,8 +1,9 @@
 /**
  * Pure timing and geometry for Ride it, the guided playback where the cart rides the track stop by stop.
  * It turns samples of the rail into each stop's distance along it, a timeline of moves and pauses, and the cart's
- * position and heading at any moment; climbs take longer than drops, and loops are ridden on the way out of a stop.
- * It holds no clock and touches no DOM, so the browser hook only measures the rail and asks it where the cart is.
+ * position and heading at any moment; climbs take longer than drops, loops are ridden on the way out of a stop, and the
+ * cart pauses just short of each stop so it never hides the stop's marker, flag or label. It holds no clock and
+ * touches no DOM, so the browser hooks only measure the rail and ask it where the cart is.
  */
 import type { TrackPoint } from "@/lib/track/types";
 
@@ -64,6 +65,17 @@ const NO_TIME = 0;
 const DEGREES_PER_HALF_TURN = 180;
 /** How close a rail sample must come to a stop to count as reaching it. */
 const STOP_TOLERANCE = 8;
+/**
+ * How far along the rail before a stop the cart pauses: half the drawn cart (31 units at scale 1.25) plus room for
+ * the stop's marker, so the cart's nose stops at the marker instead of covering it and the flag above.
+ */
+export const PAUSE_SHORT_OF_STOP = 52;
+
+export interface RailAnchor {
+  x: number;
+  /** Distance along the rail where the rail reaches this x on the way to the next stop. */
+  length: number;
+}
 
 function distance(a: TrackPoint, b: TrackPoint): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
@@ -148,8 +160,9 @@ export function buildTimeline(
     at = to;
   };
   lengths.forEach((length, stopIndex) => {
-    addMove(length);
-    steps.push({ kind: "pause", stopIndex, at: length, start: clock, duration: STOP_PAUSE_SECONDS });
+    const pauseAt = Math.max(length - PAUSE_SHORT_OF_STOP, at);
+    addMove(pauseAt);
+    steps.push({ kind: "pause", stopIndex, at: pauseAt, start: clock, duration: STOP_PAUSE_SECONDS });
     clock += STOP_PAUSE_SECONDS;
   });
   addMove(railEnd);
@@ -191,26 +204,39 @@ export function stopStartTime(timeline: Timeline, stopIndex: number): number {
 }
 
 /**
- * Where a cart is when the ride has reached an x, for carts that move through time side by side.
- * It follows a track's profile, which runs left to right, and parks at either end beyond it.
+ * Points that tie x across the drawing to distance along the rail: the rail's start, each stop and the rail's end.
+ * Between them distance grows evenly with x, so a cart driven by x still rides every loop that follows a stop.
  */
-export function poseAtX(profile: readonly TrackPoint[], x: number): CartPose {
-  const first = profile[0];
-  const last = profile.at(-1);
+export function railAnchors(samples: readonly RailSample[], stops: readonly TrackPoint[]): RailAnchor[] {
+  const first = samples[0];
+  const last = samples.at(-1);
   if (first === undefined || last === undefined) {
-    return { x, y: 0, angle: 0 };
+    return [];
+  }
+  const lengths = stopLengths(samples, stops);
+  const points = [
+    { x: first.x, length: first.length },
+    ...stops.map((stop, index) => ({ x: stop.x, length: lengths[index] })),
+    { x: last.x, length: last.length },
+  ];
+  return points.filter((point, index) => index === 0 || point.x > points[index - 1].x);
+}
+
+/** Distance along the rail when a ride that moves through x has reached this x, held at either end. */
+export function lengthAtX(anchors: readonly RailAnchor[], x: number): number {
+  const first = anchors[0];
+  const last = anchors.at(-1);
+  if (first === undefined || last === undefined) {
+    return 0;
   }
   if (x <= first.x) {
-    return { ...first, angle: 0 };
+    return first.length;
   }
-  const index = profile.findIndex((point) => point.x >= x);
+  const index = anchors.findIndex((anchor) => anchor.x >= x);
   if (index === -1) {
-    return { ...last, angle: 0 };
+    return last.length;
   }
-  const before = profile[index - 1];
-  const after = profile[index];
-  const span = after.x - before.x;
-  const share = span > 0 ? (x - before.x) / span : 0;
-  const angle = (Math.atan2(after.y - before.y, after.x - before.x) * DEGREES_PER_HALF_TURN) / Math.PI;
-  return { x, y: before.y + (after.y - before.y) * share, angle };
+  const before = anchors[index - 1];
+  const after = anchors[index];
+  return before.length + ((after.length - before.length) * (x - before.x)) / (after.x - before.x);
 }

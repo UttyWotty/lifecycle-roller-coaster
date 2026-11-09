@@ -1,14 +1,27 @@
 /**
  * Browser side of Ride together: one clock moves both carts through time, side by side, and keeps them in view.
- * The ride pauses at each column of the shared timeline, where the card shows what happened to each person.
- * Carts and scrolling change directly in the DOM each frame; React state changes only at a new column or status.
+ * The ride pauses at each column of the shared timeline, where the card shows what happened to each person, and each
+ * cart follows its own rail by x, so it rides every loop. Carts and scrolling change directly in the DOM each frame;
+ * React state changes only at a new column or status.
  */
 "use client";
 
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { buildTimeline, poseAtX, polylineSamples, positionAt, stopStartTime, type Timeline } from "@/lib/ride/ridePlayback";
+import {
+  buildTimeline,
+  lengthAtX,
+  poseAt,
+  polylineSamples,
+  positionAt,
+  railAnchors,
+  stopStartTime,
+  type RailAnchor,
+  type RailSample,
+  type Timeline,
+} from "@/lib/ride/ridePlayback";
 import type { TogetherColumn } from "@/lib/together/alignRides";
 import type { Track } from "@/lib/track/types";
+import { railPathOf, railSamples } from "@/components/RollerCoaster/measureRail";
 import type { PlaybackStatus } from "@/components/RollerCoaster/useRidePlayback";
 
 export interface TogetherPlayback {
@@ -37,12 +50,29 @@ const NO_COLUMN = -1;
 const LEVEL = 0;
 const TIMELINE_HEIGHT = 1;
 
+interface CartRail {
+  samples: RailSample[];
+  anchors: RailAnchor[];
+}
+
+interface ActiveTogether {
+  value: Timeline;
+  startX: number;
+  tracks: readonly [Track, Track];
+  rails: readonly [CartRail, CartRail];
+}
+
+function cartRail(track: Track): CartRail {
+  const samples = railSamples(railPathOf(track), track.profile);
+  return { samples, anchors: railAnchors(samples, track.stops) };
+}
+
 function isTyping(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
 }
 
 export function useTogetherPlayback({ tracks, columns, scroller, drawing }: TogetherOptions): TogetherPlayback {
-  const [timeline, setTimeline] = useState<{ value: Timeline; startX: number; tracks: readonly [Track, Track] } | null>(null);
+  const [timeline, setTimeline] = useState<ActiveTogether | null>(null);
   const [status, setStatus] = useState<PlaybackStatus>("playing");
   const [columnIndex, setColumnIndex] = useState<number | null>(null);
   const cartA = useRef<SVGGElement | null>(null);
@@ -51,11 +81,12 @@ export function useTogetherPlayback({ tracks, columns, scroller, drawing }: Toge
   const shown = useRef(NO_COLUMN);
   const isActive = timeline !== null && timeline.tracks[0] === tracks[0] && timeline.tracks[1] === tracks[1];
 
-  function render(active: NonNullable<typeof timeline>): boolean {
+  function render(active: ActiveTogether): boolean {
     const position = positionAt(active.value, elapsed.current);
     const x = active.startX + position.length;
     [cartA, cartB].forEach((cart, index) => {
-      const pose = poseAtX(active.tracks[index].profile, x);
+      const { samples, anchors } = active.rails[index];
+      const pose = poseAt(samples, lengthAtX(anchors, x));
       cart.current?.setAttribute("transform", `translate(${pose.x} ${pose.y}) rotate(${pose.angle})`);
     });
     const box = scroller.current;
@@ -113,7 +144,7 @@ export function useTogetherPlayback({ tracks, columns, scroller, drawing }: Toge
     shown.current = NO_COLUMN;
     setColumnIndex(null);
     setStatus("playing");
-    setTimeline({ value, startX, tracks });
+    setTimeline({ value, startX, tracks, rails: [cartRail(tracks[0]), cartRail(tracks[1])] });
     drawing.current?.scrollIntoView({ block: "nearest" });
   }
 

@@ -10,13 +10,13 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import {
   buildTimeline,
   poseAt,
-  polylineSamples,
   positionAt,
   stopStartTime,
   type RailSample,
   type Timeline,
 } from "@/lib/ride/ridePlayback";
 import type { Track } from "@/lib/track/types";
+import { railSamples } from "./measureRail";
 
 export type PlaybackStatus = "playing" | "paused" | "finished";
 
@@ -46,36 +46,11 @@ interface PlaybackOptions {
   drawing: RefObject<HTMLElement | null>;
 }
 
-const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-/** Distance between rail samples, small enough that the cart follows curves smoothly. */
-const SAMPLE_SPACING = 4;
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const MS_PER_SECOND = 1000;
 const HALF = 2;
 const FIRST_STOP = 0;
 const NO_STOP = -1;
-
-/** Samples the rail with a detached path, which the browser can measure without drawing it. */
-function measureRail(path: string): RailSample[] {
-  const svg = document.createElementNS(SVG_NAMESPACE, "svg");
-  const element = document.createElementNS(SVG_NAMESPACE, "path");
-  element.setAttribute("d", path);
-  svg.append(element);
-  svg.style.position = "absolute";
-  svg.style.visibility = "hidden";
-  document.body.append(svg);
-  try {
-    const total = element.getTotalLength();
-    const count = Math.max(Math.ceil(total / SAMPLE_SPACING), 1);
-    return Array.from({ length: count + 1 }, (_, index) => {
-      const length = (total * index) / count;
-      const { x, y } = element.getPointAtLength(length);
-      return { x, y, length };
-    });
-  } finally {
-    svg.remove();
-  }
-}
 
 function isTyping(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
@@ -141,7 +116,7 @@ export function useRidePlayback({ track, railPath, scroller, drawing }: Playback
   }
 
   function start(): void {
-    const samples = railPath ? measureRail(railPath) : polylineSamples(track.stops);
+    const samples = railSamples(railPath, track.stops);
     const isInstant = window.matchMedia(REDUCED_MOTION_QUERY).matches;
     const timeline = buildTimeline(samples, track.stops, { trackHeight: track.height, isInstant });
     elapsed.current = 0;

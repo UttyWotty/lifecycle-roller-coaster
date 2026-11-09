@@ -16,7 +16,7 @@ import { DEFAULT_RIDER, type Rider } from "@/lib/scene/riders";
 import { DEFAULT_RIDE_THEME, type RideTheme } from "@/lib/scene/themes";
 import { DEFAULT_RIDE_STYLE } from "@/lib/track/rideStyles";
 import type { RideStyle } from "@/lib/track/types";
-import { WHOLE_LIFE } from "@/lib/lenses/rideLenses";
+import { WHOLE_LIFE, keptLens } from "@/lib/lenses/rideLenses";
 import type { SavedRide } from "@/lib/saved/savedRide";
 import { clearSavedRide, loadSavedRide, saveRide } from "./rideStorage";
 
@@ -79,7 +79,7 @@ export function useRideState(startWithSample: boolean): RideState {
   const [rideTheme, setRideTheme] = useState<RideTheme>(opening?.rideTheme ?? saved?.theme ?? DEFAULT_RIDE_THEME);
   const [rider, setRider] = useState<Rider>(opening?.rider ?? saved?.rider ?? DEFAULT_RIDER);
   const [fitToScreen, setFitToScreen] = useState(saved?.fitToScreen ?? false);
-  const [rideLens, setRideLens] = useState(saved?.lens ?? WHOLE_LIFE);
+  const [rideLens, setRideLens] = useState(saved ? keptLens(saved.events, saved.lens, saved.birthYear) : WHOLE_LIFE);
   const [birthYear, setBirthYear] = useState<number | null>(saved?.birthYear ?? null);
 
   /** Samples are built in and never saved; anything the user made themselves is. */
@@ -102,6 +102,17 @@ export function useRideState(startWithSample: boolean): RideState {
       });
     }
   }, [isOwnRide, events, chapters, report, clarifications, isDemo, rideTitle, rideStyle, rideTheme, rider, fitToScreen, rideLens, birthYear]);
+
+  /** An edit that leaves the chosen lens without a ride falls back to the whole life for good. */
+  function changeEvents(next: readonly LifeEvent[]): void {
+    setEvents(next);
+    setRideLens(keptLens(next, rideLens, birthYear));
+  }
+
+  function changeBirthYear(next: number | null): void {
+    setBirthYear(next);
+    setRideLens(keptLens(events, rideLens, next));
+  }
 
   /** Drops what belongs to a sample, so its title never ends up on the user's own ride. */
   function leaveSample(): void {
@@ -196,14 +207,14 @@ export function useRideState(startWithSample: boolean): RideState {
     isSavedOnDevice: isOwnRide && events.length > 0,
     setStage,
     setStory,
-    setEvents,
+    setEvents: changeEvents,
     setRideTitle,
     setRideStyle,
     setRideTheme,
     setRider,
     setFitToScreen,
     setRideLens,
-    setBirthYear,
+    setBirthYear: changeBirthYear,
     showResult,
     showSample,
     returnToEvents,
