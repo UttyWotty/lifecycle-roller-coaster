@@ -1,6 +1,6 @@
 {
   "name": "lifecycle-roller-coaster",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.6.0",
+    "botid": "1.5.12",
     "next": "16.4.5",
     "react": "19.3.1",
     "react-dom": "19.3.1",

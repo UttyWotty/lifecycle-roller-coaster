@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-All essential roadmap phases (1 to 5) are released: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export. v0.3.0 added ride styles, illustrated themes, custom titles and sample lives, v0.4.0 added fit to screen, character choice and two more themes, v0.5.0 added the four art modes, v0.6.0 added worlds, statistics, sharing, chapters and the life report, v0.7.0 added security headers and cleared the 0.6.0 tech debt, v0.7.1 fixed the remaining polish items, and v0.7.2 patched a lint-tooling advisory. Known follow-ups are in `docs/tech-debt.md`.
+All essential roadmap phases (1 to 5) are released: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export. v0.3.0 added ride styles, illustrated themes, custom titles and sample lives, v0.4.0 added fit to screen, character choice and two more themes, v0.5.0 added the four art modes, v0.6.0 added worlds, statistics, sharing, chapters and the life report, v0.7.0 added security headers and cleared the 0.6.0 tech debt, v0.7.1 fixed the remaining polish items, v0.7.2 patched a lint-tooling advisory, and v0.8.0 made the app safe to host publicly on Vercel. Known follow-ups are in `docs/tech-debt.md`.
 
 `docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
 
@@ -78,6 +78,6 @@ User stories can contain sensitive personal details.
 - Log only error codes, never exception text from the provider or the parser.
 - Sharing is opt-in; never publish a ride automatically.
 
-## Before Public Deployment
+## Public Hosting
 
-The app is deliberately not publicly hosted for now. `/api/extract` spends real tokens on every call and has no rate limiting, so add rate limiting and set a spend limit on the API key before any public deployment.
+The app is hosted on Vercel's free Hobby plan with the owner's key, and nothing else may cost money. `/api/extract` wraps real readings in `src/lib/ai/limitedExtractor.ts`: per-visitor limits and a shared daily budget kept in Upstash's free tier (`src/lib/limits`), with a worst-case reservation before each call that is settled to the real cost after. On Vercel a missing or broken limit store fails closed, and BotID runs only in Vercel builds. Fixture mode skips all limits. Keep `ANTHROPIC_API_KEY` scoped to Production so previews never spend tokens. The README's "Deploying" section is the setup guide.

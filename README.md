@@ -34,7 +34,7 @@ This is a playful, creative picture of a story. It is not a psychological assess
 
 ## Getting Started
 
-The app is not publicly hosted, so you run it on your own machine. You need Node.js 24 or later.
+To run it on your own machine you need Node.js 24 or later. To host it publicly, see [Deploying](#deploying).
 
 ```bash
 git clone https://github.com/UttyWotty/lifecycle-roller-coaster.git
@@ -86,7 +86,8 @@ Life stories can be personal, so the app is built to hold on to as little as pos
 
 - Nothing leaves your browser until you press Generate. The page tells you this before you do.
 - In `anthropic` mode, pressing Generate sends your story to the Anthropic API. Anthropic's own data policies apply to that request.
-- The app has no database and no accounts. Your story and events live in the page and disappear when you close it.
+- The app has no database of stories and no accounts. Your story and events live in the page and disappear when you close it.
+- On the public site, a small counter store keeps how many readings each visitor started this hour and day, and the day's total spend. A visitor is a keyed one-way hash of their network address, never the address itself, and every counter deletes itself within two days.
 - The server never logs story content, only error codes and token counts.
 - Images are created on your device and are never uploaded. They contain titles, dates and markers, but not descriptions or your story.
 - Nothing is ever shared unless you choose to share it.
@@ -151,7 +152,35 @@ Please report vulnerabilities privately, as described in [SECURITY.md](SECURITY.
 
 ## Deploying
 
-Public hosting is not supported yet. Every Generate request spends tokens on the host's API key and the endpoint has no rate limiting, so anyone deploying this publicly should add rate limiting and set a spend limit first.
+The app runs on Vercel's free Hobby plan, with a free Upstash Redis database for its limits. Every real reading spends tokens on the host's Anthropic key, so the public site protects that key in four layers:
+
+1. **Per visitor:** 5 readings an hour and 12 a day. After that the visitor sees a friendly message and can still explore sample lives.
+2. **Daily budget:** a hard cap on spend across all visitors, $1 a UTC day by default (`DAILY_BUDGET_USD`). Each reading reserves its worst-case cost before calling Claude and settles to the real cost afterwards, so readings started at the same moment cannot overspend.
+3. **Bot protection:** Vercel BotID (free Basic mode) blocks scripted requests before any tokens are spent.
+4. **Fail closed:** on Vercel, if the limit store is missing or unreachable, Generate refuses to call Claude instead of spending unchecked.
+
+Demo mode (`EXTRACTOR_MODE=fixture`) costs nothing, so it skips the limits.
+
+### Step by step
+
+1. **Make a separate API key with a spend limit.** In the [Anthropic Console](https://console.anthropic.com/), create a workspace for the public site, set a monthly spend limit on it (a little above 30 times the daily budget), and create an API key in that workspace. This is the last line of defence if everything else failed.
+2. **Import the repository.** Sign in to [Vercel](https://vercel.com/) with GitHub on the free Hobby plan, choose **Add New → Project**, and import this repository. Leave the framework settings as detected.
+3. **Set the production branch.** In **Settings → Environments → Production**, make sure the production branch is `main`, so only releases go live.
+4. **Add the limit store.** In the project's **Storage** tab, add **Upstash for Redis** from the Marketplace on the free plan, connect it to the project, and let it add its variables. Under **Settings → Environment Variables**, confirm `KV_REST_API_URL` and `KV_REST_API_TOKEN` (or `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`) are present.
+5. **Add environment variables.** In **Settings → Environment Variables**:
+
+   | Name | Value | Environments |
+   | --- | --- | --- |
+   | `ANTHROPIC_API_KEY` | the key from step 1 | Production only |
+   | `EXTRACTOR_MODE` | `anthropic` | Production only |
+   | `EXTRACTOR_MODE` | `fixture` | Preview and Development |
+   | `DAILY_BUDGET_USD` | `1` | Production |
+
+   Keeping the key out of Preview means preview deployments of pull requests can never spend tokens.
+6. **Check a preview first.** Open any preview deployment, generate a ride, and confirm the demo reading appears. This proves BotID and the security headers work on Vercel at no cost.
+7. **Deploy production.** Redeploy `main` (Vercel deploys it automatically on each release). Generate one real ride and check the function log for the token count.
+
+To pause real readings at any time, set `DAILY_BUDGET_USD` to `0` and redeploy; sample lives keep working.
 
 ## License
 

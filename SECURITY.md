@@ -14,5 +14,5 @@ Only the latest release receives security fixes.
 
 ## Scope notes
 
-- The app is not publicly hosted. Anyone running it supplies their own Anthropic API key, and `/api/extract` has no rate limiting yet, so do not expose a self-hosted copy to the internet without adding rate limiting and setting a spend limit on the key.
+- Real readings spend the host's Anthropic API key. The public site limits them per visitor and with a daily budget, and blocks bots. A way to get around those limits, or to make a reading spend more than the budget allows, counts as a vulnerability. Self-hosted copies should follow the README's Deploying guide, including a spend limit on the key.
 - Stories are sent to the AI provider only when the user presses Generate, and the server never logs story text. A way to make story text reach logs, error messages or exported images counts as a vulnerability.

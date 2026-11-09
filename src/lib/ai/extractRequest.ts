@@ -9,7 +9,7 @@ import { ExtractionError, type ExtractionErrorCode } from "./errors";
 import { finalizeDraft, type ExtractionResult } from "./extraction";
 import type { EventExtractor } from "./extractor";
 
-export type RequestErrorCode = "invalid_request" | "payload_too_large" | "unsupported_media_type";
+export type RequestErrorCode = "invalid_request" | "payload_too_large" | "unsupported_media_type" | "forbidden";
 export type ExtractErrorCode = ExtractionErrorCode | RequestErrorCode;
 export interface ExtractErrorBody {
   error: ExtractErrorCode;
@@ -29,6 +29,9 @@ const ERROR_STATUS: Record<ExtractErrorCode, number> = {
   invalid_request: 400,
   payload_too_large: 413,
   unsupported_media_type: 415,
+  forbidden: 403,
+  visitor_limit: 429,
+  daily_limit: 429,
   refused: 422,
   truncated: 422,
   provider_failed: 502,

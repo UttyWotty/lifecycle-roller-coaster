@@ -8,13 +8,14 @@ import Anthropic, { APIError } from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { ExtractionError, type ExtractionErrorCode } from "./errors";
 import { extractionDraftSchema, readModelOutput, type ExtractionDraft } from "./extraction";
-import type { EventExtractor } from "./extractor";
+import type { EventExtractor, UsageReporter } from "./extractor";
 import { EXTRACTION_SYSTEM_PROMPT } from "./prompt";
 
 const API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
 
-const MAX_OUTPUT_TOKENS = 16_000;
+/** Real readings use about 1,000 to 1,500 output tokens; the cap bounds what one reading can cost. */
+const MAX_OUTPUT_TOKENS = 12_000;
 const REQUEST_TIMEOUT_MS = 60_000;
 const MAX_RETRIES = 1;
 const EFFORT = "medium";
@@ -40,6 +41,7 @@ async function requestDraft(
   client: Anthropic,
   story: string,
   signal: AbortSignal,
+  onUsage: UsageReporter | undefined,
 ): Promise<ExtractionDraft> {
   const message = await client.beta.messages.create(
     {
@@ -58,6 +60,7 @@ async function requestDraft(
     message.usage.input_tokens,
     message.usage.output_tokens,
   );
+  onUsage?.({ model: message.model, inputTokens: message.usage.input_tokens, outputTokens: message.usage.output_tokens });
   const textBlocks = message.content.filter((block) => block.type === "text");
   return readModelOutput(message.stop_reason, textBlocks.at(-1)?.text ?? null);
 }
@@ -65,7 +68,7 @@ async function requestDraft(
 export function createAnthropicExtractor(): EventExtractor {
   return {
     isDemo: false,
-    async extract(story: string, signal: AbortSignal): Promise<ExtractionDraft> {
+    async extract(story: string, signal: AbortSignal, onUsage?: UsageReporter): Promise<ExtractionDraft> {
       if (API_KEY === "") {
         throw new ExtractionError("not_configured");
       }
@@ -75,7 +78,7 @@ export function createAnthropicExtractor(): EventExtractor {
         maxRetries: MAX_RETRIES,
       });
       try {
-        return await requestDraft(client, story, signal);
+        return await requestDraft(client, story, signal, onUsage);
       } catch (error) {
         throw toExtractionError(error);
       }
