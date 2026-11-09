@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-09
+
 ### Added
 
 - Ride lenses: show one story as several rides, by part of life (My Career Coaster), decade (My 2010s) or age (My 20s, My Life Before 30, with an optional birth year kept on your device). An unnamed ride takes the lens's title.
