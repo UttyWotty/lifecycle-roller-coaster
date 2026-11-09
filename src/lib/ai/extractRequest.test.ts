@@ -106,6 +106,8 @@ describe("handleExtractRequest", () => {
     ["provider_failed", 502],
     ["not_configured", 503],
     ["rate_limited", 503],
+    ["visitor_limit", 429],
+    ["daily_limit", 429],
   ])("maps %s to status %i with no story text", async (code, status) => {
     const response = await run(
       fakeExtractor(new ExtractionError(code)),
