@@ -91,7 +91,10 @@ export function labelClearances(labels: readonly LabelPlacement[]): number[] {
   });
 }
 
-/** The x of every stop in list order, each one a time-based gap after the one before, and never closer than its label needs. */
+/**
+ * The x of every stop in list order, each one a time-based gap after the one before, and never closer than its label
+ * needs. Gaps are whole pixels, so the drawing and its exported image share the same integer size.
+ */
 export function stopPositions(events: readonly LifeEvent[], options: SpacingOptions): number[] {
   const positions: number[] = [];
   events.forEach((event, index) => {
@@ -100,7 +103,9 @@ export function stopPositions(events: readonly LifeEvent[], options: SpacingOpti
       previous === undefined
         ? options.firstX
         : positions[index - 1] +
-          Math.max(options.spacing * gapShare(previous, event, options.minShare), options.clearances[index] ?? NO_CLEARANCE);
+          Math.round(
+            Math.max(options.spacing * gapShare(previous, event, options.minShare), options.clearances[index] ?? NO_CLEARANCE),
+          );
     positions.push(x);
   });
   return positions;

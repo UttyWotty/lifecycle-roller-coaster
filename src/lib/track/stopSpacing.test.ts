@@ -91,7 +91,7 @@ describe("stopPositions", () => {
     expect(gaps[1]).toBeCloseTo(SPACING * NORMAL_GAP_SHARE);
     expect(gaps[2]).toBeCloseTo(SPACING * NORMAL_GAP_SHARE);
     expect(gaps[3]).toBeCloseTo(SPACING * NORMAL_GAP_SHARE);
-    expect(gaps.every((gap) => gap > 0)).toBe(true);
+    expect(gaps.every((gap) => gap > 0 && Number.isInteger(gap))).toBe(true);
   });
 
   it("returns nothing for no events", () => {
