@@ -78,6 +78,6 @@ User stories can contain sensitive personal details.
 - Log only error codes, never exception text from the provider or the parser.
 - Sharing is opt-in; never publish a ride automatically.
 
-## Before Public Deployment
+## Public Hosting
 
-The app is deliberately not publicly hosted for now. `/api/extract` spends real tokens on every call and has no rate limiting, so add rate limiting and set a spend limit on the API key before any public deployment.
+The app is hosted on Vercel's free Hobby plan with the owner's key, and nothing else may cost money. `/api/extract` wraps real readings in `src/lib/ai/limitedExtractor.ts`: per-visitor limits and a shared daily budget kept in Upstash's free tier (`src/lib/limits`), with a worst-case reservation before each call that is settled to the real cost after. On Vercel a missing or broken limit store fails closed, and BotID runs only in Vercel builds. Fixture mode skips all limits. Keep `ANTHROPIC_API_KEY` scoped to Production so previews never spend tokens. The README's "Deploying" section is the setup guide.

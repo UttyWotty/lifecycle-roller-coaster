@@ -9,6 +9,8 @@ export type ExtractionErrorCode =
   | "truncated"
   | "not_configured"
   | "rate_limited"
+  | "visitor_limit"
+  | "daily_limit"
   | "provider_failed";
 
 export class ExtractionError extends Error {

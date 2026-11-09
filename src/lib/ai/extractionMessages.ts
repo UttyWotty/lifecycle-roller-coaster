@@ -12,6 +12,11 @@ const MESSAGES: Readonly<Record<ExtractErrorCode, string>> = {
     "We could not turn this story into a ride. You did nothing wrong. Rewording it or leaving out a part may help.",
   truncated: "This story has more events than we can read at once. Please try a shorter version.",
   rate_limited: "The ride is very busy right now. Please try again in a minute.",
+  visitor_limit:
+    "You have made a lot of rides in a short time. Please take a break and try again later, or explore a sample life.",
+  daily_limit:
+    "Today's free story readings are used up. Please come back tomorrow, or explore a sample life in the meantime.",
+  forbidden: "This request looked automated, so it was blocked. Please reload the page and try again.",
   not_configured: "The story reader is not set up on this server yet.",
   provider_failed: FALLBACK_MESSAGE,
   invalid_request: FALLBACK_MESSAGE,

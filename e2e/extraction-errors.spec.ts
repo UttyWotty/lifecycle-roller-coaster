@@ -15,6 +15,9 @@ for (const [code, status, message] of [
   ["not_configured", 503, "not set up"],
   ["provider_failed", 502, "Something went wrong"],
   ["payload_too_large", 413, "too long to send"],
+  ["visitor_limit", 429, "take a break"],
+  ["daily_limit", 429, "come back tomorrow"],
+  ["forbidden", 403, "looked automated"],
 ] as const) {
   test(`${code} shows a friendly message and keeps the story`, async ({ page }) => {
     await page.route(ENDPOINT, (route) => route.fulfill({ status, json: { error: code } }));
