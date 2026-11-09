@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-09
+
+### Changed
+
+- Stops on the ride are now spaced by the time between their dates. Moments in the same year sit close together and long gaps sit wider, capped at twice the normal gap; undated events keep the normal gap. Close moments whose labels sit on the same side keep enough room for both labels. Every ride style follows this.
+
 ## [0.8.0] - 2026-11-09
 
 ### Added
