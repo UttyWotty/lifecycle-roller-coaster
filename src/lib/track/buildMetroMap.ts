@@ -4,7 +4,8 @@
  * Sentiment and impact shift a stop up or down from its line, so edits still reshape the map.
  */
 import type { EventCategory, LifeEvent } from "@/lib/events/schema";
-import { createStop, eventLevels } from "./buildTrack";
+import { createStop, eventLevels, labelPlacements } from "./buildTrack";
+import { labelClearances, MIN_GAP_SHARE, stopPositions } from "./stopSpacing";
 import type { Track, TrackLine, TrackPoint, TrackStop } from "./types";
 
 /** Wider than the coaster, so lines have room to reach each other without steep angles. */
@@ -73,15 +74,22 @@ function buildLine(
 export function buildMetroMap(events: readonly LifeEvent[]): Track {
   const levels = eventLevels(events);
   const categories = [...new Set(events.map((event) => event.category))];
+  const sides = events.map((event): TrackStop["labelSide"] => (event.sentiment === "negative" ? "below" : "above"));
+  const xs = stopPositions(events, {
+    firstX: SIDE_PADDING,
+    spacing: STOP_SPACING,
+    minShare: MIN_GAP_SHARE,
+    clearances: labelClearances(labelPlacements(events, sides)),
+  });
   const stops = events.map((event, index) =>
     createStop(event, {
-      x: SIDE_PADDING + index * STOP_SPACING,
+      x: xs[index],
       y:
         TOP_MARGIN +
         categories.indexOf(event.category) * LANE_GAP +
         SENTIMENT_SHIFT[event.sentiment] * event.impact * IMPACT_SHIFT,
       level: levels[index],
-      labelSide: event.sentiment === "negative" ? "below" : "above",
+      labelSide: sides[index],
     }),
   );
   const height = TOP_MARGIN + Math.max(categories.length - 1, 0) * LANE_GAP + BOTTOM_MARGIN;

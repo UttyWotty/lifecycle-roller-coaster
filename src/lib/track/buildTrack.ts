@@ -4,11 +4,15 @@
  * The bigger the gap between two events, the steeper and sharper the move between them.
  */
 import type { EventSentiment, LifeEvent } from "@/lib/events/schema";
+import { labelWidth } from "./labelWidth";
+import { labelClearances, MIN_GAP_SHARE, stopPositions, type LabelPlacement } from "./stopSpacing";
 import type { RideStyle, Track, TrackPoint, TrackStop } from "./types";
 
 interface CoasterShape {
   style: RideStyle;
   stopSpacing: number;
+  /** The closest two stops may sit, as a share of stopSpacing. */
+  minGapShare: number;
   topMargin: number;
   height: number;
   /** How late the gentlest curve turns. Bigger moves add to this, up to SHARPNESS_GAIN more. */
@@ -33,6 +37,8 @@ const LOOP_RADIUS_STEP = 10;
 /** Control point distance that makes two cubic curves trace a true circle. */
 const CIRCLE_CONTROL_RATIO = 4 / 3;
 const NO_LOOP = 0;
+/** 150 px at the loop spacing, wider than two of the largest loops side by side. */
+const LOOP_MIN_GAP_SHARE = 0.75;
 /** Extra curve tension for a move across the whole canvas. */
 const SHARPNESS_GAIN = 0.3;
 /** Levels a track shows at least, so a small move always looks small. */
@@ -49,16 +55,21 @@ const ELLIPSIS = "...";
 const CLASSIC_SHAPE: CoasterShape = {
   style: "coaster",
   stopSpacing: 170,
+  minGapShare: MIN_GAP_SHARE,
   topMargin: 90,
   height: TRACK_HEIGHT,
   curveTension: 0.5,
   hasLoops: false,
 };
 
-/** The extra height and top margin leave room for the tallest loop at the highest stop. */
+/**
+ * The extra height and top margin leave room for the tallest loop at the highest stop.
+ * The minimum gap keeps the two largest loops, each as wide as twice its radius, clear of each other.
+ */
 const LOOP_SHAPE: CoasterShape = {
   style: "loops",
   stopSpacing: 200,
+  minGapShare: LOOP_MIN_GAP_SHARE,
   topMargin: 190,
   height: LOOP_TRACK_HEIGHT,
   curveTension: 0.65,
@@ -104,6 +115,17 @@ export function createStop(
     impact: event.impact,
     isMajor: event.impact >= MAJOR_IMPACT,
   };
+}
+
+/** Each event's label side and drawn width, which decide how close its stop may sit to the one before. */
+export function labelPlacements(
+  events: readonly LifeEvent[],
+  sides: readonly TrackStop["labelSide"][],
+): LabelPlacement[] {
+  return events.map((event, index) => ({
+    labelSide: sides[index],
+    labelWidth: labelWidth(shortenLabel(event.title), event.date),
+  }));
 }
 
 /** Bigger events get bigger loops, from the major threshold up to the largest impact. */
@@ -186,16 +208,20 @@ function midpoints(points: readonly TrackPoint[]): TrackPoint[] {
 function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track {
   const levels = eventLevels(events);
   const toY = createLevelScale([0, ...levels], shape.topMargin, shape.height - BOTTOM_MARGIN);
-  const stops = events.map((event, index): TrackStop => {
+  const sides = events.map((event, index): TrackStop["labelSide"] => {
     const isDrop = levels[index] < (levels[index - 1] ?? 0);
     const hasLoop = shape.hasLoops && event.impact >= MAJOR_IMPACT;
-    return createStop(event, {
-      x: SIDE_PADDING + index * shape.stopSpacing,
-      y: toY(levels[index]),
-      level: levels[index],
-      labelSide: isDrop || hasLoop ? "below" : "above",
-    });
+    return isDrop || hasLoop ? "below" : "above";
   });
+  const xs = stopPositions(events, {
+    firstX: SIDE_PADDING,
+    spacing: shape.stopSpacing,
+    minShare: shape.minGapShare,
+    clearances: labelClearances(labelPlacements(events, sides)),
+  });
+  const stops = events.map((event, index): TrackStop =>
+    createStop(event, { x: xs[index], y: toY(levels[index]), level: levels[index], labelSide: sides[index] }),
+  );
   const lastX = stops.at(-1)?.x ?? SIDE_PADDING;
   const start = { x: SIDE_PADDING - shape.stopSpacing / 2, y: toY(0) };
   const end = { x: lastX + LEAD_OUT, y: stops.at(-1)?.y ?? toY(0) };

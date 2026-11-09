@@ -3,7 +3,10 @@
  * The drawing components and the scenery planner both read it, so decorations can keep clear of labels.
  * It has no behaviour beyond arithmetic on a stop's position, title and date.
  */
+import { pillWidth, UNKNOWN_DATE } from "@/lib/track/labelWidth";
 import type { TrackPoint, TrackStop } from "@/lib/track/types";
+
+export { pillWidth, UNKNOWN_DATE };
 
 export interface Box {
   x: number;
@@ -25,10 +28,6 @@ export const POLE_HEIGHT = 34;
 export const TALL_POLE_HEIGHT = 84;
 export const PILL_HEIGHT = 44;
 export const PILL_GAP = 14;
-const PILL_PADDING = 14;
-const CHARACTER_WIDTH = 7;
-/** Shown in place of a missing date, on the ride and in the label size estimate. */
-export const UNKNOWN_DATE = "Date unknown";
 
 export function markerRadius(stop: TrackStop): number {
   return stop.isMajor ? MAJOR_MARKER_RADIUS : MARKER_RADIUS;
@@ -37,10 +36,6 @@ export function markerRadius(stop: TrackStop): number {
 /** Poles alternate between two heights, and the last one is tall, so neighbouring labels sit clear of each other. */
 export function isTallStop(index: number, count: number): boolean {
   return index % 2 === 0 || index === count - 1;
-}
-
-export function pillWidth(title: string, date: string): number {
-  return Math.max(title.length, date.length) * CHARACTER_WIDTH + PILL_PADDING * 2;
 }
 
 export function hasFlag(stop: TrackStop, options: LabelOptions): boolean {
