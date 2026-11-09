@@ -77,3 +77,9 @@ body {
     stroke-dashoffset: 0;
   }
 }
+
+/* Ride it draws its own cart over the drawing; the drawing keeps its carts for export but hides them on screen. */
+.ride-it-active .ride-cart-moving,
+.ride-it-active .ride-cart-parked {
+  display: none;
+}

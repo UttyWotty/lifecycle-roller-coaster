@@ -13,10 +13,10 @@ import { useRideState } from "./useRideState";
 
 interface RideFlowProps {
   /** Opens on a random sample life instead of the empty story box. */
-  startWithSample?: boolean;
+  startWithSample: boolean;
 }
 
-export function RideFlow({ startWithSample = false }: RideFlowProps): ReactElement {
+export function RideFlow({ startWithSample }: RideFlowProps): ReactElement {
   const ride = useRideState(startWithSample);
 
   if (ride.stage === "ride") {
@@ -27,6 +27,7 @@ export function RideFlow({ startWithSample = false }: RideFlowProps): ReactEleme
         clarifications={ride.clarifications}
         isDemo={ride.isDemo}
         isSample={ride.sampleId !== null}
+        isSavedOnDevice={ride.isSavedOnDevice}
         title={ride.rideTitle}
         rideStyle={ride.rideStyle}
         rideTheme={ride.rideTheme}
@@ -34,6 +35,10 @@ export function RideFlow({ startWithSample = false }: RideFlowProps): ReactEleme
         report={ride.report}
         rider={ride.rider}
         fitToScreen={ride.fitToScreen}
+        rideLens={ride.rideLens}
+        birthYear={ride.birthYear}
+        onRideLensChange={ride.setRideLens}
+        onBirthYearChange={ride.setBirthYear}
         onTitleChange={ride.setRideTitle}
         onRideStyleChange={ride.setRideStyle}
         onRideThemeChange={ride.setRideTheme}
@@ -43,6 +48,7 @@ export function RideFlow({ startWithSample = false }: RideFlowProps): ReactEleme
         onEditEvents={() => ride.setStage("review")}
         onBackToStory={() => ride.setStage("story")}
         onShowAnotherSample={ride.showSample}
+        onStartOver={ride.startOver}
       />
     );
   }

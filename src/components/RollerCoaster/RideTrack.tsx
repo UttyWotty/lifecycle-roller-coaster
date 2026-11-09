@@ -31,7 +31,7 @@ interface RideTrackProps {
 }
 
 /** Smallest allowed drawing scale. Below this the track scrolls instead, so labels stay readable. */
-const MIN_TRACK_SCALE = 0.9;
+export const MIN_TRACK_SCALE = 0.9;
 const METRO_LINE_WIDTH = 6;
 const METRO_CASING_WIDTH = 4;
 const MONOCHROME_LINE_WIDTH = 3;

@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-09
+
+### Added
+
+- Ride lenses: show one story as several rides, by part of life (My Career Coaster), decade (My 2010s) or age (My 20s, My Life Before 30, with an optional birth year kept on your device). An unnamed ride takes the lens's title.
+- Ride it: the cart rides your life stop by stop while the view follows it, each stop shows its story, climbs are slow and drops fast, and the ride ends on your life report. Pause, Back, Next and Exit work by button or key. The metro map steps from station to station, and reduced motion jumps between stops.
+- Your ride is saved in your browser on this device, so a reload or a later visit brings it back with its title, style, theme and rider. The story text you typed is never saved. Start over on the ride page deletes the saved ride after asking once.
+
 ## [0.9.0] - 2026-11-09
 
 ### Changed
