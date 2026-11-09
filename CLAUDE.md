@@ -48,6 +48,8 @@ Themes are separate from styles. `src/lib/scene` holds palettes and scenery, and
 
 Ride it lives in `RideDrawing`: `src/lib/ride/ridePlayback.ts` is the pure timeline (pauses at stops, slower climbs, loops ridden after a stop), and `useRidePlayback` measures the rail with a detached path and moves the cart and scroll position directly each frame, so the scene never redraws per frame. The playback cart sits in a separate overlay SVG with the same viewBox, so exports never contain it. Changing the drawing ends a ride.
 
+Ride together (`/together`) lines two shared rides up in time: `src/lib/together/alignRides.ts` merges both event lists into shared columns (same year at shared precision, each list's own order kept), the coaster generators accept a `StopLayout` of given positions and a minimum width, and `composeTogether` makes both drawings the same width. Its playback moves both carts by x along each track's profile, so loops are not ridden there. The pair link is `a=<ride>&b=<ride>` in the fragment, with the share-link rules.
+
 Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites its markup with a fixed light palette, and `downloadRideImage.ts` converts it to PNG in the browser, so nothing is uploaded.
 
 ## Event Data Model

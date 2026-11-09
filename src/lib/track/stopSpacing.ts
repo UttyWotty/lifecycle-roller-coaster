@@ -45,10 +45,15 @@ export function yearsBetween(from: string, to: string): number {
 
 /** The gap between two neighbouring events as a share of the normal spacing, never below minShare. */
 export function gapShare(from: LifeEvent, to: LifeEvent, minShare: number): number {
-  if (from.date === null || to.date === null) {
+  return dateGapShare(from.date, to.date, minShare);
+}
+
+/** The same rule for two dates, such as two columns of rides lined up on one timeline. */
+export function dateGapShare(from: string | null, to: string | null, minShare: number): number {
+  if (from === null || to === null) {
     return NORMAL_GAP_SHARE;
   }
-  const years = yearsBetween(from.date, to.date);
+  const years = yearsBetween(from, to);
   if (years < 0) {
     return NORMAL_GAP_SHARE;
   }

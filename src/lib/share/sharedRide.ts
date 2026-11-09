@@ -82,6 +82,11 @@ function fromBase64Url(encoded: string): string {
 
 /** The fragment for a ride, starting with the share key and without the leading "#". */
 export function encodeSharedRide(ride: SharedRideInput): string {
+  return `${SHARE_FRAGMENT_KEY}${encodeRidePayload(ride)}`;
+}
+
+/** A ride as link-safe text with no key in front, for links that carry more than one ride. */
+export function encodeRidePayload(ride: SharedRideInput): string {
   const indexOf = new Map(ride.events.map((event, index) => [event.id, index]));
   const compact: CompactRide = {
     v: SHARED_RIDE_VERSION,
@@ -104,7 +109,7 @@ export function encodeSharedRide(ride: SharedRideInput): string {
       return indexes.length > 0 ? [[chapter.title.slice(0, MAX_CHAPTER_TITLE), indexes]] : [];
     }),
   };
-  return `${SHARE_FRAGMENT_KEY}${toBase64Url(JSON.stringify(compact))}`;
+  return toBase64Url(JSON.stringify(compact));
 }
 
 function expand(compact: CompactRide): SharedRide | null {
@@ -134,8 +139,16 @@ export function decodeSharedRide(fragment: string): SharedRide | null {
   if (!body.startsWith(SHARE_FRAGMENT_KEY) || body.length > MAX_FRAGMENT_LENGTH) {
     return null;
   }
+  return decodeRidePayload(body.slice(SHARE_FRAGMENT_KEY.length));
+}
+
+/** Reads one ride from link-safe text with no key in front, or null when it is not a valid ride. */
+export function decodeRidePayload(payload: string): SharedRide | null {
+  if (payload.length > MAX_FRAGMENT_LENGTH) {
+    return null;
+  }
   try {
-    const result = compactSchema.safeParse(JSON.parse(fromBase64Url(body.slice(SHARE_FRAGMENT_KEY.length))));
+    const result = compactSchema.safeParse(JSON.parse(fromBase64Url(payload)));
     return result.success ? expand(result.data) : null;
   } catch {
     return null;

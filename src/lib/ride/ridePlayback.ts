@@ -189,3 +189,28 @@ export function stopStartTime(timeline: Timeline, stopIndex: number): number {
   const pause = timeline.steps.find((step) => step.kind === "pause" && step.stopIndex === stopIndex);
   return pause?.start ?? NO_TIME;
 }
+
+/**
+ * Where a cart is when the ride has reached an x, for carts that move through time side by side.
+ * It follows a track's profile, which runs left to right, and parks at either end beyond it.
+ */
+export function poseAtX(profile: readonly TrackPoint[], x: number): CartPose {
+  const first = profile[0];
+  const last = profile.at(-1);
+  if (first === undefined || last === undefined) {
+    return { x, y: 0, angle: 0 };
+  }
+  if (x <= first.x) {
+    return { ...first, angle: 0 };
+  }
+  const index = profile.findIndex((point) => point.x >= x);
+  if (index === -1) {
+    return { ...last, angle: 0 };
+  }
+  const before = profile[index - 1];
+  const after = profile[index];
+  const span = after.x - before.x;
+  const share = span > 0 ? (x - before.x) / span : 0;
+  const angle = (Math.atan2(after.y - before.y, after.x - before.x) * DEGREES_PER_HALF_TURN) / Math.PI;
+  return { x, y: before.y + (after.y - before.y) * share, angle };
+}

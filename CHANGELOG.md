@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- Ride together: put your ride and a friend's on one timeline with the same years lined up, ride both carts through time side by side, see the years you both had big moments, and share the pair as a link. Start from a friend's ride link or paste one on your own ride. The same link rules apply: nothing is stored on a server and no descriptions are included.
 - Share a link to your ride, with one-tap buttons for X, WhatsApp, Telegram and email, or your device's share sheet. The ride lives only in the link (after "#", never sent to a server) and leaves out descriptions, the life report and your story. Whoever opens it can take the ride, change its look for themselves, download it, and make their own.
 - Social preview picture and metadata for links to the site.
 

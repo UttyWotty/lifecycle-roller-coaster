@@ -29,7 +29,7 @@ describe("SAMPLE_LIVES", () => {
       expect(title.length).toBeLessThanOrEqual(MAX_LABEL_LENGTH);
       expect(description).not.toBe("");
     }
-    expect(RIDE_STYLE_DETAILS[life.rideStyle].build(life.events).stops).toHaveLength(life.events.length);
+    expect(RIDE_STYLE_DETAILS[life.rideStyle].build(life.events, null).stops).toHaveLength(life.events.length);
   });
 
   it("gives every sample chapters covering every event, and a report", () => {

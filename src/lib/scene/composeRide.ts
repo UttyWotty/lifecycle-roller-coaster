@@ -8,7 +8,7 @@ import type { LifeEvent } from "@/lib/events/schema";
 import { addChapters } from "@/lib/track/rideChapters";
 import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import { addTitle } from "@/lib/track/rideTitle";
-import type { RideStyle, Track } from "@/lib/track/types";
+import type { RideStyle, StopLayout, Track } from "@/lib/track/types";
 import { buildScenery, type Scenery } from "./buildScenery";
 import { DEFAULT_RIDER, type Rider } from "./riders";
 import { RIDE_THEME_DETAILS, type RideTheme, type ScenePalette } from "./themes";
@@ -32,6 +32,8 @@ interface RideChoices {
   rider?: Rider;
   /** Defaults to none, which is all the landing page example needs. */
   chapters?: readonly LifeChapter[];
+  /** Stop positions decided elsewhere, such as two rides lined up on one timeline. Defaults to the style's own. */
+  layout?: StopLayout | null;
 }
 
 /** Sky kept clear above the track, so the tallest flag and its label always fit. */
@@ -53,7 +55,7 @@ function addHeadroom(track: Track, headroom: number): Track {
 
 export function composeRide(events: readonly LifeEvent[], choices: RideChoices): ComposedRide {
   const { palette } = RIDE_THEME_DETAILS[choices.theme];
-  const base = addChapters(RIDE_STYLE_DETAILS[choices.style].build(events), choices.chapters ?? []);
+  const base = addChapters(RIDE_STYLE_DETAILS[choices.style].build(events, choices.layout ?? null), choices.chapters ?? []);
   if (palette === null) {
     return { track: addTitle(base, choices.title), scene: null };
   }

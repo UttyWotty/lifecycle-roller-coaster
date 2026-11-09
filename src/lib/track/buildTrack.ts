@@ -6,7 +6,7 @@
 import type { EventSentiment, LifeEvent } from "@/lib/events/schema";
 import { labelWidth } from "./labelWidth";
 import { labelClearances, MIN_GAP_SHARE, stopPositions, type LabelPlacement } from "./stopSpacing";
-import type { RideStyle, Track, TrackPoint, TrackStop } from "./types";
+import type { RideStyle, StopLayout, Track, TrackPoint, TrackStop } from "./types";
 
 interface CoasterShape {
   style: RideStyle;
@@ -205,7 +205,7 @@ function midpoints(points: readonly TrackPoint[]): TrackPoint[] {
   }));
 }
 
-function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track {
+function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape, layout: StopLayout | null): Track {
   const levels = eventLevels(events);
   const toY = createLevelScale([0, ...levels], shape.topMargin, shape.height - BOTTOM_MARGIN);
   const sides = events.map((event, index): TrackStop["labelSide"] => {
@@ -213,12 +213,14 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track 
     const hasLoop = shape.hasLoops && event.impact >= MAJOR_IMPACT;
     return isDrop || hasLoop ? "below" : "above";
   });
-  const xs = stopPositions(events, {
-    firstX: SIDE_PADDING,
-    spacing: shape.stopSpacing,
-    minShare: shape.minGapShare,
-    clearances: labelClearances(labelPlacements(events, sides)),
-  });
+  const xs =
+    layout?.positions ??
+    stopPositions(events, {
+      firstX: SIDE_PADDING,
+      spacing: shape.stopSpacing,
+      minShare: shape.minGapShare,
+      clearances: labelClearances(labelPlacements(events, sides)),
+    });
   const stops = events.map((event, index): TrackStop =>
     createStop(event, { x: xs[index], y: toY(levels[index]), level: levels[index], labelSide: sides[index] }),
   );
@@ -237,7 +239,7 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track 
   );
   return {
     style: shape.style,
-    width: end.x + PARKING_ROOM,
+    width: Math.max(end.x + PARKING_ROOM, layout?.minWidth ?? 0),
     height: shape.height,
     groundY: shape.height,
     lines: [{ category: null, path, start }],
@@ -250,11 +252,23 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape): Track 
   };
 }
 
-export function buildTrack(events: readonly LifeEvent[]): Track {
-  return buildCoaster(events, CLASSIC_SHAPE);
+export function buildTrack(events: readonly LifeEvent[], layout: StopLayout | null = null): Track {
+  return buildCoaster(events, CLASSIC_SHAPE, layout);
 }
 
 /** The same ride with loops at major events and sharper drops between stops. */
-export function buildLoopTrack(events: readonly LifeEvent[]): Track {
-  return buildCoaster(events, LOOP_SHAPE);
+export function buildLoopTrack(events: readonly LifeEvent[], layout: StopLayout | null = null): Track {
+  return buildCoaster(events, LOOP_SHAPE, layout);
+}
+
+/** Room a coaster needs after its last stop: the lead-out of the rail and the parked cart. */
+export const COASTER_END_ROOM = LEAD_OUT + PARKING_ROOM;
+
+/** Where every coaster style puts its first stop, so rides lined up on one timeline start together. */
+export const COASTER_FIRST_X = SIDE_PADDING;
+
+/** The normal gap between stops and the smallest allowed share of it, for laying out stops elsewhere. */
+export function coasterSpacing(style: "coaster" | "loops"): { spacing: number; minShare: number } {
+  const shape = style === "loops" ? LOOP_SHAPE : CLASSIC_SHAPE;
+  return { spacing: shape.stopSpacing, minShare: shape.minGapShare };
 }
