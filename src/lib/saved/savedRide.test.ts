@@ -14,6 +14,7 @@ import {
 } from "./savedRide";
 
 const [sample] = SAMPLE_LIVES;
+const YEAR = 2026;
 
 const CONTENT: SavedRideContent = {
   events: sample.events,
@@ -26,6 +27,8 @@ const CONTENT: SavedRideContent = {
   theme: "space",
   rider: "cat",
   fitToScreen: true,
+  lens: "decade:2010",
+  birthYear: 1990,
 };
 
 function withChange(change: Record<string, unknown>): string {
@@ -34,36 +37,43 @@ function withChange(change: Record<string, unknown>): string {
 
 describe("serializeRide and parseSavedRide", () => {
   it("bring back the same ride", () => {
-    expect(parseSavedRide(serializeRide(CONTENT))).toEqual({ version: SAVED_RIDE_VERSION, ...CONTENT });
+    expect(parseSavedRide(serializeRide(CONTENT), YEAR)).toEqual({ version: SAVED_RIDE_VERSION, ...CONTENT });
   });
 
   it("never write a story, even if one is passed in", () => {
     const text = serializeRide({ ...CONTENT, story: "secret story" } as SavedRideContent);
     expect(text).not.toContain("secret story");
-    expect(parseSavedRide(text)).not.toHaveProperty("story");
+    expect(parseSavedRide(text, YEAR)).not.toHaveProperty("story");
   });
 
   it("read nothing as no saved ride", () => {
-    expect(parseSavedRide(null)).toBeNull();
+    expect(parseSavedRide(null, YEAR)).toBeNull();
   });
 
   it("ignore text that is not JSON", () => {
-    expect(parseSavedRide("{not json")).toBeNull();
+    expect(parseSavedRide("{not json", YEAR)).toBeNull();
   });
 
   it("ignore a save from another version", () => {
-    expect(parseSavedRide(withChange({ version: SAVED_RIDE_VERSION + 1 }))).toBeNull();
+    expect(parseSavedRide(withChange({ version: SAVED_RIDE_VERSION + 1 }), YEAR)).toBeNull();
+  });
+
+  it("drop a birth year no person could have, but keep the ride", () => {
+    for (const birthYear of [99999, -5, 1800, 2100, YEAR + 1]) {
+      expect(parseSavedRide(withChange({ birthYear }), YEAR)?.birthYear).toBeNull();
+    }
+    expect(parseSavedRide(withChange({ birthYear: 1990 }), YEAR)?.birthYear).toBe(1990);
   });
 
   it("ignore an unknown style, theme or rider", () => {
-    expect(parseSavedRide(withChange({ style: "rocket" }))).toBeNull();
-    expect(parseSavedRide(withChange({ theme: "volcano" }))).toBeNull();
-    expect(parseSavedRide(withChange({ rider: "dragon" }))).toBeNull();
+    expect(parseSavedRide(withChange({ style: "rocket" }), YEAR)).toBeNull();
+    expect(parseSavedRide(withChange({ theme: "volcano" }), YEAR)).toBeNull();
+    expect(parseSavedRide(withChange({ rider: "dragon" }), YEAR)).toBeNull();
   });
 
   it("ignore invalid or empty events", () => {
-    expect(parseSavedRide(withChange({ events: [] }))).toBeNull();
-    expect(parseSavedRide(withChange({ events: [{ ...sample.events[0], impact: 99 }] }))).toBeNull();
+    expect(parseSavedRide(withChange({ events: [] }), YEAR)).toBeNull();
+    expect(parseSavedRide(withChange({ events: [{ ...sample.events[0], impact: 99 }] }), YEAR)).toBeNull();
   });
 });
 

@@ -30,6 +30,7 @@ This is a playful, creative picture of a story. It is not a psychological assess
 - **Your title:** name your ride, and the title appears on the drawing and in the image.
 - **Choose your character:** pick who rides your cart, from six original characters.
 - **Ride it:** press Ride it and the cart rides your life stop by stop while the view follows it. Each stop shows its story, climbs are slow and drops are fast, and the ride ends on your life report. Pause, step back and forward, or exit, with buttons or keys.
+- **Ride lenses:** turn one story into several rides, such as My Career Coaster, My 2010s or My Life Before 30. Add the year you were born for age lenses. A ride you have not named takes the lens's title, ready to share.
 - **Saved on your device:** your ride is still there when you come back. Your story text is never saved, and Start over deletes the ride.
 - **Fit to screen:** an optional toggle that shows a whole long ride at once, instead of scrolling sideways.
 - **Image export:** download a PNG that is created on your device.
@@ -121,6 +122,7 @@ The AI layer and the rendering engine are independent. The AI produces structure
 | `src/lib/track/` | The pure roller-coaster track generator |
 | `src/lib/export/` | Pure preparation of the ride image |
 | `src/lib/ride/` | Pure timing and geometry for Ride it playback |
+| `src/lib/lenses/` | Pure ride lenses: parts of life, decades and ages |
 | `src/lib/saved/` | Pure shape of the ride saved on the device |
 | `e2e/` | Browser tests for the full user journey |
 | `docs/` | The product blueprint |

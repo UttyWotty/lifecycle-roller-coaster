@@ -9,7 +9,7 @@ const STORAGE_KEY = "lifecycle-roller-coaster:ride";
 
 export function loadSavedRide(): SavedRide | null {
   try {
-    return parseSavedRide(window.localStorage.getItem(STORAGE_KEY));
+    return parseSavedRide(window.localStorage.getItem(STORAGE_KEY), new Date().getFullYear());
   } catch {
     return null;
   }
