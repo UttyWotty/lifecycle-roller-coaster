@@ -4,6 +4,36 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-09
+
+### Changed
+
+- On wide screens the pinned style and theme bar is one short row, about 120 pixels tall instead of about 204, so it covers much less of the drawing while you scroll.
+
+### Fixed
+
+- Life chapter bands stay apart after events are reordered; a chapter split by the new order is shown as separate bands.
+- Rockets, boats and other vehicles parked at the end of the ride are no longer cut off at the edge of the drawing or the exported image.
+- Claude now marks every feeling it guesses as a best guess, even for events where the feeling seems obvious, such as a divorce or an injury, and gives life chapters varied names instead of ending each with "Era".
+- The balloon and parachute now float clear of every label and of each other, in every theme.
+- Exported images carry the wordmark on a small badge in the top-right corner, so it reads cleanly on dark themes and never covers the chapter bands.
+- Minimal Mode keeps less empty sky above the ride, and its supports no longer run through labels.
+- Haunted night has arched, framed windows on the near towers only, so none seem to float in the sky.
+- The Retro fairground Ferris wheel is a soft silhouette that stays behind the steel and labels.
+- Ocean voyage shows open sea behind deep troughs, and its loops are drawn as curling waves.
+- The Arcade level ground uses calm, staggered bricks.
+
+### Tests
+
+- The export tests now open every exported image and check its sky colour, its wordmark badge and that the ride is drawn, for every theme, style and rider, instead of only checking that the file is a PNG.
+
+### Security
+
+- Every page and API response now sends a content security policy and refuses to be framed, along with other standard security headers.
+- AI output is capped in size, so a story cannot make the model return a huge or unreadable ride.
+- Image export no longer rewrites a title that happens to look like a colour attribute.
+- Added a security policy for private vulnerability reports, and Dependabot updates for npm packages and GitHub Actions.
+
 ## [0.6.0] - 2026-11-06
 
 ### Added

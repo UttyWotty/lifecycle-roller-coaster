@@ -99,7 +99,7 @@ export function RideResult(props: RideResultProps): ReactElement {
         tabIndex={0}
         role="region"
         aria-label="Roller coaster, scrolls sideways on small screens"
-        className="overflow-x-auto lg:scroll-mt-56"
+        className="overflow-x-auto lg:scroll-mt-36"
       >
         <RideTrack
           key={`${rideStyle}-${rideNumber}`}

@@ -1,7 +1,7 @@
 /**
  * Tests for placing life chapters on a ride.
  * They confirm no chapters changes nothing, and that bands follow their stops.
- * They also confirm deleted events shrink or remove a chapter.
+ * They also confirm deleted events shrink or remove a chapter, and reordered events never make bands overlap.
  */
 import { describe, expect, it } from "vitest";
 import type { LifeEvent } from "@/lib/events/schema";
@@ -40,5 +40,29 @@ describe("addChapters", () => {
     const [band] = addChapters(track, [{ title: "All", eventIds: ["a", "b", "c"] }]).chapterBands;
     expect(band.start).toBeGreaterThanOrEqual(0);
     expect(band.end).toBeLessThanOrEqual(track.width);
+  });
+
+  it("keeps bands apart after events are reordered", () => {
+    const track = buildTrack(EVENTS);
+    const reordered = { ...track, stops: [track.stops[0], track.stops[2], track.stops[1]].map((stop, index) => ({ ...stop, x: track.stops[index].x })) };
+    const bands = addChapters(reordered, [
+      { title: "First", eventIds: ["a", "b"] },
+      { title: "Second", eventIds: ["c"] },
+    ]).chapterBands;
+    expect(bands.map(({ title }) => title)).toEqual(["First", "Second", "First"]);
+    const sorted = [...bands].sort((left, right) => left.start - right.start);
+    sorted.slice(1).forEach((band, index) => {
+      expect(sorted[index].end).toBeLessThanOrEqual(band.start);
+    });
+  });
+
+  it("keeps neighbouring chapters apart even when stops are close", () => {
+    const track = buildTrack(EVENTS);
+    const squeezed = { ...track, stops: track.stops.map((stop, index) => ({ ...stop, x: 100 + index * 60 })) };
+    const [first, second] = addChapters(squeezed, [
+      { title: "First", eventIds: ["a"] },
+      { title: "Second", eventIds: ["b", "c"] },
+    ]).chapterBands;
+    expect(first.end).toBeLessThanOrEqual(second.start);
   });
 });

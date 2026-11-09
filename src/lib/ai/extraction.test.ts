@@ -6,7 +6,7 @@
 import { describe, expect, it } from "vitest";
 import { lifeEventListSchema } from "@/lib/events/schema";
 import { ExtractionError } from "./errors";
-import { finalizeDraft, readModelOutput, type ExtractionDraft } from "./extraction";
+import { DRAFT_LIMITS, finalizeDraft, readModelOutput, type ExtractionDraft } from "./extraction";
 
 const DRAFT_EVENT: ExtractionDraft["events"][number] = {
   date: "2015",
@@ -55,6 +55,16 @@ describe("readModelOutput", () => {
     expect(readModelOutput("end_turn", JSON.stringify(DRAFT))).toEqual(DRAFT);
   });
 
+  it("accepts a draft right at every limit", () => {
+    const full: ExtractionDraft = {
+      events: Array(DRAFT_LIMITS.events).fill({ ...DRAFT_EVENT, title: "T".repeat(DRAFT_LIMITS.title) }),
+      clarifications: Array(DRAFT_LIMITS.clarifications).fill("Which year?"),
+      chapters: Array(DRAFT_LIMITS.chapters).fill({ title: "C", firstEvent: 1, lastEvent: 1 }),
+      report: { headline: "H".repeat(DRAFT_LIMITS.headline), highlights: Array(DRAFT_LIMITS.highlights).fill("x") },
+    };
+    expect(readModelOutput("end_turn", JSON.stringify(full))).toEqual(full);
+  });
+
   it("reports a refusal even when partial text exists", () => {
     expect(codeOf(() => readModelOutput("refusal", '{"events": ['))).toBe("refused");
   });
@@ -73,6 +83,9 @@ describe("readModelOutput", () => {
     ["the wrong shape", '{"foo": 1}'],
     ["an impossible date", JSON.stringify({ ...DRAFT, events: [{ ...DRAFT_EVENT, date: "2015-02-31" }] })],
     ["an out-of-range impact", JSON.stringify({ ...DRAFT, events: [{ ...DRAFT_EVENT, impact: 11 }] })],
+    ["too many events", JSON.stringify({ ...DRAFT, events: Array(DRAFT_LIMITS.events + 1).fill(DRAFT_EVENT) })],
+    ["an overlong title", JSON.stringify({ ...DRAFT, events: [{ ...DRAFT_EVENT, title: "T".repeat(DRAFT_LIMITS.title + 1) }] })],
+    ["too many highlights", JSON.stringify({ ...DRAFT, report: { headline: "Hi", highlights: Array(DRAFT_LIMITS.highlights + 1).fill("x") } })],
   ])("fails safely on %s", (_label, text) => {
     expect(codeOf(() => readModelOutput("end_turn", text))).toBe("provider_failed");
   });

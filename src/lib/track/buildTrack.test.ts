@@ -9,7 +9,9 @@ import { EVENT_CATEGORIES, type LifeEvent } from "@/lib/events/schema";
 import {
   MAJOR_IMPACT,
   MAX_LABEL_LENGTH,
+  PARKING_ROOM,
   TRACK_HEIGHT,
+  buildLoopTrack,
   buildTrack,
   eventLevels,
   shortenLabel,
@@ -159,6 +161,15 @@ describe("buildTrack bounds", () => {
       expect(y).toBeLessThan(TRACK_HEIGHT);
     }
   });
+
+  it.each([["coaster", buildTrack], ["loops", buildLoopTrack]] as const)(
+    "leaves room past the end of the %s rail for the widest parked vehicle",
+    (_label, build) => {
+      const track = build(makeEvents([{ impact: 3 }, { sentiment: "negative" }]));
+      const railEnd = track.profile.at(-1);
+      expect(track.width - (railEnd?.x ?? track.width)).toBeGreaterThanOrEqual(PARKING_ROOM);
+    },
+  );
 
   it("gives the same output for the same events", () => {
     const events = makeEvents([{ impact: 3 }, { sentiment: "negative" }]);
