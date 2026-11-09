@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-09
+
+### Changed
+
+- Updated ESLint to 10, React to 19.3.1, the Node.js type definitions to 26, and the CI checkout and setup-node actions to 7.
+
 ### Fixed
 
 - Space planets keep clear of stop labels and metro line names.
