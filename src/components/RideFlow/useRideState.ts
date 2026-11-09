@@ -16,6 +16,7 @@ import { DEFAULT_RIDER, type Rider } from "@/lib/scene/riders";
 import { DEFAULT_RIDE_THEME, type RideTheme } from "@/lib/scene/themes";
 import { DEFAULT_RIDE_STYLE } from "@/lib/track/rideStyles";
 import type { RideStyle } from "@/lib/track/types";
+import { WHOLE_LIFE } from "@/lib/lenses/rideLenses";
 import type { SavedRide } from "@/lib/saved/savedRide";
 import { clearSavedRide, loadSavedRide, saveRide } from "./rideStorage";
 
@@ -35,6 +36,9 @@ export interface RideState {
   rideTheme: RideTheme;
   rider: Rider;
   fitToScreen: boolean;
+  /** The chosen lens id; the ride falls back to the whole life when it no longer applies. */
+  rideLens: string;
+  birthYear: number | null;
   /** True when the ride on screen is the user's own and is kept on this device. */
   isSavedOnDevice: boolean;
   setStage: (stage: Stage) => void;
@@ -45,6 +49,8 @@ export interface RideState {
   setRideTheme: (theme: RideTheme) => void;
   setRider: (rider: Rider) => void;
   setFitToScreen: (fitToScreen: boolean) => void;
+  setRideLens: (lens: string) => void;
+  setBirthYear: (birthYear: number | null) => void;
   showResult: (result: ExtractionResult) => void;
   showSample: () => void;
   returnToEvents: () => void;
@@ -73,6 +79,8 @@ export function useRideState(startWithSample: boolean): RideState {
   const [rideTheme, setRideTheme] = useState<RideTheme>(opening?.rideTheme ?? saved?.theme ?? DEFAULT_RIDE_THEME);
   const [rider, setRider] = useState<Rider>(opening?.rider ?? saved?.rider ?? DEFAULT_RIDER);
   const [fitToScreen, setFitToScreen] = useState(saved?.fitToScreen ?? false);
+  const [rideLens, setRideLens] = useState(saved?.lens ?? WHOLE_LIFE);
+  const [birthYear, setBirthYear] = useState<number | null>(saved?.birthYear ?? null);
 
   /** Samples are built in and never saved; anything the user made themselves is. */
   const isOwnRide = sample === null;
@@ -89,9 +97,11 @@ export function useRideState(startWithSample: boolean): RideState {
         theme: rideTheme,
         rider,
         fitToScreen,
+        lens: rideLens,
+        birthYear,
       });
     }
-  }, [isOwnRide, events, chapters, report, clarifications, isDemo, rideTitle, rideStyle, rideTheme, rider, fitToScreen]);
+  }, [isOwnRide, events, chapters, report, clarifications, isDemo, rideTitle, rideStyle, rideTheme, rider, fitToScreen, rideLens, birthYear]);
 
   /** Drops what belongs to a sample, so its title never ends up on the user's own ride. */
   function leaveSample(): void {
@@ -117,6 +127,7 @@ export function useRideState(startWithSample: boolean): RideState {
     setRideStyle(next.rideStyle);
     setRideTheme(next.rideTheme);
     setRider(next.rider);
+    setRideLens(WHOLE_LIFE);
     setStage("ride");
   }
 
@@ -127,6 +138,7 @@ export function useRideState(startWithSample: boolean): RideState {
     setReport(result.report);
     setClarifications(result.clarifications);
     setIsDemo(result.isDemo);
+    setRideLens(WHOLE_LIFE);
     setStage(result.events.length > 0 ? "ride" : "review");
   }
 
@@ -142,6 +154,7 @@ export function useRideState(startWithSample: boolean): RideState {
     setReport(null);
     setClarifications([]);
     setIsDemo(false);
+    setRideLens(WHOLE_LIFE);
     setStage("review");
   }
 
@@ -159,6 +172,8 @@ export function useRideState(startWithSample: boolean): RideState {
     setRideTheme(DEFAULT_RIDE_THEME);
     setRider(DEFAULT_RIDER);
     setFitToScreen(false);
+    setRideLens(WHOLE_LIFE);
+    setBirthYear(null);
     setStage("story");
   }
 
@@ -176,6 +191,8 @@ export function useRideState(startWithSample: boolean): RideState {
     rideTheme,
     rider,
     fitToScreen,
+    rideLens,
+    birthYear,
     isSavedOnDevice: isOwnRide && events.length > 0,
     setStage,
     setStory,
@@ -185,6 +202,8 @@ export function useRideState(startWithSample: boolean): RideState {
     setRideTheme,
     setRider,
     setFitToScreen,
+    setRideLens,
+    setBirthYear,
     showResult,
     showSample,
     returnToEvents,

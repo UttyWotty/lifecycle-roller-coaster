@@ -35,6 +35,10 @@ export function RideFlow({ startWithSample }: RideFlowProps): ReactElement {
         report={ride.report}
         rider={ride.rider}
         fitToScreen={ride.fitToScreen}
+        rideLens={ride.rideLens}
+        birthYear={ride.birthYear}
+        onRideLensChange={ride.setRideLens}
+        onBirthYearChange={ride.setBirthYear}
         onTitleChange={ride.setRideTitle}
         onRideStyleChange={ride.setRideStyle}
         onRideThemeChange={ride.setRideTheme}

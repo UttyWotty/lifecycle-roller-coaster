@@ -1,11 +1,12 @@
 /**
  * Pure shape of a ride saved on the visitor's own device, with the rules for reading it back.
- * It holds the events, insights and look of a ride, and deliberately has no field for the story text the user typed.
+ * It holds the events, insights, look and lens of a ride, and deliberately has no field for the story text the user typed.
  * Anything missing, corrupt, from another version or invalid reads back as no saved ride, so storage is never trusted.
  */
 import { z } from "zod";
 import { lifeChapterSchema, lifeReportSchema, type LifeChapter } from "@/lib/events/insights";
 import { lifeEventListSchema, type LifeEvent } from "@/lib/events/schema";
+import { isPlausibleBirthYear } from "@/lib/lenses/rideLenses";
 import { RIDERS } from "@/lib/scene/riders";
 import { RIDE_THEMES } from "@/lib/scene/themes";
 import { MAX_TITLE_LENGTH } from "@/lib/track/rideTitle";
@@ -13,6 +14,8 @@ import { RIDE_STYLES } from "@/lib/track/types";
 
 /** Raised whenever the saved shape changes, so an older save is dropped instead of misread. */
 export const SAVED_RIDE_VERSION = 1;
+/** Lens ids are short, such as "decade:2010"; anything longer did not come from the app. */
+const MAX_LENS_ID_LENGTH = 40;
 
 const savedRideSchema = z.object({
   version: z.literal(SAVED_RIDE_VERSION),
@@ -26,6 +29,8 @@ const savedRideSchema = z.object({
   theme: z.enum(RIDE_THEMES),
   rider: z.enum(RIDERS),
   fitToScreen: z.boolean(),
+  lens: z.string().max(MAX_LENS_ID_LENGTH),
+  birthYear: z.number().int().nullable(),
 });
 
 export type SavedRide = z.infer<typeof savedRideSchema>;
@@ -53,8 +58,11 @@ export function serializeRide(content: SavedRideContent): string | null {
   return JSON.stringify(result.data);
 }
 
-/** Reads a saved ride back, or null when there is none or it cannot be trusted. */
-export function parseSavedRide(text: string | null): SavedRide | null {
+/**
+ * Reads a saved ride back, or null when there is none or it cannot be trusted. A birth year that no person could
+ * have is dropped rather than the whole ride, checked against the current year the caller passes in.
+ */
+export function parseSavedRide(text: string | null, currentYear: number): SavedRide | null {
   if (text === null) {
     return null;
   }
@@ -68,5 +76,7 @@ export function parseSavedRide(text: string | null): SavedRide | null {
   if (!result.success || !canSaveEvents(result.data.events)) {
     return null;
   }
-  return result.data;
+  const { birthYear } = result.data;
+  const isPlausible = birthYear !== null && isPlausibleBirthYear(birthYear, currentYear);
+  return { ...result.data, birthYear: isPlausible ? birthYear : null };
 }
