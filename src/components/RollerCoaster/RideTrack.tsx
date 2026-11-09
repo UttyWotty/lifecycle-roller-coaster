@@ -11,7 +11,7 @@ import { SkyMarkers } from "@/components/Scene/SkyMarkers";
 import { DRAW_TEST_ID, Rail } from "@/components/Scene/Rail";
 import { sceneModeFor } from "@/components/Scene/sceneModes";
 import type { Scene } from "@/lib/scene/composeRide";
-import { isTallStop } from "@/lib/scene/labelLayout";
+import { isTallStop, LINE_NAME_DROP, LINE_NAME_GAP, LINE_NAME_SIZE } from "@/lib/scene/labelLayout";
 import type { ScenePalette, SceneryKind } from "@/lib/scene/themes";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
 import type { Track, TrackLine } from "@/lib/track/types";
@@ -39,9 +39,6 @@ const MONOCHROME_LINE_WIDTH = 3;
 const MONOCHROME_DASHES = ["none", "12 7", "3 6", "18 6 3 6", "2 12", "24 8", "8 4 2 4 2 4", "5 5"];
 const SUPPORT_WIDTH = 2;
 const SUPPORT_OPACITY = 0.3;
-const LINE_NAME_SIZE = 13;
-const LINE_NAME_GAP = 10;
-const LINE_NAME_DROP = 4;
 const TITLE_FONTS: Readonly<Partial<Record<SceneryKind, { fontFamily: string; fontStyle?: string }>>> = {
   poster: { fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" },
   arcade: { fontFamily: "'Courier New', Courier, monospace" },

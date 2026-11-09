@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from "vitest";
 import type { LifeEvent } from "@/lib/events/schema";
-import { buildLifeStats } from "./lifeStats";
+import { buildLifeStats, formatYearRange } from "./lifeStats";
 
 function makeEvents(overrides: Partial<LifeEvent>[]): LifeEvent[] {
   return overrides.map((over, index) => ({
@@ -63,5 +63,19 @@ describe("buildLifeStats", () => {
   it("names the most common category", () => {
     const stats = buildLifeStats(makeEvents([{ category: "career" }, { category: "health" }, { category: "career" }]));
     expect(stats.topCategory).toBe("career");
+  });
+});
+
+describe("formatYearRange", () => {
+  it("names a single year once", () => {
+    expect(formatYearRange(2015, 2015)).toBe("2015");
+  });
+
+  it("joins different years", () => {
+    expect(formatYearRange(2009, 2023)).toBe("2009 to 2023");
+  });
+
+  it("has nothing to say without dates", () => {
+    expect(formatYearRange(null, null)).toBeNull();
   });
 });

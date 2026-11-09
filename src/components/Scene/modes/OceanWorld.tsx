@@ -20,6 +20,33 @@ const SAND_HEIGHT = 34;
 const FAR_SEA_OPACITY = 0.55;
 /** A loop on the water is a curling wave, filled with sea so it reads as part of the ocean. */
 const CURL_OPACITY = 0.8;
+/** The foam lip runs inside the top of the curl and hooks inward, like a wave breaking over itself. */
+const LIP_RADIUS_SHARE = 0.72;
+const LIP_START_ANGLE = (160 * Math.PI) / 180;
+const LIP_END_ANGLE = (15 * Math.PI) / 180;
+const LIP_HOOK_REACH = 0.32;
+const LIP_WIDTH = 5;
+const LIP_OPACITY = 0.9;
+
+/** A foam line over the inside top of a curl, from its back edge round to its front, ending in an inward hook. */
+function lipPath(cx: number, cy: number, radius: number): string {
+  const lip = radius * LIP_RADIUS_SHARE;
+  const at = (angle: number): TrackPoint => ({ x: cx + lip * Math.cos(angle), y: cy - lip * Math.sin(angle) });
+  const start = at(LIP_START_ANGLE);
+  const end = at(LIP_END_ANGLE);
+  const hook = { x: cx + radius * LIP_HOOK_REACH, y: cy + radius * LIP_HOOK_REACH / 2 };
+  return `M${start.x} ${start.y} A${lip} ${lip} 0 0 1 ${end.x} ${end.y} Q${end.x} ${hook.y} ${hook.x} ${hook.y}`;
+}
+
+function Curl({ x, y, radius }: { x: number; y: number; radius: number }): ReactElement {
+  const cy = y - radius;
+  return (
+    <g data-testid="ocean-curl">
+      <circle cx={x} cy={cy} r={radius} fill={`url(#${WATER_ID})`} opacity={CURL_OPACITY} />
+      <path d={lipPath(x, cy, radius)} fill="none" stroke="#ffffff" strokeWidth={LIP_WIDTH} strokeLinecap="round" opacity={LIP_OPACITY} data-testid="ocean-lip" />
+    </g>
+  );
+}
 
 /** The middle height of the waves, where the open sea meets the sky behind them. */
 function horizonY(profile: readonly TrackPoint[]): number {
@@ -83,9 +110,7 @@ export function OceanStructure({ track, palette }: { track: Track; palette: Scen
       {track.style === "loops" &&
         stops
           .filter(({ isMajor }) => isMajor)
-          .map(({ id, x, y, impact }) => (
-            <circle key={id} cx={x} cy={y - loopRadius(impact)} r={loopRadius(impact)} fill={`url(#${WATER_ID})`} opacity={CURL_OPACITY} data-testid="ocean-curl" />
-          ))}
+          .map(({ id, x, y, impact }) => <Curl key={id} x={x} y={y} radius={loopRadius(impact)} />)}
       <g fill="none" stroke={palette.pill} strokeOpacity={0.28} strokeWidth={3}>
         {WAVE_DROPS.map((drop) => (
           <polyline key={drop} points={points(surface.map(({ x, y }) => ({ x, y: Math.min(y + drop, groundY - SAND_HEIGHT) })))} />

@@ -6,20 +6,18 @@
 import type { ReactElement } from "react";
 import type { Scene } from "@/lib/scene/composeRide";
 import type { Rider } from "@/lib/scene/riders";
+import { PLANET_RING_REACH, PLANET_SIZE } from "@/lib/scene/placePlanets";
 import type { ScenePalette } from "@/lib/scene/themes";
 import type { Track } from "@/lib/track/types";
 import { DRAW_TEST_ID, type RailProps } from "../Rail";
 import { RiderArt } from "../RiderArt";
 
 const SKY_ID = "space-sky";
-const PLANET_EVERY = 3;
-const PLANET_SIZE = 44;
 const PLANET_COLORS = ["#f97316", "#38bdf8", "#c084fc", "#34d399"];
 const ORBIT_RADIUS = 30;
 
 export function SpaceBackdrop({ scene, track }: { scene: Scene; track: Track }): ReactElement {
   const { palette, scenery } = scene;
-  const planets = scenery.clouds.filter((_, index) => index % PLANET_EVERY === 0);
   return (
     <g aria-hidden="true" data-testid="mode-backdrop">
       <defs>
@@ -32,12 +30,12 @@ export function SpaceBackdrop({ scene, track }: { scene: Scene; track: Track }):
       {scenery.stars.map(({ x, y, radius }) => (
         <circle key={`${x}-${y}`} cx={x} cy={y / 0.7} r={radius} fill={palette.pill} />
       ))}
-      {planets.map(({ x, y, scale }, index) => (
+      {scenery.planets.map(({ x, y, scale }, index) => (
         <g key={x} transform={`translate(${x} ${y}) scale(${scale})`} data-testid="space-planet">
           <circle r={PLANET_SIZE} fill={PLANET_COLORS[index % PLANET_COLORS.length]} />
           <circle cx={-14} cy={-12} r={PLANET_SIZE * 0.72} fill="#ffffff" opacity={0.12} />
           {index % 2 === 0 && (
-            <ellipse rx={PLANET_SIZE * 1.6} ry={10} fill="none" stroke={palette.pill} strokeWidth={3} opacity={0.6} transform="rotate(-18)" />
+            <ellipse rx={PLANET_SIZE * PLANET_RING_REACH} ry={10} fill="none" stroke={palette.pill} strokeWidth={3} opacity={0.6} transform="rotate(-18)" />
           )}
         </g>
       ))}

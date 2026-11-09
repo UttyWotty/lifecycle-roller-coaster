@@ -6,7 +6,7 @@
 import type { ReactElement } from "react";
 import { toLabel } from "@/components/EventReview/fieldStyles";
 import type { LifeEvent } from "@/lib/events/schema";
-import { buildLifeStats, type EventMove } from "@/lib/stats/lifeStats";
+import { buildLifeStats, formatYearRange, type EventMove } from "@/lib/stats/lifeStats";
 
 interface LifeStatsPanelProps {
   events: readonly LifeEvent[];
@@ -29,7 +29,7 @@ function Stat({ label, value }: { label: string; value: string }): ReactElement 
 
 export function LifeStatsPanel({ events }: LifeStatsPanelProps): ReactElement {
   const stats = buildLifeStats(events);
-  const years = stats.firstYear === null ? NOT_ENOUGH : `${stats.firstYear} to ${stats.lastYear}`;
+  const years = formatYearRange(stats.firstYear, stats.lastYear) ?? NOT_ENOUGH;
   return (
     <section aria-label="Life statistics" className="flex flex-col gap-3">
       <h2 className="text-xl font-semibold">Life statistics</h2>

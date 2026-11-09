@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Fixed
+
+- Space planets keep clear of stop labels and metro line names.
+- The chapter strip is dark with light names on night-sky themes, instead of a bright bar.
+- Years covered names a single year once, such as "2015" rather than "2015 to 2015".
+- Ocean voyage loops have a foam lip, so they read as breaking waves.
+
 ## [0.7.0] - 2026-11-09
 
 ### Changed

@@ -76,6 +76,14 @@ function mostCommonCategory(events: readonly LifeEvent[]): EventCategory | null 
   )?.[0] ?? null;
 }
 
+/** The span of years as text, naming a single year once rather than "2015 to 2015". Null when no event has a date. */
+export function formatYearRange(firstYear: number | null, lastYear: number | null): string | null {
+  if (firstYear === null || lastYear === null) {
+    return null;
+  }
+  return firstYear === lastYear ? String(firstYear) : `${firstYear} to ${lastYear}`;
+}
+
 export function buildLifeStats(events: readonly LifeEvent[]): LifeStats {
   const levels = eventLevels(events);
   const years = events.flatMap(({ date }) => (date ? [Number(date.slice(0, YEAR_LENGTH))] : []));
