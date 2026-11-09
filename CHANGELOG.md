@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-09
+
 ### Added
 
 - The app can now be hosted publicly on Vercel's free plan. Real readings are protected by per-visitor limits (5 an hour, 12 a day), a hard daily budget across all visitors ($1 by default), and Vercel BotID, and refuse to spend when the limit store is missing. The README has a step-by-step deploy guide.

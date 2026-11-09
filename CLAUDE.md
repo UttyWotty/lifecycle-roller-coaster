@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-All essential roadmap phases (1 to 5) are released: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export. v0.3.0 added ride styles, illustrated themes, custom titles and sample lives, v0.4.0 added fit to screen, character choice and two more themes, v0.5.0 added the four art modes, v0.6.0 added worlds, statistics, sharing, chapters and the life report, v0.7.0 added security headers and cleared the 0.6.0 tech debt, v0.7.1 fixed the remaining polish items, and v0.7.2 patched a lint-tooling advisory. Known follow-ups are in `docs/tech-debt.md`.
+All essential roadmap phases (1 to 5) are released: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export. v0.3.0 added ride styles, illustrated themes, custom titles and sample lives, v0.4.0 added fit to screen, character choice and two more themes, v0.5.0 added the four art modes, v0.6.0 added worlds, statistics, sharing, chapters and the life report, v0.7.0 added security headers and cleared the 0.6.0 tech debt, v0.7.1 fixed the remaining polish items, v0.7.2 patched a lint-tooling advisory, and v0.8.0 made the app safe to host publicly on Vercel. Known follow-ups are in `docs/tech-debt.md`.
 
 `docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
 
