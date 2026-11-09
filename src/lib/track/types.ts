@@ -61,3 +61,12 @@ export interface Track {
   /** Named spans along the bottom of the ride, empty when there are no chapters. */
   chapterBands: ChapterBand[];
 }
+
+/**
+ * Stop positions decided outside a generator, such as two rides lined up on one timeline.
+ * The generator uses these x values for its stops and makes the track at least this wide.
+ */
+export interface StopLayout {
+  positions: readonly number[];
+  minWidth: number;
+}

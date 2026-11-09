@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-All essential roadmap phases (1 to 5) are released: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export. v0.3.0 added ride styles, illustrated themes, custom titles and sample lives, v0.4.0 added fit to screen, character choice and two more themes, v0.5.0 added the four art modes, v0.6.0 added worlds, statistics, sharing, chapters and the life report, v0.7.0 added security headers and cleared the 0.6.0 tech debt, v0.7.1 fixed the remaining polish items, v0.7.2 patched a lint-tooling advisory, v0.8.0 made the app safe to host publicly on Vercel, v0.9.0 spaced stops by the time between their dates, and v0.10.0 added autosave, Ride it and ride lenses. Known follow-ups are in `docs/tech-debt.md`.
+All essential roadmap phases (1 to 5) are released: the landing page, story editor, shared event schema, AI extraction, event review, the ride, and PNG export. v0.3.0 added ride styles, illustrated themes, custom titles and sample lives, v0.4.0 added fit to screen, character choice and two more themes, v0.5.0 added the four art modes, v0.6.0 added worlds, statistics, sharing, chapters and the life report, v0.7.0 added security headers and cleared the 0.6.0 tech debt, v0.7.1 fixed the remaining polish items, v0.7.2 patched a lint-tooling advisory, v0.8.0 made the app safe to host publicly on Vercel, v0.9.0 spaced stops by the time between their dates, v0.10.0 added autosave, Ride it and ride lenses, and v0.11.0 added share links and Ride together. Known follow-ups are in `docs/tech-debt.md`.
 
 `docs/lifecycle-roller-coaster-blueprint.md` is the source of truth for product intent. Read the relevant section before implementing a feature.
 
@@ -48,6 +48,8 @@ Themes are separate from styles. `src/lib/scene` holds palettes and scenery, and
 
 Ride it lives in `RideDrawing`: `src/lib/ride/ridePlayback.ts` is the pure timeline (pauses at stops, slower climbs, loops ridden after a stop), and `useRidePlayback` measures the rail with a detached path and moves the cart and scroll position directly each frame, so the scene never redraws per frame. The playback cart sits in a separate overlay SVG with the same viewBox, so exports never contain it. Changing the drawing ends a ride.
 
+Ride together (`/together`) lines two shared rides up in time: `src/lib/together/alignRides.ts` merges both event lists into shared columns (same year at shared precision, each list's own order kept), the coaster generators accept a `StopLayout` of given positions and a minimum width, and `composeTogether` makes both drawings the same width. Its playback moves both carts by x along each track's profile, so loops are not ridden there. The pair link is `a=<ride>&b=<ride>` in the fragment, with the share-link rules.
+
 Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites its markup with a fixed light palette, and `downloadRideImage.ts` converts it to PNG in the browser, so nothing is uploaded.
 
 ## Event Data Model
@@ -79,7 +81,7 @@ User stories can contain sensitive personal details.
 - Keep generated data in the browser where practical. The story lives in React state in `StoryEditor`, and it leaves the browser only through `requestExtraction.ts` when the user presses Generate.
 - The user's own ride (events, insights and look) is saved in their browser's local storage through `src/components/RideFlow/rideStorage.ts`, and `src/lib/saved/savedRide.ts` has no field for the story text, by the owner's choice. Samples are never saved, and Start over deletes the save. The flow renders in the browser only (`BrowserRideFlow`), so the saved ride is read as initial state.
 - Log only error codes, never exception text from the provider or the parser.
-- Sharing is opt-in; never publish a ride automatically.
+- Sharing is opt-in; never publish a ride automatically. Share links (`src/lib/share/sharedRide.ts`) pack the ride into the URL fragment, so no server sees or stores it, and by the owner's choice they carry no descriptions, life report, clarifications or story. `/ride` decodes links strictly and never saves a shared ride to the viewer's device.
 
 ## Public Hosting
 
