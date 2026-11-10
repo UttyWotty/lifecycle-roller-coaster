@@ -4,6 +4,7 @@
  * Everything happens on the user's device, and the picture leaves it only through a share the user starts.
  */
 import { applyExportPalette } from "@/lib/export/rideImage";
+import { keepWholeSpans } from "@/lib/export/storySpans";
 import { STORY_HEIGHT, STORY_TITLE_FONT, STORY_WIDTH, buildStoryCard, type StoryDrawing, type TextMeasure } from "@/lib/export/storyCard";
 import type { LifeEvent } from "@/lib/events/schema";
 import type { Locale } from "@/lib/i18n/locales";
@@ -24,7 +25,7 @@ export interface StoryPicture {
 
 /** What the story picture needs to know about a drawn track. */
 export function storyDrawingOf(track: Track): StoryDrawing {
-  return { width: track.width, height: track.height, titleBand: track.title === null ? NO_TITLE_BAND : TITLE_BAND, stopXs: track.stops.map(({ x }) => x) };
+  return { width: track.width, height: track.height, titleBand: track.title === null ? NO_TITLE_BAND : TITLE_BAND, stopXs: track.stops.map(({ x }) => x), keepWhole: keepWholeSpans(track) };
 }
 
 /** Measures title text with a canvas in the font the card draws it in, so wrapping matches the picture. */

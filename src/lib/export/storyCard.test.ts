@@ -1,7 +1,8 @@
 /**
  * Tests for the story picture layout.
  * They confirm long rides wrap onto rows cut between stops, every row fits the card, and short rides are not blown up.
- * They also confirm the title, subtitle and footer text, and that user text cannot inject markup.
+ * They also confirm cuts avoid labels and chapter names, the card's parts are stacked and centred, the title, subtitle
+ * and footer text, and that user text cannot inject markup.
  */
 import { describe, expect, it } from "vitest";
 import type { LifeEvent } from "@/lib/events/schema";
@@ -11,16 +12,18 @@ import {
   STORY_WIDTH,
   UNNAMED_STORY_TITLE,
   buildStoryCard,
+  drawingHeightOf,
   storyLayout,
+  storyPositions,
   storyRows,
   storySubtitle,
   titleLines,
   type StoryDrawing,
 } from "./storyCard";
 
-function drawing(width: number, stopCount: number): StoryDrawing {
+function drawing(width: number, stopCount: number, keepWhole: StoryDrawing["keepWhole"] = []): StoryDrawing {
   const spacing = (width - 200) / Math.max(stopCount - 1, 1);
-  return { width, height: 600, titleBand: 72, stopXs: Array.from({ length: stopCount }, (_, i) => 100 + i * spacing) };
+  return { width, height: 600, titleBand: 72, stopXs: Array.from({ length: stopCount }, (_, i) => 100 + i * spacing), keepWhole };
 }
 
 function event(date: string | null): LifeEvent {
@@ -51,6 +54,20 @@ describe("storyRows", () => {
       expect(midpoints).toContain(row.fromX);
     }
     rows.slice(1).forEach((row, i) => expect(row.fromX).toBe(rows[i].toX));
+  });
+
+  it("moves a cut off a label or chapter name to the nearest clean gap", () => {
+    const plain = storyRows(drawing(3000, 10), 2);
+    const blocked = { from: plain[0].toX - 50, to: plain[0].toX + 50 };
+    const rows = storyRows(drawing(3000, 10, [blocked]), 2);
+    expect(rows).toHaveLength(2);
+    expect(rows[0].toX).not.toBe(plain[0].toX);
+    expect(rows[0].toX <= blocked.from || rows[0].toX >= blocked.to).toBe(true);
+  });
+
+  it("still cuts through a label when every gap is covered", () => {
+    const everywhere = { from: 0, to: 3000 };
+    expect(storyRows(drawing(3000, 10, [everywhere]), 2)).toEqual(storyRows(drawing(3000, 10), 2));
   });
 
   it("makes fewer rows when there are not enough gaps between stops", () => {
@@ -114,6 +131,29 @@ describe("storySubtitle", () => {
     expect(storySubtitle([event("2009"), event("2025-03"), event(null)])).toBe("2009 to 2025, 3 stops");
     expect(storySubtitle([event("2020")])).toBe("2020, 1 stop");
     expect(storySubtitle([event(null), event(null)])).toBe("2 stops");
+  });
+});
+
+describe("storyPositions", () => {
+  it("keeps a full card with a two-line title where it always was", () => {
+    expect(storyPositions(2, 1340)).toEqual({ titleTop: 150, subtitleY: 312, drawingTop: 380, footerBaseline: 1830 });
+  });
+
+  it("stacks a short ride under its subtitle and centres the stack", () => {
+    const full = storyPositions(2, 1340);
+    const short = storyPositions(1, 600);
+    expect(short.drawingTop - short.subtitleY).toBe(full.drawingTop - full.subtitleY);
+    expect(short.footerBaseline - (short.drawingTop + 600)).toBe(full.footerBaseline - (full.drawingTop + 1340));
+    const above = short.titleTop - full.titleTop;
+    const below = STORY_HEIGHT - short.footerBaseline - (STORY_HEIGHT - full.footerBaseline);
+    expect(above).toBeGreaterThan(0);
+    expect(above).toBeCloseTo(below);
+  });
+
+  it("measures the rows of a wrapped ride with their gaps", () => {
+    const long = drawing(4000, 14);
+    const layout = storyLayout(long);
+    expect(drawingHeightOf(long, layout)).toBeGreaterThan((600 - 72) * layout.scale * layout.rows.length);
   });
 });
 

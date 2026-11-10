@@ -34,7 +34,7 @@ describe("drawingBox", () => {
   };
 
   it("fits a long ride to the width, keeping its proportions and centred", () => {
-    const drawing = { width: 6000, height: 700, titleBand: 100, stopXs: [] };
+    const drawing = { width: 6000, height: 700, titleBand: 100, stopXs: [], keepWhole: [] };
     const box = drawingBox(drawing, HEADER_BOTTOM);
     inside(box);
     expect(box.width).toBeCloseTo(POSTER_TEXT_WIDTH);
@@ -42,7 +42,7 @@ describe("drawingBox", () => {
   });
 
   it("fits a short, tall ride to the height, centred across", () => {
-    const drawing = { width: 800, height: 600, titleBand: 0, stopXs: [] };
+    const drawing = { width: 800, height: 600, titleBand: 0, stopXs: [], keepWhole: [] };
     const box = drawingBox(drawing, HEADER_BOTTOM);
     inside(box);
     expect(box.width / box.height).toBeCloseTo(800 / 600);
@@ -53,7 +53,7 @@ describe("drawingBox", () => {
 describe("buildPoster", () => {
   const input = {
     markup: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500"><rect id="ride" width="1000" height="500"/></svg>',
-    drawing: { width: 1000, height: 500, titleBand: 50, stopXs: [] },
+    drawing: { width: 1000, height: 500, titleBand: 50, stopXs: [], keepWhole: [] },
     title: "A <very> long title that keeps going on and on and on and on for a long time indeed",
     events: [],
     measureTitle: measure,
@@ -82,7 +82,7 @@ describe("buildPoster in Turkish", () => {
   it("words the subtitle in Turkish and keeps the wordmark in English", () => {
     const markup = buildPoster({
       markup: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500"></svg>',
-      drawing: { width: 1000, height: 500, titleBand: 0, stopXs: [] },
+      drawing: { width: 1000, height: 500, titleBand: 0, stopXs: [], keepWhole: [] },
       title: "",
       events: [
         { id: "a", date: "2001", title: "A", description: "", category: "career", sentiment: "positive", impact: 5, confidence: 1 },

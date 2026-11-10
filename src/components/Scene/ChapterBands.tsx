@@ -6,7 +6,7 @@
 import type { ReactElement } from "react";
 import { chapterStripColors } from "@/lib/scene/chapterStrip";
 import type { ScenePalette } from "@/lib/scene/themes";
-import { CHAPTER_BAND_HEIGHT } from "@/lib/track/rideChapters";
+import { CHAPTER_BAND_HEIGHT, CHAPTER_CHARACTER_WIDTH } from "@/lib/track/rideChapters";
 import type { Track } from "@/lib/track/types";
 
 interface ChapterBandsProps {
@@ -18,11 +18,10 @@ const BAND_GAP = 6;
 const BAND_RADIUS = 10;
 const TEXT_SIZE = 14;
 const TEXT_DROP = 5;
-const CHARACTER_WIDTH = 8;
 const ELLIPSIS = "...";
 
 function fitTitle(title: string, width: number): string {
-  const room = Math.floor(width / CHARACTER_WIDTH);
+  const room = Math.floor(width / CHAPTER_CHARACTER_WIDTH);
   return title.length <= room ? title : `${title.slice(0, Math.max(room - ELLIPSIS.length, 1)).trimEnd()}${ELLIPSIS}`;
 }
 

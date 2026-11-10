@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Fixed
+
+- The story picture no longer cuts a stop's label or a chapter name in half where a long ride wraps onto the next row, and a short ride sits centred on the card with its title, instead of between wide empty bands.
+
 ### Added
 
 - **Languages:** the rest of the app now speaks Turkish too: a ride someone shared with you, Guess my ride with its questions, reveals, score and shared score message, Ride together with its names, card, ending and share box, adding a friend's ride to a group, the embed page, and the messages for links that do not work. With this, every screen of the app is translated.
