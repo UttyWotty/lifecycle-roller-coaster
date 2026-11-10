@@ -107,4 +107,21 @@ describe("summarize", () => {
     expect(list[0].stopCount).toBe(sample.events.length);
     expect(list[0].years).toMatch(/^\d{4}( to \d{4})?$/);
   });
+
+  it("gives the years as numbers and says which rides have no title", () => {
+    const [blank, titled] = summarize(putRide(shelfOf(1), "blank", ride("  "), 50));
+    expect(blank.isUntitled).toBe(true);
+    expect(titled.isUntitled).toBe(false);
+    const range = blank.yearRange;
+    expect(range).not.toBeNull();
+    expect(range && range.first <= range.last).toBe(true);
+    expect(blank.years).toBe(range && (range.first === range.last ? String(range.first) : `${range.first} to ${range.last}`));
+  });
+
+  it("has no years when no stop is dated", () => {
+    const undated = { ...ride("Undated"), events: ride("Undated").events.map((event) => ({ ...event, date: null })) };
+    const [summary] = summarize(putRide(EMPTY_SHELF, "u", undated, 1));
+    expect(summary.yearRange).toBeNull();
+    expect(summary.years).toBeNull();
+  });
 });

@@ -7,13 +7,10 @@
 /** Upper bound on story length, chosen to fit a long life story and keep LLM requests affordable. */
 export const MAX_STORY_LENGTH = 20_000;
 
-export const STORY_PROMPTS = [
-  "I started university in",
-  "My first job was",
-  "The hardest moment was",
-  "I moved to",
-  "A year I will never forget was",
-] as const;
+/** The example prompts offered, by id; the interface looks up each one's words in the visitor's language. */
+export const STORY_PROMPTS = ["university", "firstJob", "hardest", "movedTo", "neverForget"] as const;
+
+export type StoryPromptId = (typeof STORY_PROMPTS)[number];
 
 export type StoryStatus = "empty" | "too_long" | "ready";
 

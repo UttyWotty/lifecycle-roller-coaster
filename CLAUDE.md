@@ -60,7 +60,7 @@ Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites it
 
 ## Languages
 
-The app's own words live in `src/lib/i18n`: `en/<area>.ts` sets each area's keys, `tr/<area>.ts` must give the same ones (typed as `Record<keyof typeof english, string>`, and `messages.test.ts` checks keys and placeholders), and `messages.ts` registers each area. Components call `useT()` from `src/components/I18n/useLocale.ts`; the server renders English and the browser switches after hydration. Brand name, theme art and the AI's own output are not translated by this layer: the extraction prompt already answers in the story's language.
+The app's own words live in `src/lib/i18n`: `en/<area>.ts` sets each area's keys, `tr/<area>.ts` must give the same ones (typed as `Record<keyof typeof english, string>`, and `messages.test.ts` checks keys and placeholders), and `messages.ts` registers each area. Components call `useT()` from `src/components/I18n/useLocale.ts`; `src/lib` stays pure by returning ids or message keys (for example `getExtractionMessageKey`, story prompt ids) and leaving the words to components; the server renders English and the browser switches after hydration. Brand name, theme art and the AI's own output are not translated by this layer: the extraction prompt already answers in the story's language.
 
 ## Event Data Model
 

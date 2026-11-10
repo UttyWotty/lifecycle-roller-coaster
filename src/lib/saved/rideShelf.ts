@@ -1,7 +1,8 @@
 /**
  * Pure shape of the shelf of rides saved on the visitor's own device: up to MAX_SAVED_RIDES rides and which one is open.
  * It reads each ride with the saved-ride rules and drops a bad entry on its own, so one broken ride never loses the rest.
- * It also names each ride for the My rides list and moves an older single save onto the shelf.
+ * It also summarizes each ride for the My rides list, with its years as numbers so the list can word them in any
+ * language, and moves an older single save onto the shelf.
  */
 import { z } from "zod";
 import { readSavedRide, type SavedRide } from "./savedRide";
@@ -28,11 +29,22 @@ export interface RideShelf {
   rides: ShelfEntry[];
 }
 
+/** The first and last year of a ride's dated stops, which are the same year when only one year is dated. */
+export interface YearRange {
+  first: number;
+  last: number;
+}
+
 export interface RideSummary {
   id: string;
+  /** The ride's title, or UNTITLED_RIDE when it has none. */
   name: string;
+  /** True when the ride has no title, so the list can show its own word for an untitled ride. */
+  isUntitled: boolean;
   /** The span of the ride's dated stops, such as "2012 to 2026", or null when none is dated. */
   years: string | null;
+  /** The same span as numbers, or null when no stop is dated. */
+  yearRange: YearRange | null;
   stopCount: number;
   isOpen: boolean;
 }
@@ -113,25 +125,37 @@ export function shelfFromSingle(single: SavedRide | null, id: string, now: numbe
   return single === null ? EMPTY_SHELF : { activeId: id, rides: [{ id, savedAt: now, ride: single }] };
 }
 
-function yearSpan(ride: SavedRide): string | null {
+function yearRange(ride: SavedRide): YearRange | null {
   const years = ride.events.flatMap(({ date }) => (date === null ? [] : [Number(date.slice(0, YEAR_DIGITS))])).sort((a, b) => a - b);
   const first = years[0];
   const last = years.at(-1);
-  if (first === undefined || last === undefined) {
+  return first === undefined || last === undefined ? null : { first, last };
+}
+
+function yearSpan(range: YearRange | null): string | null {
+  if (range === null) {
     return null;
   }
-  return first === last ? String(first) : `${first} to ${last}`;
+  return range.first === range.last ? String(range.first) : `${range.first} to ${range.last}`;
+}
+
+function summarizeEntry({ id, ride }: ShelfEntry, isOpen: boolean): RideSummary {
+  const title = ride.title.trim();
+  const range = yearRange(ride);
+  return {
+    id,
+    name: title || UNTITLED_RIDE,
+    isUntitled: title === "",
+    years: yearSpan(range),
+    yearRange: range,
+    stopCount: ride.events.length,
+    isOpen,
+  };
 }
 
 /** The rides for the My rides list, the most recently saved first. */
 export function summarize(shelf: RideShelf): RideSummary[] {
   return [...shelf.rides]
     .sort((a, b) => b.savedAt - a.savedAt)
-    .map(({ id, ride }) => ({
-      id,
-      name: ride.title.trim() || UNTITLED_RIDE,
-      years: yearSpan(ride),
-      stopCount: ride.events.length,
-      isOpen: id === shelf.activeId,
-    }));
+    .map((entry) => summarizeEntry(entry, entry.id === shelf.activeId));
 }

@@ -11,6 +11,9 @@ export const DEFAULT_LOCALE: Locale = "en";
 /** Each language named in its own language, for the picker. */
 export const LOCALE_NAMES: Readonly<Record<Locale, string>> = { en: "English", tr: "Türkçe" };
 
+/** The BCP 47 tag each language formats numbers with, such as 20,000 in English and 20.000 in Turkish. */
+export const NUMBER_LOCALES: Readonly<Record<Locale, string>> = { en: "en-US", tr: "tr-TR" };
+
 const LANGUAGE_SEPARATOR = "-";
 const PLACEHOLDER = /\{(\w+)\}/g;
 

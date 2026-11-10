@@ -1,17 +1,17 @@
 /**
  * Browser adapter that sends a story to the extraction endpoint.
- * It validates the server response and turns every failure into a friendly message.
+ * It validates the server response and turns every failure into the key of a friendly message.
  * This is the only place in the client where the story leaves the browser.
  */
 import { extractionResultSchema, type ExtractionResult } from "@/lib/ai/extraction";
-import { getExtractionMessage } from "@/lib/ai/extractionMessages";
+import { NETWORK_MESSAGE_KEY, getExtractionMessageKey } from "@/lib/ai/extractionMessages";
+import type { MessageKey } from "@/lib/i18n/messages";
 
 const ENDPOINT = "/api/extract";
-const NETWORK_MESSAGE = "We could not reach the server. Check your connection and try again.";
 
 export type ExtractionOutcome =
   | { ok: true; result: ExtractionResult }
-  | { ok: false; message: string };
+  | { ok: false; messageKey: MessageKey };
 
 async function readJson(response: Response): Promise<unknown> {
   try {
@@ -38,11 +38,11 @@ export async function requestExtraction(
       signal,
     });
   } catch {
-    return { ok: false, message: NETWORK_MESSAGE };
+    return { ok: false, messageKey: NETWORK_MESSAGE_KEY };
   }
   const json = await readJson(response);
   const result = response.ok ? extractionResultSchema.safeParse(json) : null;
   return result?.success
     ? { ok: true, result: result.data }
-    : { ok: false, message: getExtractionMessage(readErrorCode(json)) };
+    : { ok: false, messageKey: getExtractionMessageKey(readErrorCode(json)) };
 }

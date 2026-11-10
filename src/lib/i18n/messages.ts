@@ -4,18 +4,26 @@
  * translate() looks a message up by "group.key" and fills its placeholders, falling back to English for safety.
  */
 import { common as enCommon } from "./en/common";
+import { events as enEvents } from "./en/events";
 import { landing as enLanding } from "./en/landing";
+import { myRides as enMyRides } from "./en/myRides";
+import { review as enReview } from "./en/review";
+import { story as enStory } from "./en/story";
 import { fill, type Locale } from "./locales";
 import { common as trCommon } from "./tr/common";
+import { events as trEvents } from "./tr/events";
 import { landing as trLanding } from "./tr/landing";
+import { myRides as trMyRides } from "./tr/myRides";
+import { review as trReview } from "./tr/review";
+import { story as trStory } from "./tr/story";
 
-const ENGLISH = { common: enCommon, landing: enLanding };
+const ENGLISH = { common: enCommon, landing: enLanding, story: enStory, review: enReview, events: enEvents, myRides: enMyRides };
 
 type Messages = { [Group in keyof typeof ENGLISH]: Record<keyof (typeof ENGLISH)[Group], string> };
 
 const MESSAGES: Readonly<Record<Locale, Messages>> = {
   en: ENGLISH,
-  tr: { common: trCommon, landing: trLanding },
+  tr: { common: trCommon, landing: trLanding, story: trStory, review: trReview, events: trEvents, myRides: trMyRides },
 };
 
 /** Every message's address, such as "landing.title". */

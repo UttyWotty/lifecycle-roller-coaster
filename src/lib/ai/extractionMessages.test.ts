@@ -1,10 +1,10 @@
 /**
  * Tests for the extraction error messages.
  * They confirm known codes get specific guidance and unknown values get the fallback.
- * They also confirm that object prototype names are not treated as codes.
+ * They also confirm that object prototype names are not treated as codes, and that messages come in each language.
  */
 import { describe, expect, it } from "vitest";
-import { getExtractionMessage } from "./extractionMessages";
+import { FALLBACK_MESSAGE_KEY, getExtractionMessage, getExtractionMessageKey } from "./extractionMessages";
 
 const FALLBACK = getExtractionMessage(undefined);
 
@@ -27,4 +27,16 @@ describe("getExtractionMessage", () => {
       expect(getExtractionMessage(code)).toBe(FALLBACK);
     },
   );
+
+  it("gives a message key the interface can translate", () => {
+    expect(getExtractionMessageKey("daily_limit")).toBe("story.errorDailyLimit");
+    expect(getExtractionMessageKey("provider_failed")).toBe(FALLBACK_MESSAGE_KEY);
+    expect(getExtractionMessageKey("toString")).toBe(FALLBACK_MESSAGE_KEY);
+  });
+
+  it("speaks Turkish when asked, and English by default", () => {
+    expect(getExtractionMessage("refused", "tr")).toContain("Senin bir hatan yok");
+    expect(getExtractionMessage("unknown_code", "tr")).not.toBe(FALLBACK);
+    expect(getExtractionMessage("refused", "en")).toBe(getExtractionMessage("refused"));
+  });
 });
