@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.11.2] - 2026-11-10
+
 ### Fixed
 
 - Ride together: when one life's events end earlier, its rail now runs on to the shared finish, so both carts end side by side instead of one parking off-screen on phones.
