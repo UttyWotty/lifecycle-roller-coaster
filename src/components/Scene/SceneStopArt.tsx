@@ -1,7 +1,8 @@
 /**
  * How a stop looks in an illustrated theme: a hub on the rail, a flag on a pole and a label pill.
  * Poles alternate between two heights, so neighbouring labels sit clear of each other.
- * Metro stations and low stops skip the pole, and Minimal Mode draws bare text with an open circle.
+ * Metro stations and low stops skip the pole, and Minimal Mode draws an ink-outlined tag with an open circle, so a rail
+ * passing behind a label reads as passing behind it rather than broken.
  */
 import type { ReactElement } from "react";
 import { hasFlag as stopHasFlag, PILL_HEIGHT, pillTop as stopPillTop, pillWidth, POLE_HEIGHT, TALL_POLE_HEIGHT } from "@/lib/scene/labelLayout";
@@ -67,7 +68,7 @@ export function SceneStopArt(props: SceneStopArtProps): ReactElement {
         height={PILL_HEIGHT}
         rx={PILL_RADIUS}
         fill={palette.pill}
-        stroke={isBare ? "none" : color}
+        stroke={color}
         strokeWidth={PILL_EDGE_WIDTH}
       />
       <text x={stop.x} y={pillTop + TITLE_BASELINE} textAnchor="middle" fontSize={TITLE_SIZE} fontWeight={700} fill={palette.ink}>
