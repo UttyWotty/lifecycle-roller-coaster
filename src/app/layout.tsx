@@ -1,10 +1,12 @@
 /**
  * Root layout shared by every route in the application.
- * It sets the document and social preview metadata, loads the global stylesheet and adds live-site page counting.
+ * It sets the document and social preview metadata, loads the global stylesheet, adds the footer with the language
+ * picker and live-site page counting.
  * System fonts are used so that no font request leaves the browser.
  */
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
+import { SiteFooter } from "@/components/I18n/SiteFooter";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
 import "./globals.css";
 
@@ -28,6 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">): ReactElement
     <html lang="en" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
         {children}
+        <SiteFooter />
         <SiteAnalytics />
       </body>
     </html>

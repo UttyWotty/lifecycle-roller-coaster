@@ -58,6 +58,10 @@ Ride videos: `src/lib/video/rideVideo.ts` is the pure plan (frame layout, 1.5x s
 
 Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites its markup with a fixed light palette, and `downloadRideImage.ts` converts it to PNG in the browser, so nothing is uploaded. Share my ride sends the story picture instead: `src/lib/export/storyCard.ts` lays out a 1080 by 1920 card from the same markup (title, years and stops, the drawing wrapped onto rows cut halfway between stops, at least three stops a row, the drawing's title strip left out) and `storyImage.ts` paints it, shared with the ride's link in the text. Download poster uses `src/lib/export/poster.ts` (A3 landscape in tenths of a millimetre, scaled to print resolution but held under `MAX_CANVAS_PIXELS` so phones can paint it) and `posterImage.ts`.
 
+## Languages
+
+The app's own words live in `src/lib/i18n`: `en/<area>.ts` sets each area's keys, `tr/<area>.ts` must give the same ones (typed as `Record<keyof typeof english, string>`, and `messages.test.ts` checks keys and placeholders), and `messages.ts` registers each area. Components call `useT()` from `src/components/I18n/useLocale.ts`; the server renders English and the browser switches after hydration. Brand name, theme art and the AI's own output are not translated by this layer: the extraction prompt already answers in the story's language.
+
 ## Event Data Model
 
 `src/lib/events/schema.ts` implements the blueprint section 4 schema and is the contract between AI and rendering. TypeScript types are inferred from the zod schemas, so change the schema rather than the types.

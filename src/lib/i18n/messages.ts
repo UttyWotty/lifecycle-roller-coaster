@@ -1,0 +1,35 @@
+/**
+ * Pure index of every message in every language, grouped by the part of the app that shows them.
+ * English sets the keys; each other language must give exactly the same ones, so the build fails on a missing message.
+ * translate() looks a message up by "group.key" and fills its placeholders, falling back to English for safety.
+ */
+import { common as enCommon } from "./en/common";
+import { landing as enLanding } from "./en/landing";
+import { fill, type Locale } from "./locales";
+import { common as trCommon } from "./tr/common";
+import { landing as trLanding } from "./tr/landing";
+
+const ENGLISH = { common: enCommon, landing: enLanding };
+
+type Messages = { [Group in keyof typeof ENGLISH]: Record<keyof (typeof ENGLISH)[Group], string> };
+
+const MESSAGES: Readonly<Record<Locale, Messages>> = {
+  en: ENGLISH,
+  tr: { common: trCommon, landing: trLanding },
+};
+
+/** Every message's address, such as "landing.title". */
+export type MessageKey = { [Group in keyof Messages]: `${Group}.${keyof Messages[Group] & string}` }[keyof Messages];
+
+const KEY_SEPARATOR = ".";
+
+export function translate(locale: Locale, key: MessageKey, values: Readonly<Record<string, string | number>> = {}): string {
+  const [group, name] = key.split(KEY_SEPARATOR) as [keyof Messages, string];
+  const template = (MESSAGES[locale][group] as Record<string, string>)[name] ?? (MESSAGES.en[group] as Record<string, string>)[name];
+  return fill(template, values);
+}
+
+/** Every key of every group, for checking that each language covers them all. */
+export function messageKeys(locale: Locale): string[] {
+  return Object.entries(MESSAGES[locale]).flatMap(([group, entries]) => Object.keys(entries).map((name) => `${group}${KEY_SEPARATOR}${name}`));
+}
