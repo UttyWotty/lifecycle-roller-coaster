@@ -10,6 +10,7 @@ import { useMemo, useRef, useState, useSyncExternalStore, type ReactElement } fr
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import { CategoryLegend } from "@/components/RollerCoaster/CategoryLegend";
 import { ExportButton } from "@/components/RollerCoaster/ExportButton";
+import { RideVideoButton } from "@/components/RollerCoaster/RideVideoButton";
 import { storyDrawingOf } from "@/components/RollerCoaster/storyImage";
 import { useToday } from "@/components/RollerCoaster/useToday";
 import { pastStops, splitFuture } from "@/lib/track/futureStops";
@@ -118,6 +119,7 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
             story={{ drawing: storyDrawingOf(track), title: ride.title, events: ride.events }}
             shareRide={{ ...ride, style, theme }}
           />
+          <RideVideoButton svg={svg} track={track} events={ride.events} title={ride.title} isMonochrome={scene?.palette.kind === "line"} />
           <LifeStatsPanel events={splitFuture(ride.events, today).past} />
         </>
       )}
