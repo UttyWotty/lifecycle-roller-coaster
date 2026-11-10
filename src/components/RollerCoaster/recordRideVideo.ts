@@ -5,7 +5,7 @@
  */
 import { EXPORT_HIDDEN_ATTRIBUTE, applyExportPalette } from "@/lib/export/rideImage";
 import { buildTimeline, poseAt, positionAt, type RailSample, type Timeline } from "@/lib/ride/ridePlayback";
-import { FINISH_CUE, cueForStep, stepIndexAt, type SoundCue } from "@/lib/ride/rideSounds";
+import { FINISH_CUE, cueForStep, stepIndexAt, stepsToSound, type SoundCue } from "@/lib/ride/rideSounds";
 import { pastStops } from "@/lib/track/futureStops";
 import type { Track } from "@/lib/track/types";
 import {
@@ -40,6 +40,8 @@ export interface RideVideoInput {
   /** Full event titles by id; the drawing's stops carry shortened labels. */
   titles: ReadonlyMap<string, string>;
   isMonochrome: boolean;
+  /** Rolls through every stop without pausing, as Ride it does with Non-stop on. */
+  isNonStop: boolean;
   onProgress: (share: number) => void;
   signal: AbortSignal;
 }
@@ -109,23 +111,22 @@ async function loadAssets(input: RideVideoInput): Promise<FrameAssets> {
   };
 }
 
-/** Plays each step's sound once, sped up like the video, and the finish when the ending begins. */
+/** Plays each step's sound once, including stops passed between frames, sped up like the video, and the finish when the ending begins. */
 function soundCues(track: Track, samples: readonly RailSample[], timeline: Timeline, player: RideSoundPlayer) {
   let sounded = NO_STEP;
   const scaled = (cue: SoundCue): SoundCue =>
     cue.kind === "climb" || cue.kind === "drop" ? { ...cue, seconds: cue.seconds / VIDEO_SPEED } : cue;
   return (elapsed: number | null): void => {
     const step = elapsed === null ? timeline.steps.length : stepIndexAt(timeline.steps, elapsed);
-    if (step === sounded) {
-      return;
-    }
+    stepsToSound(timeline.steps, sounded, step).forEach((index) => {
+      const cue = index >= timeline.steps.length
+        ? FINISH_CUE
+        : cueForStep(timeline.steps[index], { samples, stops: track.stops, trackHeight: track.height });
+      if (cue !== null) {
+        player.play(scaled(cue));
+      }
+    });
     sounded = step;
-    const cue = step >= timeline.steps.length
-      ? FINISH_CUE
-      : cueForStep(timeline.steps[step], { samples, stops: track.stops, trackHeight: track.height });
-    if (cue !== null) {
-      player.play(scaled(cue));
-    }
   };
 }
 
@@ -141,7 +142,7 @@ function recordFrames(
   }
   const stops = pastStops(input.track);
   const samples = railSamples(input.track.future?.pastRail ?? railPathOf(input.track), stops);
-  const timeline = buildTimeline(samples, stops, { trackHeight: input.track.height, isInstant: false });
+  const timeline = buildTimeline(samples, stops, { trackHeight: input.track.height, isInstant: false, isNonStop: input.isNonStop });
   const total = videoSeconds(timeline.duration);
   const sound = soundCues(input.track, samples, timeline, audio.player);
   const startedAt = performance.now();

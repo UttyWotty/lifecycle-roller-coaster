@@ -9,6 +9,7 @@ import { useRef, useState, type ReactElement, type RefObject } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import type { LifeEvent } from "@/lib/events/schema";
 import type { Track } from "@/lib/track/types";
+import { isNonStopOn } from "./useNonStop";
 import { RideVideoError, canRecordVideo, recordRideVideo, shareRideVideo, type VideoOutcome } from "./recordRideVideo";
 
 interface RideVideoButtonProps {
@@ -45,7 +46,7 @@ export function RideVideoButton({ svg, track, title, events, isMonochrome }: Rid
     setProgress(0);
     try {
       const titles = new Map(events.map(({ id, title: eventTitle }) => [id, eventTitle]));
-      const video = await recordRideVideo({ svg: svg.current, track, title, titles, isMonochrome, onProgress: setProgress, signal: controller.signal });
+      const video = await recordRideVideo({ svg: svg.current, track, title, titles, isMonochrome, isNonStop: isNonStopOn(), onProgress: setProgress, signal: controller.signal });
       setProgress(null);
       setMessage(OUTCOME_MESSAGES[await shareRideVideo(video, title.trim() || SHARE_TITLE)]);
     } catch (error) {
