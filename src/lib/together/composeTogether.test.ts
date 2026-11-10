@@ -1,7 +1,7 @@
 /**
  * Tests for building the two drawings of a ride together.
  * They confirm both drawings have the same width and that a shared year sits at the same x in both.
- * They also confirm each ride keeps its own rider and every one of its events.
+ * They also confirm each ride keeps its own rider and every one of its events, and both rails run to the same end.
  */
 import { describe, expect, it } from "vitest";
 import { SAMPLE_LIVES } from "@/lib/samples/sampleLives";
@@ -31,5 +31,13 @@ describe("composeTogether", () => {
         expect(rides[0].track.stops[column.a].x).toBe(rides[1].track.stops[column.b].x);
       }
     }
+  });
+
+  it.each(["coaster", "loops"] as const)("runs both %s rails to the same end, even when one life stops early", (style) => {
+    const early = { ...rideOf(0), events: rideOf(0).events.slice(0, 2) };
+    const { rides } = composeTogether([early, rideOf(1)], style, "sunny");
+    const ends = rides.map(({ track }) => track.profile.at(-1)?.x);
+    expect(ends[0]).toBe(ends[1]);
+    expect(ends[0]).toBeGreaterThan(rides[0].track.stops.at(-1)?.x ?? 0);
   });
 });

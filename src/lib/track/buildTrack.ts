@@ -226,7 +226,9 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape, layout:
   );
   const lastX = stops.at(-1)?.x ?? SIDE_PADDING;
   const start = { x: SIDE_PADDING - shape.stopSpacing / 2, y: toY(0) };
-  const end = { x: lastX + LEAD_OUT, y: stops.at(-1)?.y ?? toY(0) };
+  /** Rides drawn side by side share an end, so a life whose events stop early still rides on to the finish. */
+  const endX = layout === null ? lastX + LEAD_OUT : Math.max(lastX + LEAD_OUT, layout.minWidth - PARKING_ROOM);
+  const end = { x: endX, y: stops.at(-1)?.y ?? toY(0) };
   const stopPoints = stops.map((stop): PathPoint => ({
     x: stop.x,
     y: stop.y,
