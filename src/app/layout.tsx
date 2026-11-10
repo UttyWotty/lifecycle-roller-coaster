@@ -1,10 +1,11 @@
 /**
  * Root layout shared by every route in the application.
- * It sets the document and social preview metadata and loads the global stylesheet.
+ * It sets the document and social preview metadata, loads the global stylesheet and adds live-site page counting.
  * System fonts are used so that no font request leaves the browser.
  */
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
+import { SiteAnalytics } from "@/components/SiteAnalytics";
 import "./globals.css";
 
 /** Vercel sets the production host; links in previews and local runs fall back to the local address. */
@@ -25,7 +26,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">): ReactElement {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {children}
+        <SiteAnalytics />
+      </body>
     </html>
   );
 }
