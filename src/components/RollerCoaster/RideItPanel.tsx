@@ -8,6 +8,7 @@ import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import type { LifeReport } from "@/lib/events/insights";
 import type { LifeEvent } from "@/lib/events/schema";
 import { UNKNOWN_DATE } from "@/lib/track/labelWidth";
+import type { TrackStop } from "@/lib/track/types";
 import type { PlaybackStatus } from "./useRidePlayback";
 
 interface RideItPanelProps {
@@ -16,6 +17,8 @@ interface RideItPanelProps {
   stopNumber: number;
   stopCount: number;
   report: LifeReport | null;
+  /** Stops still to come, shown when the ride reaches today. */
+  comingUp: readonly TrackStop[];
   onTogglePause: () => void;
   onNext: () => void;
   onBack: () => void;
@@ -24,6 +27,7 @@ interface RideItPanelProps {
 
 const STARTING_TEXT = "Hold on tight, the ride is starting.";
 const PLAIN_ENDING = "That was your ride. Every stop is still on the track to explore.";
+const COMING_UP = "Still to come, after today:";
 const KEY_HINT = "Keys: Space pauses, arrows move between stops, Escape exits.";
 
 function Story({ event, stopNumber, stopCount }: Pick<RideItPanelProps, "event" | "stopNumber" | "stopCount">): ReactElement {
@@ -37,6 +41,24 @@ function Story({ event, stopNumber, stopCount }: Pick<RideItPanelProps, "event" 
       </p>
       <h2 className="wrap-anywhere text-xl font-semibold">{event.title}</h2>
       {event.description && <p className="wrap-anywhere">{event.description}</p>}
+    </>
+  );
+}
+
+function ComingUp({ stops }: { stops: readonly TrackStop[] }): ReactElement | null {
+  if (stops.length === 0) {
+    return null;
+  }
+  return (
+    <>
+      <p className="mt-2 font-semibold">{COMING_UP}</p>
+      <ul className="list-disc pl-5">
+        {stops.map((stop) => (
+          <li key={stop.id} className="wrap-anywhere">
+            {stop.title} ({stop.date ?? UNKNOWN_DATE})
+          </li>
+        ))}
+      </ul>
     </>
   );
 }
@@ -61,12 +83,13 @@ function Ending({ report }: Pick<RideItPanelProps, "report">): ReactElement {
 }
 
 export function RideItPanel(props: RideItPanelProps): ReactElement {
-  const { status, event, stopNumber, stopCount, report, onTogglePause, onNext, onBack, onExit } = props;
+  const { status, event, stopNumber, stopCount, report, comingUp, onTogglePause, onNext, onBack, onExit } = props;
   const isFinished = status === "finished";
   return (
     <section aria-label="Ride it" className="flex flex-col gap-3 rounded-lg border-2 border-accent p-4">
       <div aria-live="polite" className="flex min-h-24 flex-col gap-1">
         {isFinished ? <Ending report={report} /> : <Story event={event} stopNumber={stopNumber} stopCount={stopCount} />}
+        {isFinished && <ComingUp stops={comingUp} />}
       </div>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={onBack} disabled={isFinished || stopNumber <= 1} className={SECONDARY_BUTTON_CLASS}>

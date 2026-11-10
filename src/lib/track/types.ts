@@ -60,6 +60,34 @@ export interface Track {
   title: TrackTitle | null;
   /** Named spans along the bottom of the ride, empty when there are no chapters. */
   chapterBands: ChapterBand[];
+  /** The rail as one curve per stop and one to the end, so it can be cut at any stop; empty without a rail. */
+  railSegments: RailSegment[];
+  /** Where the stops still to come begin, or null when every stop has happened. */
+  future: TrackFuture | null;
+}
+
+/**
+ * One cubic curve of the rail, ending at a stop or at the rail's end, with the loop that follows that stop.
+ * Its control points sit level with its ends at mirrored distances, so its middle is exactly halfway across.
+ */
+export interface RailSegment {
+  start: TrackPoint;
+  control1: TrackPoint;
+  control2: TrackPoint;
+  end: TrackPoint;
+  /** Path commands for the loop ridden after the end point, or empty. */
+  loop: string;
+}
+
+/** The stretch of a ride that has not happened yet: from a stop index to the end, beginning at a "today" line. */
+export interface TrackFuture {
+  fromIndex: number;
+  /** Where today is across the drawing, halfway between the last stop that happened and the first to come. */
+  x: number;
+  /** The rail from its start to today, for the cart, or null for styles without a rail. */
+  pastRail: string | null;
+  /** Where the cart parks at today. */
+  parkAt: TrackPoint;
 }
 
 /**

@@ -15,7 +15,10 @@ import {
   type RailSample,
   type Timeline,
 } from "@/lib/ride/ridePlayback";
+import { FINISH_CUE, cueForStep, stepIndexAt } from "@/lib/ride/rideSounds";
+import { pastStops } from "@/lib/track/futureStops";
 import type { Track } from "@/lib/track/types";
+import type { RideSoundPlayer } from "./rideSoundPlayer";
 import { railSamples } from "./measureRail";
 
 export type PlaybackStatus = "playing" | "paused" | "finished";
@@ -40,10 +43,12 @@ export interface RidePlayback {
 
 interface PlaybackOptions {
   track: Track;
-  /** The rail the cart rides, or null for styles without a cart. */
+  /** The rail the cart rides, up to today when the ride has stops to come, or null for styles without a cart. */
   railPath: string | null;
   scroller: RefObject<HTMLElement | null>;
   drawing: RefObject<HTMLElement | null>;
+  /** Plays a sound as each part of the ride begins, or null when sound is off. */
+  sound: RideSoundPlayer | null;
 }
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
@@ -51,19 +56,36 @@ const MS_PER_SECOND = 1000;
 const HALF = 2;
 const FIRST_STOP = 0;
 const NO_STOP = -1;
+const NO_STEP = -1;
 
 function isTyping(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
 }
 
-export function useRidePlayback({ track, railPath, scroller, drawing }: PlaybackOptions): RidePlayback {
+export function useRidePlayback({ track, railPath, scroller, drawing, sound }: PlaybackOptions): RidePlayback {
   const [ride, setRide] = useState<ActiveRide | null>(null);
   const [status, setStatus] = useState<PlaybackStatus>("playing");
   const [stopIndex, setStopIndex] = useState<number | null>(null);
   const cartRef = useRef<SVGGElement | null>(null);
   const elapsed = useRef(0);
   const shownStop = useRef(NO_STOP);
+  const soundedStep = useRef(NO_STEP);
   const isActive = ride !== null && ride.track === track;
+
+  /** Sounds the part of the ride that has just begun, or the finish, once each. */
+  function playNewStep(active: ActiveRide, isFinished: boolean): void {
+    const step = stepIndexAt(active.timeline.steps, elapsed.current);
+    if (step === soundedStep.current) {
+      return;
+    }
+    soundedStep.current = step;
+    const cue = isFinished
+      ? FINISH_CUE
+      : cueForStep(active.timeline.steps[step], { samples: active.samples, stops: active.track.stops, trackHeight: active.track.height });
+    if (cue !== null) {
+      sound?.play(cue);
+    }
+  }
 
   /** Puts the cart and the view where the clock says, and reports a new stop or the end to React. */
   function render(active: ActiveRide): boolean {
@@ -75,6 +97,7 @@ export function useRidePlayback({ track, railPath, scroller, drawing }: Playback
     if (box && width > 0) {
       box.scrollTo({ left: pose.x * (width / active.track.width) - box.clientWidth / HALF });
     }
+    playNewStep(active, position.isFinished);
     const index = position.stopIndex ?? NO_STOP;
     if (index !== shownStop.current) {
       shownStop.current = index;
@@ -106,6 +129,8 @@ export function useRidePlayback({ track, railPath, scroller, drawing }: Playback
     if (!isActive) {
       return;
     }
+    sound?.stop();
+    soundedStep.current = NO_STEP;
     elapsed.current = Math.min(Math.max(seconds, 0), ride.timeline.duration);
     const isFinished = render(ride);
     if (isFinished) {
@@ -116,11 +141,13 @@ export function useRidePlayback({ track, railPath, scroller, drawing }: Playback
   }
 
   function start(): void {
-    const samples = railSamples(railPath, track.stops);
+    const samples = railSamples(railPath, pastStops(track));
     const isInstant = window.matchMedia(REDUCED_MOTION_QUERY).matches;
-    const timeline = buildTimeline(samples, track.stops, { trackHeight: track.height, isInstant });
+    const timeline = buildTimeline(samples, pastStops(track), { trackHeight: track.height, isInstant });
+    sound?.stop();
     elapsed.current = 0;
     shownStop.current = NO_STOP;
+    soundedStep.current = NO_STEP;
     setStopIndex(null);
     setStatus("playing");
     setRide({ track, samples, timeline });
@@ -132,13 +159,16 @@ export function useRidePlayback({ track, railPath, scroller, drawing }: Playback
       start();
       return;
     }
+    if (status === "playing") {
+      sound?.stop();
+    }
     setStatus(status === "playing" ? "paused" : "playing");
   }
 
   function next(): void {
     if (isActive) {
       const target = (stopIndex ?? NO_STOP) + 1;
-      jumpTo(target < track.stops.length ? stopStartTime(ride.timeline, target) : ride.timeline.duration);
+      jumpTo(target < pastStops(track).length ? stopStartTime(ride.timeline, target) : ride.timeline.duration);
     }
   }
 
@@ -149,6 +179,7 @@ export function useRidePlayback({ track, railPath, scroller, drawing }: Playback
   }
 
   function exit(): void {
+    sound?.stop();
     setRide(null);
     setStopIndex(null);
   }

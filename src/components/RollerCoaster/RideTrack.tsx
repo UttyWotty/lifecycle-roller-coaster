@@ -6,6 +6,7 @@
 import type { ReactElement, Ref } from "react";
 import { toLabel } from "@/components/EventReview/fieldStyles";
 import { ChapterBands } from "@/components/Scene/ChapterBands";
+import { FutureVeil } from "@/components/Scene/FutureVeil";
 import { RideCart } from "@/components/Scene/RideCart";
 import { SkyMarkers } from "@/components/Scene/SkyMarkers";
 import { DRAW_TEST_ID, Rail } from "@/components/Scene/Rail";
@@ -149,6 +150,7 @@ export function RideTrack(props: RideTrackProps): ReactElement {
           ),
         )}
         {scene && <SkyMarkers scenery={scene.scenery} palette={scene.palette} />}
+        <FutureVeil track={track} palette={palette} />
         {track.stops.map((stop, index) => (
           <StopMarker
             key={stop.id}
@@ -157,13 +159,14 @@ export function RideTrack(props: RideTrackProps): ReactElement {
             isTall={isTallStop(index, track.stops.length)}
             palette={palette}
             isSelected={stop.id === selectedId}
+            isFuture={track.future !== null && index >= track.future.fromIndex}
             onSelect={onSelect && (() => onSelect(stop.id))}
           />
         ))}
         {scene && rail && railEnd && (
           <RideCart
-            path={rail.path}
-            parkedAt={railEnd}
+            path={track.future?.pastRail ?? rail.path}
+            parkedAt={track.future?.parkAt ?? railEnd}
             stopCount={track.stops.length}
             color={scene.palette.cart}
             rider={scene.rider}

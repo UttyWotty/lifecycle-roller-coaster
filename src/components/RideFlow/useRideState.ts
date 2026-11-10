@@ -54,6 +54,7 @@ export interface RideState {
   showResult: (result: ExtractionResult) => void;
   showSample: () => void;
   returnToEvents: () => void;
+  addFutureStop: () => void;
   addManually: () => void;
   /** Deletes the saved ride and returns to an empty story. */
   startOver: () => void;
@@ -153,6 +154,12 @@ export function useRideState(startWithSample: boolean): RideState {
     setStage(result.events.length > 0 ? "ride" : "review");
   }
 
+  /** Adds a stop dated next year and opens the editor on it, for something the user is looking forward to. */
+  function addFutureStop(): void {
+    changeEvents(addBlankEvent(events, String(new Date().getFullYear() + 1)));
+    setStage("review");
+  }
+
   function returnToEvents(): void {
     const hasInvalidEvents = Object.keys(findInvalidFields(events)).length > 0;
     setStage(hasInvalidEvents ? "review" : "ride");
@@ -218,6 +225,7 @@ export function useRideState(startWithSample: boolean): RideState {
     showResult,
     showSample,
     returnToEvents,
+    addFutureStop,
     addManually,
     startOver,
   };

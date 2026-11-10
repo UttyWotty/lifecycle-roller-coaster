@@ -36,10 +36,14 @@ function nextEventId(events: readonly LifeEvent[]): string {
   return formatEventId(highest + FIRST_EVENT_NUMBER);
 }
 
-export function addBlankEvent(events: readonly LifeEvent[]): LifeEvent[] {
+/** The date a new event starts with when none is given: unknown. */
+const NO_DATE = null;
+
+/** Adds an empty event at the end; the date defaults to null (unknown), or is given for a planned stop. */
+export function addBlankEvent(events: readonly LifeEvent[], date: string | null = NO_DATE): LifeEvent[] {
   const blank: LifeEvent = {
     id: nextEventId(events),
-    date: null,
+    date,
     title: "",
     description: "",
     category: "other",
