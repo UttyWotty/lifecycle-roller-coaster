@@ -171,7 +171,7 @@ export function RideResult(props: RideResultProps): ReactElement {
         story={{ drawing: storyDrawingOf(track), title: drawingTitle, events: lensEvents }}
         shareRide={shareable}
       />
-      <RideVideoButton svg={svg} track={track} events={lensEvents} title={drawingTitle} isMonochrome={scene?.palette.kind === "line"} />
+      <RideVideoButton svg={svg} track={track} events={lensEvents} title={drawingTitle} isMonochrome={scene?.palette.kind === "line"} sceneryKind={scene?.palette.kind ?? null} />
       <ShareLinkPanel ride={shareable} />
       <RideTogetherInvite mine={shareable} />
       {report && <LifeReportPanel report={report} isSample={isSample} />}

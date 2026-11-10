@@ -1,5 +1,5 @@
 /**
- * The interactive ride drawing with its controls: Ride it, Ride again, Sound, Narrate, Non-stop and Fit to screen.
+ * The interactive ride drawing with its controls: Ride it, Ride again, Sound, Music, Narrate, Non-stop and Fit to screen.
  * It owns Ride it playback, laying the moving cart over the drawing and the story card under it.
  * While a ride runs, the stop the cart has reached is highlighted; otherwise the user's selection is.
  */
@@ -22,6 +22,7 @@ import { MIN_TRACK_SCALE, RideTrack } from "./RideTrack";
 import { useRidePlayback } from "./useRidePlayback";
 import { useNarrateRide, useNarration } from "./useNarration";
 import { useNonStop } from "./useNonStop";
+import { useRideMusic } from "./useRideMusic";
 import { useRideSounds } from "./useRideSounds";
 
 interface RideDrawingProps {
@@ -62,6 +63,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
   const ridePath = track.future?.pastRail ?? railPath;
   const playback = useRidePlayback({ track, railPath: hasCart ? ridePath : null, scroller, drawing, sound: sounds.player, isNonStop: nonStop.isOn });
   const isRiding = playback.status !== null;
+  const music = useRideMusic(playback.status, scene?.palette.kind ?? null);
   const { silence } = sounds;
 
   useEffect(() => {
@@ -153,6 +155,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
             type="button"
             onClick={() => {
               sounds.prepare();
+              music.prepare();
               playback.start();
             }}
             className="min-h-11 rounded-full bg-accent px-6 py-2 font-semibold text-on-accent"
@@ -176,6 +179,14 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
           Sound
+        </button>
+        <button
+          type="button"
+          aria-pressed={music.isOn}
+          onClick={music.toggle}
+          className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
+        >
+          Music
         </button>
         {narration.isSupported && (
           <button

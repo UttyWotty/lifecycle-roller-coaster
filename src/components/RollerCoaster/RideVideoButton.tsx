@@ -9,7 +9,10 @@ import { useRef, useState, type ReactElement, type RefObject } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import type { LifeEvent } from "@/lib/events/schema";
 import type { Track } from "@/lib/track/types";
+import { tuneFor } from "@/lib/music/themeTunes";
+import type { SceneryKind } from "@/lib/scene/themes";
 import { isNonStopOn } from "./useNonStop";
+import { isMusicOn } from "./useRideMusic";
 import { RideVideoError, canRecordVideo, recordRideVideo, shareRideVideo, type VideoOutcome } from "./recordRideVideo";
 
 interface RideVideoButtonProps {
@@ -18,6 +21,8 @@ interface RideVideoButtonProps {
   title: string;
   events: readonly LifeEvent[];
   isMonochrome: boolean;
+  /** The scenery the ride is drawn in, which picks the music, or null for the plain look. */
+  sceneryKind: SceneryKind | null;
 }
 
 const PERCENT = 100;
@@ -30,7 +35,7 @@ const OUTCOME_MESSAGES: Readonly<Record<VideoOutcome, string>> = {
 };
 const SHARE_TITLE = "My Life Roller Coaster";
 
-export function RideVideoButton({ svg, track, title, events, isMonochrome }: RideVideoButtonProps): ReactElement | null {
+export function RideVideoButton({ svg, track, title, events, isMonochrome, sceneryKind }: RideVideoButtonProps): ReactElement | null {
   const [isSupported] = useState(canRecordVideo);
   const [progress, setProgress] = useState<number | null>(null);
   const [message, setMessage] = useState("");
@@ -46,7 +51,7 @@ export function RideVideoButton({ svg, track, title, events, isMonochrome }: Rid
     setProgress(0);
     try {
       const titles = new Map(events.map(({ id, title: eventTitle }) => [id, eventTitle]));
-      const video = await recordRideVideo({ svg: svg.current, track, title, titles, isMonochrome, isNonStop: isNonStopOn(), onProgress: setProgress, signal: controller.signal });
+      const video = await recordRideVideo({ svg: svg.current, track, title, titles, isMonochrome, isNonStop: isNonStopOn(), music: isMusicOn() ? tuneFor(sceneryKind) : null, onProgress: setProgress, signal: controller.signal });
       setProgress(null);
       setMessage(OUTCOME_MESSAGES[await shareRideVideo(video, title.trim() || SHARE_TITLE)]);
     } catch (error) {
