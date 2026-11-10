@@ -8,9 +8,9 @@
 import { useMemo, useRef, useState, useSyncExternalStore, type ReactElement } from "react";
 import { RideDrawing } from "@/components/RollerCoaster/RideDrawing";
 import { useToday } from "@/components/RollerCoaster/useToday";
+import { useT } from "@/components/I18n/useLocale";
 import { composeRide } from "@/lib/scene/composeRide";
 import { decodeSharedRide, type SharedRide } from "@/lib/share/sharedRide";
-import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import { SHARED_RIDE_PATH } from "./ShareLinkPanel";
 
 const BROKEN = "This ride could not be shown. The embed code may have been cut short when it was copied.";
@@ -43,6 +43,7 @@ function EmbeddedRide({ ride, fragment }: { ride: SharedRide; fragment: string }
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const svg = useRef<SVGSVGElement>(null);
   const today = useToday();
+  const t = useT();
   const { track, scene } = useMemo(
     () => composeRide(ride.events, { style: ride.style, theme: ride.theme, title: ride.title, rider: ride.rider, chapters: ride.chapters, today }),
     [ride, today],
@@ -53,7 +54,7 @@ function EmbeddedRide({ ride, fragment }: { ride: SharedRide; fragment: string }
       <RideDrawing
         track={track}
         scene={scene}
-        label={RIDE_STYLE_DETAILS[ride.style].drawingLabel}
+        label={t(`look.${ride.style}Drawing`)}
         events={ride.events}
         report={null}
         fitToScreen={fitToScreen}

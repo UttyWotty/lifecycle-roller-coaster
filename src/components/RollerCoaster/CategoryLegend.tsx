@@ -4,7 +4,7 @@
  * The component is display only and holds no state.
  */
 import type { ReactElement } from "react";
-import { toLabel } from "@/components/EventReview/fieldStyles";
+import { useT } from "@/components/I18n/useLocale";
 import { EVENT_CATEGORIES, type LifeEvent } from "@/lib/events/schema";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
 
@@ -13,11 +13,12 @@ interface CategoryLegendProps {
 }
 
 export function CategoryLegend({ events }: CategoryLegendProps): ReactElement {
+  const t = useT();
   const used = EVENT_CATEGORIES.filter((category) =>
     events.some((event) => event.category === category),
   );
   return (
-    <ul aria-label="Marker colours" className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+    <ul aria-label={t("ride.markerColours")} className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
       {used.map((category) => (
         <li key={category} className="flex items-center gap-2">
           <span
@@ -25,7 +26,7 @@ export function CategoryLegend({ events }: CategoryLegendProps): ReactElement {
             className="size-3 rounded-full"
             style={{ backgroundColor: CATEGORY_COLORS[category] }}
           />
-          {toLabel(category)}
+          {t(`events.${category}`)}
         </li>
       ))}
     </ul>

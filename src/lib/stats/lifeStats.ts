@@ -4,6 +4,8 @@
  * Everything here recalculates from the events, so edits update it at once.
  */
 import type { EventCategory, LifeEvent } from "@/lib/events/schema";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locales";
+import { translate } from "@/lib/i18n/messages";
 import { eventLevels } from "@/lib/track/buildTrack";
 
 export interface EventMove {
@@ -76,12 +78,15 @@ function mostCommonCategory(events: readonly LifeEvent[]): EventCategory | null 
   )?.[0] ?? null;
 }
 
-/** The span of years as text, naming a single year once rather than "2015 to 2015". Null when no event has a date. */
-export function formatYearRange(firstYear: number | null, lastYear: number | null): string | null {
+/**
+ * The span of years as text, naming a single year once rather than "2015 to 2015". Null when no event has a date.
+ * The words are in the given language, English (DEFAULT_LOCALE) unless one is passed.
+ */
+export function formatYearRange(firstYear: number | null, lastYear: number | null, locale: Locale = DEFAULT_LOCALE): string | null {
   if (firstYear === null || lastYear === null) {
     return null;
   }
-  return firstYear === lastYear ? String(firstYear) : `${firstYear} to ${lastYear}`;
+  return firstYear === lastYear ? String(firstYear) : translate(locale, "stats.yearRange", { first: firstYear, last: lastYear });
 }
 
 export function buildLifeStats(events: readonly LifeEvent[]): LifeStats {

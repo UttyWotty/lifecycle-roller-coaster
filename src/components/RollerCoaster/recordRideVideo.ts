@@ -7,6 +7,7 @@
 import { EXPORT_HIDDEN_ATTRIBUTE, applyExportPalette } from "@/lib/export/rideImage";
 import { buildTimeline, poseAt, positionAt, type RailSample, type Timeline } from "@/lib/ride/ridePlayback";
 import { FINISH_CUE, cueForStep, stepIndexAt, stepsToSound, type SoundCue } from "@/lib/ride/rideSounds";
+import type { Locale } from "@/lib/i18n/locales";
 import type { Tune } from "@/lib/music/themeTunes";
 import { pastStops } from "@/lib/track/futureStops";
 import type { Track } from "@/lib/track/types";
@@ -47,6 +48,8 @@ export interface RideVideoInput {
   isNonStop: boolean;
   /** The theme's tune to play under the video, or null without music. */
   music: Tune | null;
+  /** The language of the video's captions and cards. */
+  locale: Locale;
   onProgress: (share: number) => void;
   signal: AbortSignal;
 }
@@ -169,8 +172,8 @@ function recordFrames(
       const caption =
         stop === null || position.stopIndex === null
           ? null
-          : stopCaption({ ...stop, title: input.titles.get(stop.id) ?? stop.title }, position.stopIndex, stops.length);
-      drawFrame(context, assets, { phase, pose: poseAt(samples, position.length), caption, title: input.title, host });
+          : stopCaption({ ...stop, title: input.titles.get(stop.id) ?? stop.title }, position.stopIndex, stops.length, input.locale);
+      drawFrame(context, assets, { phase, pose: poseAt(samples, position.length), caption, title: input.title, host, locale: input.locale });
       input.onProgress(Math.min(seconds / total, 1));
       if (seconds >= total) {
         resolve();

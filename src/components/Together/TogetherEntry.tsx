@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactElement } from "react";
 import { FIELD_CLASS, LABEL_CLASS, SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { useT } from "@/components/I18n/useLocale";
 import { loadSavedRide } from "@/components/RideFlow/rideStorage";
 import { decodeSharedRide, type SharedRide, type SharedRideInput } from "@/lib/share/sharedRide";
 import { MAX_TOGETHER_RIDES, encodeTogether } from "@/lib/together/togetherLink";
@@ -16,7 +17,6 @@ import { MAX_TOGETHER_RIDES, encodeTogether } from "@/lib/together/togetherLink"
 const TOGETHER_PATH = "/together";
 const NO_SAVED_RIDE =
   "Make your own ride first, on this device. Then open this link again and ride together.";
-const NOT_A_RIDE = "That does not look like a ride link. Ask your friend to use Share a link and send it again.";
 const FRAGMENT_START = "#";
 
 function togetherHref(rides: readonly SharedRideInput[]): string {
@@ -65,6 +65,7 @@ export function RideTogetherWithMine({ theirs }: { theirs: SharedRideInput }): R
 
 /** On your own ride: paste a friend's link to ride together. */
 export function RideTogetherInvite({ mine }: { mine: SharedRideInput }): ReactElement {
+  const t = useT();
   const router = useRouter();
   const [link, setLink] = useState("");
   const [error, setError] = useState("");
@@ -72,19 +73,19 @@ export function RideTogetherInvite({ mine }: { mine: SharedRideInput }): ReactEl
   function start(): void {
     const theirs = rideFromLink(link);
     if (theirs === null) {
-      setError(NOT_A_RIDE);
+      setError(t("share.notARide"));
       return;
     }
     router.push(togetherHref([mine, theirs]));
   }
 
   return (
-    <section aria-label="Ride together" className="flex flex-col gap-2">
-      <h2 className="font-semibold">Ride together</h2>
-      <p className="text-sm">Got a friend&apos;s ride link? Paste it to see your lives side by side in time.</p>
+    <section aria-label={t("share.together")} className="flex flex-col gap-2">
+      <h2 className="font-semibold">{t("share.together")}</h2>
+      <p className="text-sm">{t("share.togetherIntro")}</p>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
         <label className={`${LABEL_CLASS} flex-1`}>
-          Friend&apos;s ride link
+          {t("share.friendLink")}
           <input
             type="url"
             value={link}
@@ -97,7 +98,7 @@ export function RideTogetherInvite({ mine }: { mine: SharedRideInput }): ReactEl
           />
         </label>
         <button type="button" onClick={start} disabled={link.trim() === ""} className={SECONDARY_BUTTON_CLASS}>
-          Ride together
+          {t("share.together")}
         </button>
       </div>
       <p role="status" className="text-sm">
@@ -109,6 +110,7 @@ export function RideTogetherInvite({ mine }: { mine: SharedRideInput }): ReactEl
 
 /** On a ride together: paste one more friend's link to make the group bigger, up to the most a link can carry. */
 export function AddRideToGroup({ rides }: { rides: readonly SharedRide[] }): ReactElement | null {
+  const t = useT();
   const [link, setLink] = useState("");
   const [error, setError] = useState("");
   if (rides.length >= MAX_TOGETHER_RIDES) {
@@ -118,7 +120,7 @@ export function AddRideToGroup({ rides }: { rides: readonly SharedRide[] }): Rea
   function add(): void {
     const theirs = rideFromLink(link);
     if (theirs === null) {
-      setError(NOT_A_RIDE);
+      setError(t("share.notARide"));
       return;
     }
     /** Already on the together page, so only the fragment changes; setting it directly fires the page's hashchange. */

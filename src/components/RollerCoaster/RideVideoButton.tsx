@@ -7,6 +7,8 @@
 
 import { useRef, useState, type ReactElement, type RefObject } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { useLocale, useT } from "@/components/I18n/useLocale";
+import type { MessageKey } from "@/lib/i18n/messages";
 import type { LifeEvent } from "@/lib/events/schema";
 import type { Track } from "@/lib/track/types";
 import { tuneFor } from "@/lib/music/themeTunes";
@@ -26,16 +28,17 @@ interface RideVideoButtonProps {
 }
 
 const PERCENT = 100;
-const RECORDING_NOTE = "Recording your ride video. Keep this page open until it is done.";
-const FAILED = "We could not make your video. Please try again.";
-const OUTCOME_MESSAGES: Readonly<Record<VideoOutcome, string>> = {
-  shared: "",
-  cancelled: "",
-  downloaded: "Your video was downloaded.",
+/** What to say once the video is made, or null to say nothing. */
+const OUTCOME_MESSAGES: Readonly<Record<VideoOutcome, MessageKey | null>> = {
+  shared: null,
+  cancelled: null,
+  downloaded: "pictures.videoDownloaded",
 };
-const SHARE_TITLE = "My Life Roller Coaster";
+const NO_MESSAGE = "";
 
 export function RideVideoButton({ svg, track, title, events, isMonochrome, sceneryKind }: RideVideoButtonProps): ReactElement | null {
+  const t = useT();
+  const locale = useLocale();
   const [isSupported] = useState(canRecordVideo);
   const [progress, setProgress] = useState<number | null>(null);
   const [message, setMessage] = useState("");
@@ -47,16 +50,17 @@ export function RideVideoButton({ svg, track, title, events, isMonochrome, scene
     }
     const controller = new AbortController();
     cancel.current = controller;
-    setMessage("");
+    setMessage(NO_MESSAGE);
     setProgress(0);
     try {
       const titles = new Map(events.map(({ id, title: eventTitle }) => [id, eventTitle]));
-      const video = await recordRideVideo({ svg: svg.current, track, title, titles, isMonochrome, isNonStop: isNonStopOn(), music: isMusicOn() ? tuneFor(sceneryKind) : null, onProgress: setProgress, signal: controller.signal });
+      const video = await recordRideVideo({ svg: svg.current, track, title, titles, isMonochrome, isNonStop: isNonStopOn(), music: isMusicOn() ? tuneFor(sceneryKind) : null, locale, onProgress: setProgress, signal: controller.signal });
       setProgress(null);
-      setMessage(OUTCOME_MESSAGES[await shareRideVideo(video, title.trim() || SHARE_TITLE)]);
+      const outcome = OUTCOME_MESSAGES[await shareRideVideo(video, title.trim() || t("ride.unnamedTitle"))];
+      setMessage(outcome === null ? NO_MESSAGE : t(outcome));
     } catch (error) {
       setProgress(null);
-      setMessage(error instanceof RideVideoError && error.reason === "cancelled" ? "" : FAILED);
+      setMessage(error instanceof RideVideoError && error.reason === "cancelled" ? NO_MESSAGE : t("pictures.videoFailed"));
     } finally {
       cancel.current = null;
     }
@@ -70,16 +74,16 @@ export function RideVideoButton({ svg, track, title, events, isMonochrome, scene
       {progress === null ? (
         <div>
           <button type="button" onClick={() => void record()} className={SECONDARY_BUTTON_CLASS}>
-            Make a ride video
+            {t("pictures.makeVideo")}
           </button>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          <p className="text-sm">{RECORDING_NOTE}</p>
-          <progress aria-label="Ride video" max={PERCENT} value={Math.round(progress * PERCENT)} className="w-full accent-accent" />
+          <p className="text-sm">{t("pictures.recordingNote")}</p>
+          <progress aria-label={t("pictures.videoLabel")} max={PERCENT} value={Math.round(progress * PERCENT)} className="w-full accent-accent" />
           <div>
             <button type="button" onClick={() => cancel.current?.abort()} className={SECONDARY_BUTTON_CLASS}>
-              Cancel
+              {t("pictures.cancel")}
             </button>
           </div>
         </div>

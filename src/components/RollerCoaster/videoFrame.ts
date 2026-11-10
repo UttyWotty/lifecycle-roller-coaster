@@ -4,6 +4,8 @@
  * Layout and timing come from the pure rideVideo plan; this file only paints what it is given.
  */
 import { FONT_FAMILY, STORY_COLORS, STORY_CONTENT_WIDTH, titleLines } from "@/lib/export/storyCard";
+import type { Locale } from "@/lib/i18n/locales";
+import { translate } from "@/lib/i18n/messages";
 import type { CartPose } from "@/lib/ride/ridePlayback";
 import {
   DRAWING_BAND_HEIGHT,
@@ -32,6 +34,8 @@ export interface FrameState {
   caption: { line: string; title: string } | null;
   title: string;
   host: string;
+  /** The language of the captions and cards; the wordmark stays English. */
+  locale: Locale;
 }
 
 /** The area around the cart's origin that its picture covers, in drawing units. */
@@ -44,14 +48,12 @@ const CAPTION_LINE_Y = 300;
 const CAPTION_TITLE_FONT = `700 44px ${FONT_FAMILY}`;
 const CAPTION_TITLE_Y = 362;
 const CAPTION_TITLE_LINE_HEIGHT = 50;
-const INTRO_TEXT = "Here comes my ride";
 const FOOTER_FONT = `700 40px ${FONT_FAMILY}`;
 const FOOTER_Y = 1690;
 const WORDMARK_FONT = `400 30px ${FONT_FAMILY}`;
 const WORDMARK_Y = 1750;
 const WORDMARK = "Lifecycle Roller Coaster";
 const ENDING_TITLE_FONT = `700 72px ${FONT_FAMILY}`;
-const ENDING_TEXT = "That was my ride.";
 const ENDING_LINK_FONT = `700 46px ${FONT_FAMILY}`;
 const ENDING_GAP = 90;
 /**
@@ -72,22 +74,32 @@ function centredText(context: CanvasRenderingContext2D, text: string, y: number,
   context.fillText(text, VIDEO_WIDTH / HALF, y);
 }
 
-function wrappedText(context: CanvasRenderingContext2D, text: string, top: number, lineHeight: number, font: string, color: string): void {
+interface TextBlock {
+  text: string;
+  top: number;
+  lineHeight: number;
+  font: string;
+  color: string;
+}
+
+function wrappedText(context: CanvasRenderingContext2D, { text, top, lineHeight, font, color }: TextBlock, locale: Locale): void {
   context.font = font;
-  titleLines(text, (line) => context.measureText(line).width, STORY_CONTENT_WIDTH).forEach((line, index) =>
+  titleLines(text, (line) => context.measureText(line).width, STORY_CONTENT_WIDTH, locale).forEach((line, index) =>
     centredText(context, line, top + index * lineHeight, font, color),
   );
 }
 
 function drawCaptions(context: CanvasRenderingContext2D, state: FrameState): void {
-  wrappedText(context, state.title, TITLE_TOP, TITLE_LINE_HEIGHT, TITLE_FONT, STORY_COLORS.title);
+  const title = { text: state.title, top: TITLE_TOP, lineHeight: TITLE_LINE_HEIGHT, font: TITLE_FONT, color: STORY_COLORS.title };
+  wrappedText(context, title, state.locale);
   if (state.phase.kind === "intro") {
-    centredText(context, INTRO_TEXT, CAPTION_LINE_Y, CAPTION_LINE_FONT, STORY_COLORS.muted);
+    centredText(context, translate(state.locale, "pictures.videoIntro"), CAPTION_LINE_Y, CAPTION_LINE_FONT, STORY_COLORS.muted);
     return;
   }
   if (state.caption !== null && state.phase.kind === "ride") {
     centredText(context, state.caption.line, CAPTION_LINE_Y, CAPTION_LINE_FONT, STORY_COLORS.muted);
-    wrappedText(context, state.caption.title, CAPTION_TITLE_Y, CAPTION_TITLE_LINE_HEIGHT, CAPTION_TITLE_FONT, STORY_COLORS.accent);
+    const caption = { text: state.caption.title, top: CAPTION_TITLE_Y, lineHeight: CAPTION_TITLE_LINE_HEIGHT, font: CAPTION_TITLE_FONT, color: STORY_COLORS.accent };
+    wrappedText(context, caption, state.locale);
   }
 }
 
@@ -118,8 +130,9 @@ function drawEnding(context: CanvasRenderingContext2D, state: FrameState, progre
   context.fillRect(0, DRAWING_BAND_TOP, VIDEO_WIDTH, DRAWING_BAND_HEIGHT);
   context.globalAlpha = share(TEXT_DELAY_PARTS);
   const middle = DRAWING_BAND_TOP + DRAWING_BAND_HEIGHT / HALF;
-  centredText(context, ENDING_TEXT, middle - ENDING_GAP / HALF, ENDING_TITLE_FONT, STORY_COLORS.title);
-  centredText(context, `Make yours at ${state.host}`, middle + ENDING_GAP, ENDING_LINK_FONT, STORY_COLORS.accent);
+  centredText(context, translate(state.locale, "pictures.videoEnding"), middle - ENDING_GAP / HALF, ENDING_TITLE_FONT, STORY_COLORS.title);
+  const link = translate(state.locale, "pictures.videoEndingLink", { host: state.host });
+  centredText(context, link, middle + ENDING_GAP, ENDING_LINK_FONT, STORY_COLORS.accent);
   context.restore();
 }
 
@@ -131,6 +144,6 @@ export function drawFrame(context: CanvasRenderingContext2D, assets: FrameAssets
   if (state.phase.kind === "outro") {
     drawEnding(context, state, state.phase.progress);
   }
-  centredText(context, `Make your own ride at ${state.host}`, FOOTER_Y, FOOTER_FONT, STORY_COLORS.accent);
+  centredText(context, translate(state.locale, "pictures.storyFooter", { host: state.host }), FOOTER_Y, FOOTER_FONT, STORY_COLORS.accent);
   centredText(context, WORDMARK, WORDMARK_Y, WORDMARK_FONT, STORY_COLORS.muted);
 }

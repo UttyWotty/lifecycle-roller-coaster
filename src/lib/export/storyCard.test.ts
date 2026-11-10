@@ -150,3 +150,28 @@ describe("titleLines with emoji", () => {
     }
   });
 });
+
+describe("the story picture in Turkish", () => {
+  it("words the years, the stops and an unnamed title in Turkish", () => {
+    expect(storySubtitle([event("2009"), event("2025-03"), event(null)], "tr")).toBe("2009–2025, 3 durak");
+    expect(storySubtitle([event("2020")], "tr")).toBe("2020, 1 durak");
+    expect(storySubtitle([event(null)], "tr")).toBe("1 durak");
+    expect(titleLines(" ", measure, STORY_CONTENT_WIDTH, "tr")).toEqual(["Hayatımın Hız Treni"]);
+  });
+
+  it("puts the Turkish footer and subtitle on the card", () => {
+    const card = buildStoryCard({
+      markup: RIDE_MARKUP,
+      drawing: drawing(3000, 10),
+      title: "",
+      events: [event("2010"), event("2020")],
+      host: "example.com",
+      measureTitle: measure,
+      locale: "tr",
+    });
+    expect(card).toContain("Kendi trenini yap: example.com");
+    expect(card).toContain("2010–2020, 2 durak");
+    expect(card).toContain("Hayatımın");
+    expect(card).not.toContain("Make your own ride");
+  });
+});

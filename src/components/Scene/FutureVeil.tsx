@@ -5,6 +5,7 @@
  * colour, which every sky is made to show. It sits behind the stops, and it exports with the picture.
  */
 import type { ReactElement } from "react";
+import { useT } from "@/components/I18n/useLocale";
 import type { ScenePalette } from "@/lib/scene/themes";
 import { TITLE_BAND } from "@/lib/track/rideTitle";
 import type { Track } from "@/lib/track/types";
@@ -18,7 +19,6 @@ const VEIL_OPACITY = 0.55;
 const LINE_WIDTH = 2;
 const LINE_DASHES = "6 6";
 const SIGN_SIZE = 14;
-const SIGN_TEXT = "TODAY";
 /** The sign sits this far above the highest stop, below any title. */
 const SIGN_RISE = 96;
 const SIGN_INSET = 18;
@@ -32,6 +32,7 @@ const HALF = 2;
 const NO_TITLE_BAND = 0;
 
 export function FutureVeil({ track, palette }: FutureVeilProps): ReactElement | null {
+  const t = useT();
   const { future } = track;
   if (future === null) {
     return null;
@@ -72,7 +73,7 @@ export function FutureVeil({ track, palette }: FutureVeilProps): ReactElement | 
         strokeWidth={PILL_EDGE_WIDTH}
       />
       <text x={future.x} y={signY + TEXT_DROP} textAnchor="middle" fontSize={SIGN_SIZE} fontWeight={700} fill={ink}>
-        {SIGN_TEXT}
+        {t("ride.today")}
       </text>
     </g>
   );

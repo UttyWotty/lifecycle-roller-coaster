@@ -9,7 +9,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 import { useT } from "@/components/I18n/useLocale";
 import { ThemePreview } from "@/components/Scene/ThemePreview";
-import { RIDE_THEME_DETAILS, RIDE_THEMES } from "@/lib/scene/themes";
+import { RIDE_THEMES } from "@/lib/scene/themes";
 
 export function ThemeGallery(): ReactElement {
   const t = useT();
@@ -21,7 +21,7 @@ export function ThemeGallery(): ReactElement {
           <li key={theme}>
             <Link href="/sample" className="flex flex-col gap-1 text-sm font-semibold">
               <ThemePreview theme={theme} />
-              {RIDE_THEME_DETAILS[theme].name}
+              {t(`look.${theme}Theme`)}
             </Link>
           </li>
         ))}

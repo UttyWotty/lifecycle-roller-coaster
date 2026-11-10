@@ -13,6 +13,7 @@ import { ExportButton } from "@/components/RollerCoaster/ExportButton";
 import { RideVideoButton } from "@/components/RollerCoaster/RideVideoButton";
 import { storyDrawingOf } from "@/components/RollerCoaster/storyImage";
 import { useToday } from "@/components/RollerCoaster/useToday";
+import { useT } from "@/components/I18n/useLocale";
 import { pastStops, splitFuture } from "@/lib/track/futureStops";
 import { GUESS_STYLES, guessStyle } from "@/lib/guess/guessGame";
 import { GuessPanel } from "./GuessPanel";
@@ -24,7 +25,6 @@ import { composeRide } from "@/lib/scene/composeRide";
 import type { RideTheme } from "@/lib/scene/themes";
 import { RideTogetherWithMine } from "@/components/Together/TogetherEntry";
 import { decodeSharedRide, type SharedRide } from "@/lib/share/sharedRide";
-import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import { RIDE_STYLES, type RideStyle } from "@/lib/track/types";
 
 const SHARED_NOTE = "Someone shared this ride with you. It lives only in this link and is not stored anywhere.";
@@ -63,6 +63,7 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const svg = useRef<SVGSVGElement>(null);
   const today = useToday();
+  const t = useT();
   const guessIds = useMemo(() => splitFuture(ride.events, today).past.map(({ id }) => id), [ride, today]);
   const game = useGuessGame(guessIds, ride.events);
   /** A game is drawn in a style that can hide its answers; the chosen style comes back when it ends. */
@@ -97,7 +98,7 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
         key={game.isPlaying ? GAME_KEY : RIDE_KEY}
         track={track}
         scene={scene}
-        label={RIDE_STYLE_DETAILS[shownStyle].drawingLabel}
+        label={t(`look.${shownStyle}Drawing`)}
         events={ride.events}
         report={null}
         fitToScreen={fitToScreen}

@@ -7,6 +7,7 @@
 
 import { useState, type ReactElement } from "react";
 import { CHOICE_PILL_CLASS, FIELD_CLASS, LABEL_CLASS } from "@/components/EventReview/fieldStyles";
+import { useT } from "@/components/I18n/useLocale";
 import { WHOLE_LIFE, parseBirthYear, type LensOption } from "@/lib/lenses/rideLenses";
 
 interface RideLensPickerProps {
@@ -18,13 +19,14 @@ interface RideLensPickerProps {
   onBirthYearChange: (birthYear: number | null) => void;
 }
 
-const WHOLE_LIFE_NAME = "Whole life";
-const BIRTH_YEAR_HINT = "Add the year you were born to see rides like My 20s. It stays on this device.";
 
 export function RideLensPicker(props: RideLensPickerProps): ReactElement {
   const { lenses, activeId, birthYear, onLensChange, onBirthYearChange } = props;
+  const t = useT();
   const [yearText, setYearText] = useState(birthYear === null ? "" : String(birthYear));
-  const options = [{ id: WHOLE_LIFE, name: WHOLE_LIFE_NAME, title: WHOLE_LIFE_NAME }, ...lenses];
+  const wholeLife = t("ride.wholeLife");
+  const birthYearHint = t("ride.birthYearHint");
+  const options = [{ id: WHOLE_LIFE, name: wholeLife, title: wholeLife }, ...lenses];
 
   function changeYear(text: string): void {
     setYearText(text);
@@ -34,7 +36,7 @@ export function RideLensPicker(props: RideLensPickerProps): ReactElement {
   return (
     <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:gap-4">
       <fieldset className="min-w-0">
-        <legend className="mb-1 text-sm font-semibold">Ride lens</legend>
+        <legend className="mb-1 text-sm font-semibold">{t("ride.lensLegend")}</legend>
         <div className="flex flex-wrap gap-2">
           {options.map((option) => (
             <label key={option.id} title={option.title} className={CHOICE_PILL_CLASS}>
@@ -50,8 +52,8 @@ export function RideLensPicker(props: RideLensPickerProps): ReactElement {
           ))}
         </div>
       </fieldset>
-      <label className={`${LABEL_CLASS} lg:w-40 lg:shrink-0`} title={BIRTH_YEAR_HINT}>
-        Born in (optional)
+      <label className={`${LABEL_CLASS} lg:w-40 lg:shrink-0`} title={birthYearHint}>
+        {t("ride.bornIn")}
         <input
           type="text"
           inputMode="numeric"
@@ -63,7 +65,7 @@ export function RideLensPicker(props: RideLensPickerProps): ReactElement {
           className={FIELD_CLASS}
         />
         <span id="birth-year-hint" className="sr-only">
-          {BIRTH_YEAR_HINT}
+          {birthYearHint}
         </span>
       </label>
     </div>

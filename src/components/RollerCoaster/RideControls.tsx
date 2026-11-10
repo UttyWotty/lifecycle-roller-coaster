@@ -7,6 +7,7 @@
 
 import type { ReactElement } from "react";
 import { FIELD_CLASS, LABEL_CLASS } from "@/components/EventReview/fieldStyles";
+import { useT } from "@/components/I18n/useLocale";
 import type { Rider } from "@/lib/scene/riders";
 import { MAX_TITLE_LENGTH } from "@/lib/track/rideTitle";
 import { RiderPicker } from "./RiderPicker";
@@ -22,20 +23,18 @@ interface RideControlsProps {
   onRiderChange: (rider: Rider) => void;
 }
 
-/** An example name for a ride whose drawing has no title yet. */
-const TITLE_EXAMPLE = "My Life Roller Coaster";
-
 export function RideControls(props: RideControlsProps): ReactElement {
   const { title, suggestedTitle, rider, hasCart, onTitleChange, onRiderChange } = props;
+  const t = useT();
   return (
     <div className="flex flex-col gap-4">
       <label className={LABEL_CLASS}>
-        Name your ride
+        {t("ride.nameLabel")}
         <input
           type="text"
           value={title}
           maxLength={MAX_TITLE_LENGTH}
-          placeholder={suggestedTitle ?? TITLE_EXAMPLE}
+          placeholder={suggestedTitle ?? t("ride.unnamedTitle")}
           onChange={(event) => onTitleChange(event.target.value)}
           className={FIELD_CLASS}
         />

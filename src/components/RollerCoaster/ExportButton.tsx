@@ -7,7 +7,9 @@
 
 import { useState, type ReactElement, type RefObject } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { useLocale, useT } from "@/components/I18n/useLocale";
 import { SHARED_RIDE_PATH } from "@/components/Share/ShareLinkPanel";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { encodeSharedRide, type SharedRideInput } from "@/lib/share/sharedRide";
 import { shareMessage } from "@/lib/share/shareTargets";
 import { POSTER_FILE_NAME } from "@/lib/export/poster";
@@ -24,18 +26,18 @@ interface ExportButtonProps {
   shareRide: SharedRideInput;
 }
 
-const POSTER_SAVED = "Your poster was downloaded: A3 landscape, ready to print.";
-const FAILURE_MESSAGE = "We could not create your image. Please try again.";
-const PRIVACY_NOTE =
-  "The image is created on your device. Nothing is shared unless you choose to. Share my ride sends a story-sized picture with a link to this ride; descriptions, the life report and your story are never in it.";
-const SHARE_MESSAGES: Readonly<Record<ShareOutcome, string>> = {
-  shared: "",
-  cancelled: "",
-  copied: "Image copied. Paste it anywhere to share your ride.",
-  downloaded: "Sharing is not available here, so your image was downloaded instead.",
+/** What to say after sharing, or null to say nothing. */
+const SHARE_MESSAGES: Readonly<Record<ShareOutcome, MessageKey | null>> = {
+  shared: null,
+  cancelled: null,
+  copied: "pictures.imageCopied",
+  downloaded: "pictures.imageDownloaded",
 };
+const NO_MESSAGE = "";
 
 export function ExportButton({ svg, width, height, story, shareRide }: ExportButtonProps): ReactElement {
+  const t = useT();
+  const locale = useLocale();
   const [isExporting, setIsExporting] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -48,7 +50,7 @@ export function ExportButton({ svg, width, height, story, shareRide }: ExportBut
     try {
       setMessage(await action(svg.current));
     } catch {
-      setMessage(FAILURE_MESSAGE);
+      setMessage(t("pictures.imageFailed"));
     } finally {
       setIsExporting(false);
     }
@@ -56,23 +58,24 @@ export function ExportButton({ svg, width, height, story, shareRide }: ExportBut
 
   async function handleDownload(element: SVGSVGElement): Promise<string> {
     await downloadRideImage(element, { width, height });
-    return "";
+    return NO_MESSAGE;
   }
 
   async function handlePoster(element: SVGSVGElement): Promise<string> {
-    saveFile(await createPosterImage(element, story), POSTER_FILE_NAME);
-    return POSTER_SAVED;
+    saveFile(await createPosterImage(element, story, locale), POSTER_FILE_NAME);
+    return t("pictures.posterSaved");
   }
 
   async function handleShare(element: SVGSVGElement): Promise<string> {
-    const picture = await createStoryImage(element, story);
+    const picture = await createStoryImage(element, story, locale);
     const link = `${window.location.origin}${SHARED_RIDE_PATH}#${encodeSharedRide(shareRide)}`;
-    const message = shareMessage(shareRide.title);
+    const message = shareMessage(shareRide.title, locale);
     const outcome = await shareImageFile(picture, STORY_FILE_NAME, {
       title: shareRide.title.trim() || message,
       text: `${message} ${link}`,
     });
-    return SHARE_MESSAGES[outcome];
+    const key = SHARE_MESSAGES[outcome];
+    return key === null ? NO_MESSAGE : t(key);
   }
 
   return (
@@ -84,7 +87,7 @@ export function ExportButton({ svg, width, height, story, shareRide }: ExportBut
           onClick={() => void run(handleDownload)}
           className="min-h-11 rounded-full bg-accent px-6 py-2 font-semibold text-on-accent disabled:opacity-50"
         >
-          Download image
+          {t("pictures.downloadImage")}
         </button>
         <button
           type="button"
@@ -92,7 +95,7 @@ export function ExportButton({ svg, width, height, story, shareRide }: ExportBut
           onClick={() => void run(handleShare)}
           className={SECONDARY_BUTTON_CLASS}
         >
-          Share my ride
+          {t("pictures.shareRide")}
         </button>
         <button
           type="button"
@@ -100,10 +103,10 @@ export function ExportButton({ svg, width, height, story, shareRide }: ExportBut
           onClick={() => void run(handlePoster)}
           className={SECONDARY_BUTTON_CLASS}
         >
-          Download poster
+          {t("pictures.downloadPoster")}
         </button>
       </div>
-      <p className="text-sm text-muted">{PRIVACY_NOTE}</p>
+      <p className="text-sm text-muted">{t("pictures.privacyNote")}</p>
       <p role="status" className="text-sm">
         {message}
       </p>

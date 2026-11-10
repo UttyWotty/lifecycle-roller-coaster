@@ -4,7 +4,7 @@
  * They also confirm placeholders are filled and unknown ones are left alone.
  */
 import { describe, expect, it } from "vitest";
-import { LOCALES, NUMBER_LOCALES, fill, isLocale, pickLocale } from "./locales";
+import { LOCALES, NUMBER_LOCALES, SPEECH_LANGUAGES, fill, isLocale, pickLocale } from "./locales";
 
 describe("pickLocale", () => {
   it("prefers the saved choice, then the browser, then English", () => {
@@ -34,5 +34,12 @@ describe("NUMBER_LOCALES", () => {
     expect(LOCALES.every((locale) => NUMBER_LOCALES[locale] !== "")).toBe(true);
     expect((20_000).toLocaleString(NUMBER_LOCALES.en)).toBe("20,000");
     expect((20_000).toLocaleString(NUMBER_LOCALES.tr)).toBe("20.000");
+  });
+});
+
+describe("SPEECH_LANGUAGES", () => {
+  it("gives every language a voice tag in that language", () => {
+    expect(SPEECH_LANGUAGES).toEqual({ en: "en-US", tr: "tr-TR" });
+    expect(Object.keys(SPEECH_LANGUAGES).sort()).toEqual([...LOCALES].sort());
   });
 });

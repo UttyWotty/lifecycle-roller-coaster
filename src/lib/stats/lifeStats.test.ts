@@ -79,3 +79,10 @@ describe("formatYearRange", () => {
     expect(formatYearRange(null, null)).toBeNull();
   });
 });
+
+describe("formatYearRange in Turkish", () => {
+  it("joins different years with a dash and names a single year once", () => {
+    expect(formatYearRange(2009, 2023, "tr")).toBe("2009–2023");
+    expect(formatYearRange(2015, 2015, "tr")).toBe("2015");
+  });
+});

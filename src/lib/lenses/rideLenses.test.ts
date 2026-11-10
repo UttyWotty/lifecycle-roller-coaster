@@ -102,3 +102,19 @@ describe("parseBirthYear", () => {
     }
   });
 });
+
+describe("lenses in Turkish", () => {
+  it("names and titles each lens in Turkish", () => {
+    const lenses = availableLenses(LIFE, BORN, "tr");
+    expect(lenses.map(({ id }) => id)).toEqual(["part:career", "decade:2010", "age:20", "before:30"]);
+    expect(lenses.map(({ name }) => name)).toEqual(["Kariyer", "2010'lar", "20'lerim", "30 yaş öncesi"]);
+    expect(lenses.map(({ title }) => title)).toEqual(["Kariyer Trenim", "2010'larım", "20'lerimin Treni", "30 Yaş Öncesi Hayatım"]);
+  });
+
+  it("gives decades and ages the ending their last vowel calls for", () => {
+    const later = [event(0, "2020", "career"), event(1, "2024", "health"), event(2, "2012", "health"), event(3, "2015", "career")];
+    expect(activeLens(later, "decade:2020", null, "tr")?.name).toBe("2020'ler");
+    expect(activeLens(later, "age:30", 1980, "tr")?.name).toBe("30'larım");
+    expect(activeLens(later, "decade:2020", null)?.name).toBe("2020s");
+  });
+});

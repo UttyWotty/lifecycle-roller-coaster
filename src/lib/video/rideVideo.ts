@@ -4,7 +4,9 @@
  * The browser recorder only draws what this plan says, so it needs no layout or timing rules of its own.
  */
 import type { TrackStop } from "@/lib/track/types";
-import { UNKNOWN_DATE } from "@/lib/track/labelWidth";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locales";
+import { translate } from "@/lib/i18n/messages";
+import { shownDate } from "@/lib/track/labelWidth";
 
 export const VIDEO_WIDTH = 1080;
 export const VIDEO_HEIGHT = 1920;
@@ -98,7 +100,8 @@ export function baseVideoType(type: string): string {
   return type.split(";")[0];
 }
 
-/** The caption for a stop: its number, its date and its title. */
-export function stopCaption(stop: TrackStop, index: number, count: number): { line: string; title: string } {
-  return { line: `Stop ${index + 1} of ${count} · ${stop.date ?? UNKNOWN_DATE}`, title: stop.title };
+/** The caption for a stop: its number, its date and its title, in the given language (English by default). */
+export function stopCaption(stop: TrackStop, index: number, count: number, locale: Locale = DEFAULT_LOCALE): { line: string; title: string } {
+  const line = translate(locale, "ride.stopOf", { number: index + 1, count, date: shownDate(stop.date, locale) });
+  return { line, title: stop.title };
 }
