@@ -8,6 +8,8 @@ import type { LifeChapter } from "@/lib/events/insights";
 import type { ChapterBand, Track } from "./types";
 
 export const CHAPTER_BAND_HEIGHT = 46;
+/** Estimated width of one character of a chapter name as the bands draw it, used to shorten and place names. */
+export const CHAPTER_CHARACTER_WIDTH = 8;
 
 const BAND_PADDING = 62;
 
