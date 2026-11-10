@@ -4,14 +4,13 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-10
+
 ### Added
 
 - Ride videos: Make a ride video records a portrait 1080 by 1920 clip of the cart riding your life with its sounds, each stop captioned, the camera following the cart, and an ending card with the site's address. Recorded on your device, shared through your phone's share sheet or downloaded, as MP4 where supported and WebM otherwise.
-
 - Guess my ride: on a shared ride, guess how each stop felt and how big it was before a curtain lifts to reveal it. A point for each right guess, a playful verdict at the end, and a score to share with the ride's link. Statistics stay hidden while you play.
-
 - Future stops: add something you are looking forward to with Add a future stop, or date any event after today. The track past a dashed TODAY line is softly veiled, future stops are drawn softer, the cart parks at today, Ride it ends there with a list of what is still to come, and statistics leave future stops out.
-
 - Ride sounds: turn on Sound for a click-clack up each climb, a whoosh down each drop, a chime at highs, a low note at lows and a fanfare at the finish, sized by how big each moment is. Off by default, remembered on the device, and made in the browser with no audio files.
 
 ## [0.12.0] - 2026-11-10
