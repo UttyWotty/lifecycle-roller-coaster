@@ -65,6 +65,24 @@ export function cueForStep(step: TimelineStep, context: CueContext): SoundCue | 
 /** The sound played when the cart reaches the end. */
 export const FINISH_CUE: SoundCue = { kind: "finish" };
 
+/**
+ * The steps whose sounds start now that the ride has moved from one step to another. On a non-stop ride a stop takes
+ * no time, so the clock passes it between frames; its chime still sounds, together with the move that follows.
+ * After a jump, or when going back, only the step now under way sounds.
+ */
+export function stepsToSound(steps: readonly TimelineStep[], previous: number, current: number): number[] {
+  if (current === previous) {
+    return [];
+  }
+  if (previous < 0 || current < previous) {
+    return [current];
+  }
+  const passed = steps.slice(previous + 1, current).flatMap((step, offset) =>
+    step.kind === "pause" && step.duration <= NO_TIME ? [previous + 1 + offset] : [],
+  );
+  return [...passed, current];
+}
+
 /** Which step of the timeline is under way at a moment, so a player knows when a new one begins. */
 export function stepIndexAt(steps: readonly TimelineStep[], elapsed: number): number {
   const index = steps.findIndex((step) => elapsed < step.start + step.duration);

@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- **Non-stop:** a new button next to Sound makes Ride it roll through every stop without pausing, slowing only a little as the cart passes each one. Each stop's story and chime still come as the cart reaches it. Make a ride video follows the same choice, for a shorter, flowing clip. It starts off and is remembered on this device; with reduced motion the ride keeps its pauses.
+
 ## [0.13.0] - 2026-11-10
 
 ### Added

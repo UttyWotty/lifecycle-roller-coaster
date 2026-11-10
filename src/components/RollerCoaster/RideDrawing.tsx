@@ -1,5 +1,5 @@
 /**
- * The interactive ride drawing with its controls: Ride it, Ride again, Sound and Fit to screen.
+ * The interactive ride drawing with its controls: Ride it, Ride again, Sound, Non-stop and Fit to screen.
  * It owns Ride it playback, laying the moving cart over the drawing and the story card under it.
  * While a ride runs, the stop the cart has reached is highlighted; otherwise the user's selection is.
  */
@@ -20,6 +20,7 @@ import { GuessCurtain } from "./GuessCurtain";
 import { RideItPanel } from "./RideItPanel";
 import { MIN_TRACK_SCALE, RideTrack } from "./RideTrack";
 import { useRidePlayback } from "./useRidePlayback";
+import { useNonStop } from "./useNonStop";
 import { useRideSounds } from "./useRideSounds";
 
 interface RideDrawingProps {
@@ -55,8 +56,9 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
   const railPath = railPathOf(track);
   const hasCart = scene !== null && railPath !== null;
   const sounds = useRideSounds();
+  const nonStop = useNonStop();
   const ridePath = track.future?.pastRail ?? railPath;
-  const playback = useRidePlayback({ track, railPath: hasCart ? ridePath : null, scroller, drawing, sound: sounds.player });
+  const playback = useRidePlayback({ track, railPath: hasCart ? ridePath : null, scroller, drawing, sound: sounds.player, isNonStop: nonStop.isOn });
   const isRiding = playback.status !== null;
   const { silence } = sounds;
 
@@ -165,6 +167,14 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
           Sound
+        </button>
+        <button
+          type="button"
+          aria-pressed={nonStop.isOn}
+          onClick={nonStop.toggle}
+          className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
+        >
+          Non-stop
         </button>
         <button
           type="button"

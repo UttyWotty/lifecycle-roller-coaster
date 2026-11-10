@@ -139,7 +139,7 @@ export function useTogetherPlayback({ tracks, columns, scroller, drawing }: Toge
     const stops = columns.map(({ x }) => ({ x, y: LEVEL }));
     const samples = polylineSamples([{ x: startX, y: LEVEL }, ...stops, { x: endX, y: LEVEL }]);
     const isInstant = window.matchMedia(REDUCED_MOTION_QUERY).matches;
-    const value = buildTimeline(samples, stops, { trackHeight: TIMELINE_HEIGHT, isInstant });
+    const value = buildTimeline(samples, stops, { trackHeight: TIMELINE_HEIGHT, isInstant, isNonStop: false });
     elapsed.current = 0;
     shown.current = NO_COLUMN;
     setColumnIndex(null);
