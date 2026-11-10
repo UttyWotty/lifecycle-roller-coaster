@@ -92,6 +92,7 @@ Life stories can be personal, so the app is built to hold on to as little as pos
 - In `anthropic` mode, pressing Generate sends your story to the Anthropic API. Anthropic's own data policies apply to that request.
 - The app has no database of stories and no accounts. Your own ride (its events, chapters, report and look) is saved in your browser on this device only, so it is still there when you come back. The story text you typed is never saved, and **Start over** on the ride page deletes the saved ride. Sample lives are never saved.
 - On the public site, a small counter store keeps how many readings each visitor started this hour and day, and the day's total spend. A visitor is a keyed one-way hash of their network address, never the address itself, and every counter deletes itself within two days.
+- The public site counts page views with Vercel Web Analytics: which page was opened, the country, browser and device type. It uses no cookies and identifies no one. Before anything is sent, the address is cut down to the site and page, so the ride in a shared link (after "#") never reaches Vercel. Nothing is counted in previews or local runs.
 - The server never logs story content, only error codes and token counts.
 - Images are created on your device and are never uploaded. They contain titles, dates and markers, but not descriptions or your story.
 - Nothing is ever shared unless you choose to share it. A share link packs the ride into the part of the link after "#", which browsers never send to a server, so shared rides are not stored anywhere. It holds event titles, dates, feelings, sizes, categories, chapter names, the title and the look. Descriptions, the life report and your story are never put in a link.
@@ -188,6 +189,8 @@ Demo mode (`EXTRACTOR_MODE=fixture`) costs nothing, so it skips the limits.
    Keeping the key out of Preview means preview deployments of pull requests can never spend tokens.
 6. **Check a preview first.** Open any preview deployment, generate a ride, and confirm the demo reading appears. This proves BotID and the security headers work on Vercel at no cost.
 7. **Deploy production.** Redeploy `main` (Vercel deploys it automatically on each release). Generate one real ride and check the function log for the token count.
+
+8. **Turn on page counting (optional, free).** In the Vercel dashboard, open **Analytics**, select the project and press **Enable**, then redeploy `main`. The free plan counts up to 50,000 page views a month and pauses counting, never bills, if that runs out. The site only counts on the production deployment.
 
 To pause real readings at any time, set `DAILY_BUDGET_USD` to `0` and redeploy; sample lives keep working.
 
