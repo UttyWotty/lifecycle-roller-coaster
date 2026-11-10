@@ -47,15 +47,18 @@ export function canSaveEvents(events: readonly LifeEvent[]): boolean {
 }
 
 /**
- * Writes only the fields of the saved shape, so nothing else, such as story text, can slip into storage.
+ * Keeps only the fields of the saved shape, so nothing else, such as story text, can slip into storage.
  * Returns null for a ride that would not read back, so an invalid ride never replaces the last good save.
  */
-export function serializeRide(content: SavedRideContent): string | null {
+export function toSavedRide(content: SavedRideContent): SavedRide | null {
   const result = savedRideSchema.safeParse({ ...content, version: SAVED_RIDE_VERSION });
-  if (!result.success || !canSaveEvents(result.data.events)) {
-    return null;
-  }
-  return JSON.stringify(result.data);
+  return result.success && canSaveEvents(result.data.events) ? result.data : null;
+}
+
+/** The saved ride as text, or null when it would not read back. */
+export function serializeRide(content: SavedRideContent): string | null {
+  const ride = toSavedRide(content);
+  return ride === null ? null : JSON.stringify(ride);
 }
 
 /**
@@ -72,6 +75,11 @@ export function parseSavedRide(text: string | null, currentYear: number): SavedR
   } catch {
     return null;
   }
+  return readSavedRide(data, currentYear);
+}
+
+/** Reads a ride from already-parsed data, such as one entry of the saved-ride shelf, with the same rules. */
+export function readSavedRide(data: unknown, currentYear: number): SavedRide | null {
   const result = savedRideSchema.safeParse(data);
   if (!result.success || !canSaveEvents(result.data.events)) {
     return null;

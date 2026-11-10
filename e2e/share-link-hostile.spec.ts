@@ -6,7 +6,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { button, openRide, SECRET } from "./helpers";
 
-const SAVED_KEY = "lifecycle-roller-coaster:ride";
+const SAVED_KEY = "lifecycle-roller-coaster:rides";
 
 function pack(value: unknown, raw = false): string {
   const text = raw ? (value as string) : JSON.stringify(value);

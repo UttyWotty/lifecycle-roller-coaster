@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- **My rides:** keep up to 12 rides on this device, such as your life, your career or a parent's story. Start a New ride, open another or delete one (it asks first). Your current saved ride moves into My rides automatically, the last ride you opened opens again next time, and a sample never replaces a saved ride. Story text is still never saved.
+
 ### Fixed
 
 - The TODAY sign is now a solid label like a stop's, so it reads over any scenery, and its dashed line shows in every theme, including the Space world.

@@ -42,3 +42,15 @@ export async function hasPageOverflow(page: Page): Promise<boolean> {
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
   );
 }
+
+/** Where the app keeps its shelf of saved rides. */
+export const SHELF_KEY = "lifecycle-roller-coaster:rides";
+
+/** The open saved ride as text, or null when none is saved. */
+export function storedRide(page: Page): Promise<string | null> {
+  return page.evaluate((key) => {
+    const shelf = JSON.parse(window.localStorage.getItem(key) ?? "null") as { activeId: string; rides: { id: string; ride: unknown }[] } | null;
+    const entry = shelf?.rides.find(({ id }) => id === shelf.activeId);
+    return entry ? JSON.stringify(entry.ride) : null;
+  }, SHELF_KEY);
+}

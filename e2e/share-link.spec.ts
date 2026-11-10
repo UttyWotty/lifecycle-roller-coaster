@@ -4,7 +4,7 @@
  * They also confirm the social buttons carry the link, broken links are handled kindly, and nothing is saved.
  */
 import { expect, test, type Page } from "@playwright/test";
-import { button, openRide, SECRET } from "./helpers";
+import { button, openRide, SECRET, storedRide } from "./helpers";
 
 async function shareLink(page: Page): Promise<string> {
   await button(page, "Share a link").click();
@@ -38,7 +38,7 @@ test("the link carries no story, descriptions or report", async ({ page }) => {
   const link = await shareLink(page);
   const payload = Buffer.from(link.split("#r=")[1].replaceAll("-", "+").replaceAll("_", "/"), "base64").toString("utf8");
   expect(payload).not.toContain(SECRET);
-  const descriptions = await page.evaluate(() => window.localStorage.getItem("lifecycle-roller-coaster:ride"));
+  const descriptions = await storedRide(page);
   for (const description of JSON.parse(descriptions ?? "{}").events.map((event: { description: string }) => event.description)) {
     if (description) {
       expect(payload).not.toContain(description);
