@@ -20,6 +20,12 @@ export const DRAWING_BAND_HEIGHT = 1080;
 const MAX_DRAWING_SCALE = 2.2;
 /** The camera keeps the cart a little left of centre, so more of the track ahead is in view. */
 const CART_VIEW_SHARE = 0.4;
+/**
+ * Room kept left of the cart, in drawing units, so a cart at the start of the rail is never cut by the frame's edge:
+ * the cart's picture reaches 80 units behind its origin, plus a little air.
+ */
+const CART_LEFT_ROOM = 100;
+const DRAWING_LEFT = 0;
 const HALF = 2;
 
 /** Recording formats in order of preference: MP4 is what most social apps accept. */
@@ -46,13 +52,17 @@ export function drawingScale({ height }: DrawingSize): number {
   return Math.min(DRAWING_BAND_HEIGHT / height, MAX_DRAWING_SCALE);
 }
 
-/** The left edge of the camera, in drawing units: following the cart, held inside the drawing, centred if short. */
+/**
+ * The left edge of the camera, in drawing units: following the cart, held inside the drawing, centred if short.
+ * Near the start it may look a little past the drawing's left edge, so the whole cart is in view.
+ */
 export function cameraLeft(cartX: number, drawing: DrawingSize, scale: number): number {
   const viewWidth = VIDEO_WIDTH / scale;
   if (drawing.width <= viewWidth) {
     return (drawing.width - viewWidth) / HALF;
   }
-  return Math.min(Math.max(cartX - viewWidth * CART_VIEW_SHARE, 0), drawing.width - viewWidth);
+  const lowest = Math.min(DRAWING_LEFT, cartX - CART_LEFT_ROOM);
+  return Math.min(Math.max(cartX - viewWidth * CART_VIEW_SHARE, lowest), drawing.width - viewWidth);
 }
 
 /** The whole clip's length for a ride timeline of this many seconds. */

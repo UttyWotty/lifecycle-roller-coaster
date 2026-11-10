@@ -1,6 +1,7 @@
 /**
  * Pure rules for stops that have not happened yet: which dates are in the future, and where a ride's future begins.
- * The future is the run of stops at the end of the ride whose dates are all after today, so the user's order is kept.
+ * The future is the run of stops at the end of the ride dated after today, with any undated stops among or after them,
+ * so the user's order is kept.
  * It cuts the rail exactly at today, halfway to the first stop to come, so the cart parks on the rail there.
  */
 import type { LifeEvent } from "@/lib/events/schema";
@@ -29,20 +30,29 @@ export function isFutureDate(date: string | null, today: string): boolean {
   return date !== null && date > today.slice(0, date.length);
 }
 
-/** The index where the run of future stops at the end begins, or null when the last stop has happened. */
+/**
+ * The index where the future begins: the first future-dated stop of the run at the end made of future-dated and
+ * undated stops. An undated stop after a future one is still to come too, so it joins the future instead of hiding it.
+ * Null when that run holds no future-dated stop.
+ */
 export function futureFromIndex(events: readonly LifeEvent[], today: string): number | null {
   let from = events.length;
-  while (from > 0 && isFutureDate(events[from - 1].date, today)) {
+  while (from > 0 && (events[from - 1].date === null || isFutureDate(events[from - 1].date, today))) {
     from -= 1;
+  }
+  while (from < events.length && events[from].date === null) {
+    from += 1;
   }
   return from < events.length ? from : null;
 }
 
 /** Events that have happened, and those still to come, for anything that should count only what happened. */
 export function splitFuture(events: readonly LifeEvent[], today: string): { past: LifeEvent[]; future: LifeEvent[] } {
+  const from = futureFromIndex(events, today) ?? events.length;
+  const isToCome = (event: LifeEvent, index: number): boolean => index >= from || isFutureDate(event.date, today);
   return {
-    past: events.filter((event) => !isFutureDate(event.date, today)),
-    future: events.filter((event) => isFutureDate(event.date, today)),
+    past: events.filter((event, index) => !isToCome(event, index)),
+    future: events.filter((event, index) => isToCome(event, index)),
   };
 }
 
