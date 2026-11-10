@@ -1,5 +1,5 @@
 /**
- * Browser adapter that turns the ride drawing into a PNG to download or share.
+ * Browser adapter that turns the ride drawing into a PNG to download, and shares any picture the user chooses to.
  * All work happens on the user's device, and an image leaves it only through a share the user starts.
  * Failures surface as a single domain error that the interface can explain.
  */
@@ -11,10 +11,9 @@ import {
 } from "@/lib/export/rideImage";
 
 const FILE_NAME = "my-roller-coaster.png";
-const IMAGE_TYPE = "image/png";
-const SHARE_TITLE = "My Life Roller Coaster";
+export const IMAGE_TYPE = "image/png";
 const ABORT_ERROR = "AbortError";
-const SVG_DATA_PREFIX = "data:image/svg+xml;charset=utf-8,";
+export const SVG_DATA_PREFIX = "data:image/svg+xml;charset=utf-8,";
 
 export type ShareOutcome = "shared" | "cancelled" | "copied" | "downloaded";
 
@@ -25,14 +24,14 @@ export class RideExportError extends Error {
   }
 }
 
-function serializeForExport(svg: SVGSVGElement): string {
+export function serializeForExport(svg: SVGSVGElement): string {
   const copy = svg.cloneNode(true) as SVGSVGElement;
   copy.removeAttribute("style");
   copy.querySelectorAll(`[${EXPORT_HIDDEN_ATTRIBUTE}]`).forEach((element) => element.remove());
   return new XMLSerializer().serializeToString(copy);
 }
 
-function loadImage(source: string): Promise<HTMLImageElement> {
+export function loadImage(source: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
@@ -41,8 +40,8 @@ function loadImage(source: string): Promise<HTMLImageElement> {
   });
 }
 
-function drawToPng(image: HTMLImageElement, size: RideImageSize): Promise<Blob> {
-  const scale = exportScale(size);
+/** Paints a loaded picture onto a canvas at a scale and returns it as PNG. */
+export function drawToPng(image: HTMLImageElement, size: RideImageSize, scale: number): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = Math.floor(size.width * scale);
   canvas.height = Math.floor(size.height * scale);
@@ -59,11 +58,11 @@ function drawToPng(image: HTMLImageElement, size: RideImageSize): Promise<Blob> 
   });
 }
 
-function saveFile(blob: Blob): void {
+export function saveFile(blob: Blob, fileName: string = FILE_NAME): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = FILE_NAME;
+  link.download = fileName;
   link.click();
   URL.revokeObjectURL(url);
 }
@@ -71,14 +70,14 @@ function saveFile(blob: Blob): void {
 async function createRideImage(svg: SVGSVGElement, size: RideImageSize): Promise<Blob> {
   const markup = prepareRideSvg(serializeForExport(svg), size);
   const image = await loadImage(`${SVG_DATA_PREFIX}${encodeURIComponent(markup)}`);
-  return drawToPng(image, size);
+  return drawToPng(image, size, exportScale(size));
 }
 
 export async function downloadRideImage(svg: SVGSVGElement, size: RideImageSize): Promise<void> {
   saveFile(await createRideImage(svg, size));
 }
 
-async function copyToClipboard(blob: Blob): Promise<boolean> {
+export async function copyToClipboard(blob: Blob): Promise<boolean> {
   if (typeof ClipboardItem === "undefined" || navigator.clipboard?.write === undefined) {
     return false;
   }
@@ -86,13 +85,18 @@ async function copyToClipboard(blob: Blob): Promise<boolean> {
   return true;
 }
 
-/** Uses the device's share sheet, then the clipboard, and downloads the file as a last resort. */
-export async function shareRideImage(svg: SVGSVGElement, size: RideImageSize): Promise<ShareOutcome> {
-  const blob = await createRideImage(svg, size);
-  const file = new File([blob], FILE_NAME, { type: IMAGE_TYPE });
+export interface ShareText {
+  title: string;
+  /** The message posted with the picture, which can carry a link. */
+  text: string;
+}
+
+/** Shares a picture through the device's share sheet, then the clipboard, and downloads it as a last resort. */
+export async function shareImageFile(blob: Blob, fileName: string, message: ShareText): Promise<ShareOutcome> {
+  const file = new File([blob], fileName, { type: IMAGE_TYPE });
   if (navigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], title: SHARE_TITLE });
+      await navigator.share({ files: [file], title: message.title, text: message.text });
       return "shared";
     } catch (error) {
       if (error instanceof DOMException && error.name === ABORT_ERROR) {
@@ -105,9 +109,9 @@ export async function shareRideImage(svg: SVGSVGElement, size: RideImageSize): P
       return "copied";
     }
   } catch {
-    saveFile(blob);
+    saveFile(blob, fileName);
     return "downloaded";
   }
-  saveFile(blob);
+  saveFile(blob, fileName);
   return "downloaded";
 }

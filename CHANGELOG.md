@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- Share my ride now sends a story-sized picture (1080 by 1920) made for phone stories: the ride's title, its years and stops, the ride wrapped onto rows so it stays large, and where to make your own. The share also carries a link to the ride for apps that accept one. Download image still saves the wide drawing.
+
 ## [0.11.2] - 2026-11-10
 
 ### Fixed

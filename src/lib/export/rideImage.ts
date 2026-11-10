@@ -80,7 +80,8 @@ function wordmarkBadge(width: number): string {
   );
 }
 
-function applyPalette(markup: string): string {
+/** Swaps theme colours for the fixed export palette, for any image made from the drawing. */
+export function applyExportPalette(markup: string): string {
   return markup.replace(TAG, applyPaletteToTag);
 }
 
@@ -88,7 +89,7 @@ function applyPalette(markup: string): string {
 export function prepareRideSvg(markup: string, { width, height }: RideImageSize): string {
   const background = `<rect width="${width}" height="${height}" fill="${EXPORT_PALETTE["--background"]}"/>`;
   const wordmark = wordmarkBadge(width);
-  return applyPalette(markup)
+  return applyExportPalette(markup)
     .replace(
       ROOT_TAG,
       `<svg$1 width="${width}" height="${height}" font-family="${FONT_FAMILY}">${background}`,
