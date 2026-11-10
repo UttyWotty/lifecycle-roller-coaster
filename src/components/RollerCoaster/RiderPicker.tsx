@@ -7,8 +7,9 @@
 
 import type { ReactElement } from "react";
 import { CHOICE_PILL_CLASS } from "@/components/EventReview/fieldStyles";
+import { useT } from "@/components/I18n/useLocale";
 import { RiderArt } from "@/components/Scene/RiderArt";
-import { RIDERS, RIDER_NAMES, type Rider } from "@/lib/scene/riders";
+import { RIDERS, type Rider } from "@/lib/scene/riders";
 
 interface RiderPickerProps {
   rider: Rider;
@@ -18,9 +19,10 @@ interface RiderPickerProps {
 const PREVIEW_VIEW_BOX = "-20 -21 40 36";
 
 export function RiderPicker({ rider, onRiderChange }: RiderPickerProps): ReactElement {
+  const t = useT();
   return (
     <fieldset className="flex min-w-0 flex-col gap-2">
-      <legend className="mb-1 text-sm font-semibold">Choose your character</legend>
+      <legend className="mb-1 text-sm font-semibold">{t("look.riderLegend")}</legend>
       <div className="flex flex-wrap gap-2">
         {RIDERS.map((option) => (
           <label key={option} className={CHOICE_PILL_CLASS}>
@@ -34,7 +36,7 @@ export function RiderPicker({ rider, onRiderChange }: RiderPickerProps): ReactEl
             <svg aria-hidden="true" viewBox={PREVIEW_VIEW_BOX} className="size-8 rounded-full bg-sky-200">
               <RiderArt rider={option} />
             </svg>
-            {RIDER_NAMES[option]}
+            {t(`look.${option}Rider`)}
           </label>
         ))}
       </div>

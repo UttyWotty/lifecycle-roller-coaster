@@ -4,6 +4,30 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-10
+
+### Added
+
+- **Languages:** a language picker in the footer, starting with Turkish. A Turkish browser gets Turkish automatically, and the choice is remembered on this device. The landing page, the story box, the event review, My rides and the ride screen are translated so far, including their errors and confirmations: Ride it, the look choices, lenses, statistics, the life report panel, the TODAY sign, export, video and share controls. Narrate speaks in the chosen language, and the story picture, the poster and the ride video carry their words in it too; the rest of the app follows. The AI already writes your events and report in the language of your story.
+
+- **Group rides:** Ride together now takes up to four rides. On a ride together, Add a friend's ride brings in another ride link; everyone's years line up, each ride gets its own cart, and the card names everyone's moment. Two-ride links work as before.
+
+- **Embed your ride:** Copy embed code, in the share panel, gives a snippet to paste into a blog or website. It shows your ride there with Ride it, and links back to the full ride and to make your own, opening in a new tab. The ride lives only in the snippet's link, as with share links, and only the embed page may be shown inside other sites.
+
+- **Download poster:** a print-ready A3 landscape poster of your ride, with its title, years and stops, the whole drawing and the wordmark, at about 290 dpi. It is made on your device like the other images.
+
+- **Music:** a new button next to Sound plays a short looping tune that suits your theme while Ride it plays, from a music box for the toy theme to a chiptune for the arcade world, quietly under the ride sounds. Every tune is original and made in your browser with no audio files. Ride videos include it when Music is on. It starts off and is remembered on this device.
+
+- **Narrate:** a new button next to Sound has your device's own voice read each stop's place, date and title as the cart reaches it during Ride it, and say when the ride ends. Nothing is downloaded or sent anywhere. It starts off and is remembered on this device; pausing or exiting stops the voice at once. Ride videos are not narrated, because browsers cannot record their own voice.
+
+- **My rides:** keep up to 12 rides on this device, such as your life, your career or a parent's story. Start a New ride, open another or delete one (it asks first). Your current saved ride moves into My rides automatically, the last ride you opened opens again next time, and a sample never replaces a saved ride. Story text is still never saved.
+
+### Fixed
+
+- The TODAY sign is now a solid label like a stop's, so it reads over any scenery, and its dashed line shows in every theme, including the Space world.
+- An undated stop after a future stop no longer hides the future: undated stops at the end join what is still to come, in the drawing and in the statistics.
+- Ride videos keep the whole cart in view at the start, and the ending card's text fades in only once the drawing has faded away, so it never sits over faded labels.
+
 ## [0.13.1] - 2026-11-10
 
 ### Added

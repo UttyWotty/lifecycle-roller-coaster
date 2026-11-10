@@ -1,13 +1,15 @@
 /**
  * Writing stage where a user tells their story and asks for it to be read.
  * The story stays in React state until the user presses Generate, and is never stored or logged.
- * Users can skip AI and add events by hand, which sends nothing anywhere.
+ * Users can skip AI and add events by hand, which sends nothing anywhere; every word follows the visitor's language.
  */
 "use client";
 
 import type { ChangeEvent, ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { useLocale, useT } from "@/components/I18n/useLocale";
 import type { ExtractionResult } from "@/lib/ai/extraction";
+import { NUMBER_LOCALES } from "@/lib/i18n/locales";
 import { MAX_STORY_LENGTH, appendPrompt, getStoryStatus } from "@/lib/story/storyInput";
 import { StoryPrompts } from "./StoryPrompts";
 import { useExtraction } from "./useExtraction";
@@ -25,16 +27,12 @@ interface StoryEditorProps {
 
 const INPUT_ID = "story";
 const INPUT_ROWS = 12;
-const NUMBER_LOCALE = "en-US";
-const PLACEHOLDER = "I started university in 2015. I was really excited about it...";
-const TOO_LONG_MESSAGE = "This story is over the limit. Please shorten it to continue.";
-const LOADING_MESSAGE = "Reading your story...";
-const SAMPLE_HINT = "Not ready to write? See a made-up life as a ride. It is free and sends nothing.";
-const REPLACE_WARNING = "Generating again replaces your current events and any changes to them.";
 
 export function StoryEditor(props: StoryEditorProps): ReactElement {
   const { story, hasEvents, isSample, onStoryChange, onExtracted, onReturnToEvents, onAddManually, onShowSample } = props;
   const { state, extract, reset } = useExtraction();
+  const t = useT();
+  const numberLocale = NUMBER_LOCALES[useLocale()];
   const storyStatus = getStoryStatus(story);
   const isLoading = state.status === "loading";
   /** Hidden once a real ride exists, so a paid reading can never be replaced by accident. */
@@ -48,34 +46,36 @@ export function StoryEditor(props: StoryEditorProps): ReactElement {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">Tell your story</h1>
-        <p>Write about the moments that shaped your life, in your own words and in any order.</p>
+        <h1 className="text-3xl font-bold">{t("story.heading")}</h1>
+        <p>{t("story.intro")}</p>
         {canShowSample && (
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" onClick={onShowSample} className={SECONDARY_BUTTON_CLASS}>
-              Try a sample life
+              {t("story.trySample")}
             </button>
-            <p className="text-sm text-muted">{SAMPLE_HINT}</p>
+            <p className="text-sm text-muted">{t("story.sampleHint")}</p>
           </div>
         )}
       </header>
       <div className="flex flex-col gap-4">
         <label htmlFor={INPUT_ID} className="font-semibold">
-          Your story
+          {t("story.storyLabel")}
         </label>
         <textarea
           id={INPUT_ID}
           value={story}
           onChange={(event: ChangeEvent<HTMLTextAreaElement>) => updateStory(event.target.value)}
-          placeholder={PLACEHOLDER}
+          placeholder={t("story.placeholder")}
           rows={INPUT_ROWS}
           className="w-full rounded-lg border border-muted bg-background p-4 text-base"
         />
         <StoryPrompts onSelect={(prompt) => updateStory(appendPrompt(story, prompt))} />
         <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-muted">
-            {story.trim().length.toLocaleString(NUMBER_LOCALE)} of{" "}
-            {MAX_STORY_LENGTH.toLocaleString(NUMBER_LOCALE)} characters
+            {t("story.characterCount", {
+              count: story.trim().length.toLocaleString(numberLocale),
+              max: MAX_STORY_LENGTH.toLocaleString(numberLocale),
+            })}
           </p>
           <button
             type="button"
@@ -83,27 +83,23 @@ export function StoryEditor(props: StoryEditorProps): ReactElement {
             onClick={() => void extract(story, onExtracted)}
             className="min-h-11 rounded-full bg-accent px-6 py-2 font-semibold text-on-accent disabled:opacity-50"
           >
-            {isLoading ? LOADING_MESSAGE : "Generate my ride"}
+            {isLoading ? t("story.loading") : t("story.generate")}
           </button>
         </div>
-        {hasEvents && <p className="text-sm">{REPLACE_WARNING}</p>}
-        <p className="text-sm text-muted">
-          When you press Generate, your story is sent to Anthropic&apos;s Claude API to find the
-          events in it. Nothing is sent before that, this app does not save your story, and it
-          disappears when you leave the page.
-        </p>
+        {hasEvents && <p className="text-sm">{t("story.replaceWarning")}</p>}
+        <p className="text-sm text-muted">{t("story.privacyNote")}</p>
         <p role="status" className="text-sm">
-          {storyStatus === "too_long" && TOO_LONG_MESSAGE}
-          {state.status === "error" && state.message}
+          {storyStatus === "too_long" && t("story.tooLong")}
+          {state.status === "error" && t(state.messageKey)}
         </p>
         <div className="flex flex-wrap gap-2">
           {hasEvents ? (
             <button type="button" onClick={onReturnToEvents} className={SECONDARY_BUTTON_CLASS}>
-              Return to my ride
+              {t("story.returnToRide")}
             </button>
           ) : (
             <button type="button" onClick={onAddManually} className={SECONDARY_BUTTON_CLASS}>
-              Skip AI and add events myself
+              {t("story.addManually")}
             </button>
           )}
         </div>

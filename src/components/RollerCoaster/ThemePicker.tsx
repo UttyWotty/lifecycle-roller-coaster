@@ -6,8 +6,10 @@
 "use client";
 
 import type { ReactElement } from "react";
+import { useT } from "@/components/I18n/useLocale";
 import { ThemePreview } from "@/components/Scene/ThemePreview";
-import { RIDE_THEME_GROUPS, RIDE_THEME_DETAILS, RIDE_THEMES, type RideTheme } from "@/lib/scene/themes";
+import type { MessageKey } from "@/lib/i18n/messages";
+import { RIDE_THEME_GROUPS, RIDE_THEME_DETAILS, RIDE_THEMES, type RideTheme, type RideThemeGroup } from "@/lib/scene/themes";
 
 interface ThemePickerProps {
   theme: RideTheme;
@@ -17,17 +19,25 @@ interface ThemePickerProps {
 const CARD_CLASS =
   "flex w-36 shrink-0 flex-col gap-1 rounded-lg border border-muted p-1.5 text-xs font-semibold lg:w-24 lg:gap-0.5 lg:p-1 lg:text-[11px] has-checked:border-accent has-checked:outline-2 has-checked:outline-accent";
 
+/** Each theme group's heading, in the visitor's language. */
+const GROUP_NAMES: Readonly<Record<RideThemeGroup, MessageKey>> = {
+  "Art modes": "look.groupArtModes",
+  Worlds: "look.groupWorlds",
+  Scenes: "look.groupScenes",
+};
+
 export function ThemePicker({ theme, onThemeChange }: ThemePickerProps): ReactElement {
+  const t = useT();
   return (
     <fieldset className="min-w-0">
-      <legend className="sr-only">Theme</legend>
+      <legend className="sr-only">{t("look.themeLegend")}</legend>
       <div className="flex gap-4 overflow-x-auto pb-2 lg:gap-3">
         {RIDE_THEME_GROUPS.map((group) => (
           <div key={group} className="flex shrink-0 flex-col gap-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted lg:text-[10px]">{group}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted lg:text-[10px]">{t(GROUP_NAMES[group])}</p>
             <div className="flex gap-2 p-0.5">
               {RIDE_THEMES.filter((option) => RIDE_THEME_DETAILS[option].group === group).map((option) => (
-                <label key={option} title={RIDE_THEME_DETAILS[option].name} className={CARD_CLASS}>
+                <label key={option} title={t(`look.${option}Theme`)} className={CARD_CLASS}>
                   <ThemePreview theme={option} />
                   <span className="flex items-center gap-1">
                     <input
@@ -37,7 +47,7 @@ export function ThemePicker({ theme, onThemeChange }: ThemePickerProps): ReactEl
                       onChange={() => onThemeChange(option)}
                       className="accent-accent"
                     />
-                    <span className="truncate">{RIDE_THEME_DETAILS[option].name}</span>
+                    <span className="truncate">{t(`look.${option}Theme`)}</span>
                   </span>
                 </label>
               ))}

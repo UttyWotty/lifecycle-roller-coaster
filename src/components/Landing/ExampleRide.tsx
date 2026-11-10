@@ -3,13 +3,13 @@
  * It uses a fictional life story to show what a finished ride looks like.
  * The landing page therefore always matches what the app actually produces.
  */
+"use client";
+
 import type { ReactElement } from "react";
+import { useT } from "@/components/I18n/useLocale";
 import { RideTrack } from "@/components/RollerCoaster/RideTrack";
 import type { LifeEvent } from "@/lib/events/schema";
 import { composeRide } from "@/lib/scene/composeRide";
-
-const DESCRIPTION =
-  "An example roller-coaster track in a sunny city that rises at happy life events and drops at hard ones.";
 
 const EXAMPLE_EVENTS: readonly LifeEvent[] = [
   {
@@ -55,6 +55,7 @@ const EXAMPLE_EVENTS: readonly LifeEvent[] = [
 ];
 
 export function ExampleRide(): ReactElement {
+  const t = useT();
   const { track, scene } = composeRide(EXAMPLE_EVENTS, { style: "loops", theme: "sunny", title: "" });
-  return <RideTrack track={track} scene={scene} label={DESCRIPTION} />;
+  return <RideTrack track={track} scene={scene} label={t("landing.exampleLabel")} />;
 }

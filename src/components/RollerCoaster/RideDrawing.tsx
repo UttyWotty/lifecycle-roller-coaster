@@ -1,5 +1,5 @@
 /**
- * The interactive ride drawing with its controls: Ride it, Ride again, Sound, Non-stop and Fit to screen.
+ * The interactive ride drawing with its controls: Ride it, Ride again, Sound, Music, Narrate, Non-stop and Fit to screen.
  * It owns Ride it playback, laying the moving cart over the drawing and the story card under it.
  * While a ride runs, the stop the cart has reached is highlighted; otherwise the user's selection is.
  */
@@ -7,6 +7,7 @@
 
 import { useEffect, useRef, useState, type ReactElement, type RefObject } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { useLocale, useT } from "@/components/I18n/useLocale";
 import { PlaybackCart } from "@/components/Scene/PlaybackCart";
 import { sceneModeFor } from "@/components/Scene/sceneModes";
 import type { LifeReport } from "@/lib/events/insights";
@@ -20,7 +21,9 @@ import { GuessCurtain } from "./GuessCurtain";
 import { RideItPanel } from "./RideItPanel";
 import { MIN_TRACK_SCALE, RideTrack } from "./RideTrack";
 import { useRidePlayback } from "./useRidePlayback";
+import { useNarrateRide, useNarration } from "./useNarration";
 import { useNonStop } from "./useNonStop";
+import { useRideMusic } from "./useRideMusic";
 import { useRideSounds } from "./useRideSounds";
 
 interface RideDrawingProps {
@@ -50,6 +53,8 @@ const RIDING_CLASS = "ride-it-active";
 export function RideDrawing(props: RideDrawingProps): ReactElement {
   const { track, scene, label, events, report, fitToScreen, selectedId, svgRef, onSelect, onFitToScreenChange, curtain } = props;
   const isGuessing = curtain !== null;
+  const t = useT();
+  const locale = useLocale();
   const [rideNumber, setRideNumber] = useState(FIRST_RIDE);
   const scroller = useRef<HTMLDivElement>(null);
   const drawing = useRef<HTMLDivElement>(null);
@@ -57,9 +62,11 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
   const hasCart = scene !== null && railPath !== null;
   const sounds = useRideSounds();
   const nonStop = useNonStop();
+  const narration = useNarration();
   const ridePath = track.future?.pastRail ?? railPath;
   const playback = useRidePlayback({ track, railPath: hasCart ? ridePath : null, scroller, drawing, sound: sounds.player, isNonStop: nonStop.isOn });
   const isRiding = playback.status !== null;
+  const music = useRideMusic(playback.status, scene?.palette.kind ?? null);
   const { silence } = sounds;
 
   useEffect(() => {
@@ -69,6 +76,14 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
   }, [isRiding, silence]);
   const ridingStop = playback.stopIndex === null ? null : track.stops[playback.stopIndex];
   const ridingEvent = events.find((event) => event.id === ridingStop?.id) ?? null;
+  useNarrateRide({
+    narration,
+    status: playback.status,
+    stopIndex: playback.stopIndex,
+    stop: ridingEvent ?? ridingStop ?? null,
+    stopCount: pastStops(track).length,
+    locale,
+  });
   const vehicle = scene && hasCart
     ? {
         Vehicle: sceneModeFor(scene.palette.kind).Vehicle,
@@ -102,7 +117,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
         ref={scroller}
         tabIndex={0}
         role="region"
-        aria-label="Roller coaster, scrolls sideways on small screens"
+        aria-label={t("ride.drawingRegion")}
         className="overflow-x-auto lg:scroll-mt-36"
       >
         <div
@@ -144,11 +159,12 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
             type="button"
             onClick={() => {
               sounds.prepare();
+              music.prepare();
               playback.start();
             }}
             className="min-h-11 rounded-full bg-accent px-6 py-2 font-semibold text-on-accent"
           >
-            Ride it
+            {t("ride.rideIt")}
           </button>
         )}
         {hasCart && !isRiding && (
@@ -157,7 +173,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
             onClick={() => setRideNumber((number) => number + 1)}
             className={`${SECONDARY_BUTTON_CLASS} motion-reduce:hidden`}
           >
-            Ride again
+            {t("ride.rideAgain")}
           </button>
         )}
         <button
@@ -166,15 +182,33 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           onClick={sounds.toggle}
           className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
-          Sound
+          {t("ride.sound")}
         </button>
+        <button
+          type="button"
+          aria-pressed={music.isOn}
+          onClick={music.toggle}
+          className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
+        >
+          {t("ride.music")}
+        </button>
+        {narration.isSupported && (
+          <button
+            type="button"
+            aria-pressed={narration.isOn}
+            onClick={narration.toggle}
+            className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
+          >
+            {t("ride.narrate")}
+          </button>
+        )}
         <button
           type="button"
           aria-pressed={nonStop.isOn}
           onClick={nonStop.toggle}
           className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
-          Non-stop
+          {t("ride.nonStop")}
         </button>
         <button
           type="button"
@@ -182,7 +216,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           onClick={toggleFitToScreen}
           className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
-          Fit to screen
+          {t("ride.fitToScreen")}
         </button>
       </div>
     </>

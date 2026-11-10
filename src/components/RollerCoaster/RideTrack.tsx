@@ -4,7 +4,7 @@
  * The same drawing serves the landing page, the ride stage and image export, so they always match.
  */
 import type { ReactElement, Ref } from "react";
-import { toLabel } from "@/components/EventReview/fieldStyles";
+import { useT } from "@/components/I18n/useLocale";
 import { ChapterBands } from "@/components/Scene/ChapterBands";
 import { FutureVeil } from "@/components/Scene/FutureVeil";
 import { RideCart } from "@/components/Scene/RideCart";
@@ -52,6 +52,7 @@ function MetroLine(props: {
   index: number;
 }): ReactElement {
   const { line, category, palette, index } = props;
+  const t = useT();
   const isMonochrome = palette?.kind === "line";
   const nameHalo = palette ? { ...LABEL_HALO, stroke: palette.pill } : LABEL_HALO;
   return (
@@ -98,7 +99,7 @@ function MetroLine(props: {
         fill={palette?.ink ?? "var(--muted)"}
         {...nameHalo}
       >
-        {toLabel(category)}
+        {t(`events.${category}`)}
       </text>
     </>
   );

@@ -44,8 +44,13 @@ describe("camera", () => {
 
   it("follows the cart and stays inside the drawing", () => {
     expect(cameraLeft(1500, drawing, scale)).toBeCloseTo(1500 - view * 0.4);
-    expect(cameraLeft(10, drawing, scale)).toBe(0);
+    expect(cameraLeft(200, drawing, scale)).toBe(0);
     expect(cameraLeft(2990, drawing, scale)).toBeCloseTo(3000 - view);
+  });
+
+  it("keeps a cart at the very start of the rail whole, looking a little past the drawing's left edge", () => {
+    expect(cameraLeft(10, drawing, scale)).toBe(-90);
+    expect(cameraLeft(150, drawing, scale)).toBe(0);
   });
 
   it("centres a drawing narrower than the frame", () => {
@@ -73,5 +78,13 @@ describe("stopCaption", () => {
     const stop = { title: "Got married", date: "2022" } as TrackStop;
     expect(stopCaption(stop, 1, 5)).toEqual({ line: "Stop 2 of 5 · 2022", title: "Got married" });
     expect(stopCaption({ ...stop, date: null }, 0, 1).line).toBe("Stop 1 of 1 · Date unknown");
+  });
+});
+
+describe("stopCaption in Turkish", () => {
+  it("numbers the stop and shows its date in Turkish", () => {
+    const stop = { title: "Got married", date: "2022" } as TrackStop;
+    expect(stopCaption(stop, 1, 5, "tr")).toEqual({ line: "Durak 2 / 5 · 2022", title: "Got married" });
+    expect(stopCaption({ ...stop, date: null }, 0, 1, "tr").line).toBe("Durak 1 / 1 · Tarih yok");
   });
 });

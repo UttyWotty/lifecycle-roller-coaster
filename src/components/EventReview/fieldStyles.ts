@@ -1,7 +1,7 @@
 /**
- * Shared class names and label text for the event review controls.
+ * Shared class names for the event review and ride controls.
  * Keeping them together gives every field the same look and touch target.
- * This module holds constants and one label helper, with no behaviour of its own.
+ * This module holds constants only; the words shown come from the message index.
  */
 
 export const FIELD_CLASS =
@@ -12,7 +12,3 @@ export const SECONDARY_BUTTON_CLASS =
 export const CHOICE_PILL_CLASS =
   "flex min-h-11 items-center gap-2 rounded-full border border-muted px-3 py-2 text-sm font-semibold has-checked:border-accent has-checked:outline-1 has-checked:outline-accent";
 export const ERROR_CLASS = "text-sm font-normal text-accent";
-
-export function toLabel(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}

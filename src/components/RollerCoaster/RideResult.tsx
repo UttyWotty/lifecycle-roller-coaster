@@ -7,6 +7,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { useLocale, useT } from "@/components/I18n/useLocale";
 import { ReadingNotes } from "@/components/RideFlow/ReadingNotes";
 import { updateEvent } from "@/lib/events/editing";
 import type { LifeChapter, LifeReport } from "@/lib/events/insights";
@@ -16,7 +17,6 @@ import { composeRide } from "@/lib/scene/composeRide";
 import { splitFuture } from "@/lib/track/futureStops";
 import type { Rider } from "@/lib/scene/riders";
 import type { RideTheme } from "@/lib/scene/themes";
-import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import { RIDE_STYLES, type RideStyle } from "@/lib/track/types";
 import { CategoryLegend } from "./CategoryLegend";
 import { ShareLinkPanel } from "@/components/Share/ShareLinkPanel";
@@ -66,16 +66,15 @@ interface RideResultProps {
   onStartOver: () => void;
 }
 
-const SELECT_PROMPT = "Select a stop on the track to adjust how it felt and how much it mattered.";
-const CREATIVE_NOTE = "This ride is a creative picture of your story, not a measurement of your life.";
-
 export function RideResult(props: RideResultProps): ReactElement {
   const { events, clarifications, isDemo, isSample, isSavedOnDevice, title, rideStyle, rideTheme, chapters, report, rider, fitToScreen, rideLens, birthYear } = props;
   const { onFitToScreenChange, onTitleChange, onRideStyleChange, onRideThemeChange, onRiderChange, onEventsChange, onEditEvents, onAddFutureStop, onBackToStory, onShowAnotherSample, onStartOver, onRideLensChange, onBirthYearChange } = props;
+  const t = useT();
+  const locale = useLocale();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const svg = useRef<SVGSVGElement>(null);
-  const lenses = useMemo(() => availableLenses(events, birthYear), [events, birthYear]);
+  const lenses = useMemo(() => availableLenses(events, birthYear, locale), [events, birthYear, locale]);
   const lens = lenses.find((option) => option.id === rideLens) ?? null;
   const lensEvents = useMemo(
     () => (lens ? applyLens(events, lens.id, birthYear) : events),
@@ -99,21 +98,21 @@ export function RideResult(props: RideResultProps): ReactElement {
     <section className="flex flex-col gap-4">
       <header className="flex flex-col gap-3">
         <h1 ref={heading} tabIndex={-1} className="text-3xl font-bold outline-none">
-          Your ride
+          {t("ride.heading")}
         </h1>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={onBackToStory} className={SECONDARY_BUTTON_CLASS}>
-            Back to my story
+            {t("review.backToStory")}
           </button>
           <button type="button" onClick={onEditEvents} className={SECONDARY_BUTTON_CLASS}>
-            Edit my events
+            {t("ride.editEvents")}
           </button>
           <button type="button" onClick={onAddFutureStop} className={SECONDARY_BUTTON_CLASS}>
-            Add a future stop
+            {t("ride.addFutureStop")}
           </button>
           {isSample && (
             <button type="button" onClick={onShowAnotherSample} className={SECONDARY_BUTTON_CLASS}>
-              Show me another life
+              {t("ride.anotherSample")}
             </button>
           )}
         </div>
@@ -130,7 +129,7 @@ export function RideResult(props: RideResultProps): ReactElement {
       <RideDrawing
         track={track}
         scene={scene}
-        label={RIDE_STYLE_DETAILS[rideStyle].drawingLabel}
+        label={t(`look.${rideStyle}Drawing`)}
         events={events}
         report={report}
         fitToScreen={fitToScreen}
@@ -154,7 +153,7 @@ export function RideResult(props: RideResultProps): ReactElement {
           onChange={(patch) => onEventsChange(updateEvent(events, selected.id, patch))}
         />
       ) : (
-        <p className="text-sm">{SELECT_PROMPT}</p>
+        <p className="text-sm">{t("ride.selectPrompt")}</p>
       )}
       <RideControls
         title={title}
@@ -171,12 +170,12 @@ export function RideResult(props: RideResultProps): ReactElement {
         story={{ drawing: storyDrawingOf(track), title: drawingTitle, events: lensEvents }}
         shareRide={shareable}
       />
-      <RideVideoButton svg={svg} track={track} events={lensEvents} title={drawingTitle} isMonochrome={scene?.palette.kind === "line"} />
+      <RideVideoButton svg={svg} track={track} events={lensEvents} title={drawingTitle} isMonochrome={scene?.palette.kind === "line"} sceneryKind={scene?.palette.kind ?? null} />
       <ShareLinkPanel ride={shareable} />
       <RideTogetherInvite mine={shareable} />
       {report && <LifeReportPanel report={report} isSample={isSample} />}
       <LifeStatsPanel events={happened} />
-      <p className="text-sm text-muted">{CREATIVE_NOTE}</p>
+      <p className="text-sm text-muted">{t("ride.creativeNote")}</p>
     </section>
   );
 }

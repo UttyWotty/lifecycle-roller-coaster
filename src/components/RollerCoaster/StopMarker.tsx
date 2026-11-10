@@ -4,9 +4,13 @@
  * Illustrated themes use their own art, and the Simple theme draws a dot or an open station.
  */
 import type { CSSProperties, KeyboardEvent, ReactElement } from "react";
+import { useLocale, useT } from "@/components/I18n/useLocale";
 import { SceneStopArt } from "@/components/Scene/SceneStopArt";
 import { EXPORT_HIDDEN_ATTRIBUTE } from "@/lib/export/rideImage";
-import { markerRadius, UNKNOWN_DATE } from "@/lib/scene/labelLayout";
+import type { EventSentiment } from "@/lib/events/schema";
+import type { MessageKey } from "@/lib/i18n/messages";
+import { markerRadius } from "@/lib/scene/labelLayout";
+import { shownDate } from "@/lib/track/labelWidth";
 import type { ScenePalette } from "@/lib/scene/themes";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
 import type { TrackStop } from "@/lib/track/types";
@@ -33,7 +37,13 @@ const DATE_LINE_GAP = 17;
 const LABEL_HALO_WIDTH = 6;
 const ACTIVATION_KEYS = ["Enter", " "];
 const FUTURE_OPACITY = 0.8;
-const FUTURE_NAME = "still to come";
+/** How each feeling is read out in a stop's accessible name. */
+const FEELING_NAMES: Readonly<Record<EventSentiment, MessageKey>> = {
+  positive: "ride.feelingPositive",
+  negative: "ride.feelingNegative",
+  neutral: "ride.feelingNeutral",
+};
+const NO_SUFFIX = "";
 
 /** Paints a background-coloured outline behind text, so nothing runs through a label. */
 export const LABEL_HALO = {
@@ -48,7 +58,9 @@ export function StopMarker(props: StopMarkerProps): ReactElement {
   const radius = markerRadius(stop);
   const isAbove = stop.labelSide === "above";
   const titleY = isAbove ? stop.y - radius - LABEL_GAP : stop.y + radius + LABEL_GAP;
-  const date = stop.date ?? UNKNOWN_DATE;
+  const t = useT();
+  const locale = useLocale();
+  const date = shownDate(stop.date, locale);
   const color = CATEGORY_COLORS[stop.category];
 
   function handleKeyDown(event: KeyboardEvent<SVGGElement>): void {
@@ -61,7 +73,13 @@ export function StopMarker(props: StopMarkerProps): ReactElement {
   const interactiveProps = onSelect && {
     role: "button",
     tabIndex: 0,
-    "aria-label": `${stop.title}, ${date}${isFuture ? `, ${FUTURE_NAME}` : ""}, ${stop.sentiment}, impact ${stop.impact}`,
+    "aria-label": t("ride.stopLabel", {
+      title: stop.title,
+      date,
+      future: isFuture ? t("ride.stillToCome") : NO_SUFFIX,
+      feeling: t(FEELING_NAMES[stop.sentiment]),
+      impact: stop.impact,
+    }),
     "aria-pressed": isSelected,
     onClick: onSelect,
     onKeyDown: handleKeyDown,

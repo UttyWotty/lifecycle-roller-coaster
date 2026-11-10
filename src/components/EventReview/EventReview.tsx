@@ -16,6 +16,7 @@ import {
   sortEventsByDate,
   updateEvent,
 } from "@/lib/events/editing";
+import { useT } from "@/components/I18n/useLocale";
 import { ReadingNotes } from "@/components/RideFlow/ReadingNotes";
 import type { LifeEvent } from "@/lib/events/schema";
 import { EventCard } from "./EventCard";
@@ -36,12 +37,10 @@ interface RemovedEvent {
   index: number;
 }
 
-const NO_EVENTS_MESSAGE = "No events yet. Add what happened and roughly when.";
-const UNTITLED = "Untitled event";
-
 export function EventReview(props: EventReviewProps): ReactElement {
   const { events, clarifications, isDemo, isSample, onEventsChange, onBack, onContinue } = props;
   const [removed, setRemoved] = useState<RemovedEvent | null>(null);
+  const t = useT();
   const heading = useRef<HTMLHeadingElement>(null);
   const invalidFields = findInvalidFields(events);
   const invalidCount = Object.keys(invalidFields).length;
@@ -62,15 +61,15 @@ export function EventReview(props: EventReviewProps): ReactElement {
     <section className="mx-auto flex w-full max-w-2xl flex-col gap-6 wrap-anywhere">
       <header className="flex flex-col gap-3">
         <h1 ref={heading} tabIndex={-1} className="text-3xl font-bold outline-none">
-          Review your events
+          {t("review.heading")}
         </h1>
-        <p>This step is optional. Change anything that does not feel right.</p>
+        <p>{t("review.intro")}</p>
         <button type="button" onClick={onBack} className={`${SECONDARY_BUTTON_CLASS} self-start`}>
-          Back to my story
+          {t("review.backToStory")}
         </button>
       </header>
       <ReadingNotes isDemo={isDemo} isSample={isSample} clarifications={clarifications} />
-      {events.length === 0 && <p>{NO_EVENTS_MESSAGE}</p>}
+      {events.length === 0 && <p>{t("review.noEvents")}</p>}
       <ol className="flex flex-col gap-4">
         {events.map((event, index) => (
           <EventCard
@@ -92,14 +91,14 @@ export function EventReview(props: EventReviewProps): ReactElement {
           onClick={() => onEventsChange(addBlankEvent(events))}
           className={SECONDARY_BUTTON_CLASS}
         >
-          Add an event
+          {t("review.addEvent")}
         </button>
         <button
           type="button"
           onClick={() => onEventsChange(sortEventsByDate(events))}
           className={SECONDARY_BUTTON_CLASS}
         >
-          Sort by date
+          {t("review.sortByDate")}
         </button>
       </div>
       <button
@@ -108,20 +107,20 @@ export function EventReview(props: EventReviewProps): ReactElement {
         onClick={onContinue}
         className="min-h-11 self-start rounded-full bg-accent px-6 py-2 font-semibold text-on-accent disabled:opacity-50"
       >
-        See my ride
+        {t("review.seeRide")}
       </button>
       <div role="status" className="flex flex-wrap items-center gap-2 text-sm">
-        {removed && <span>Removed {removed.event.title || UNTITLED}.</span>}
+        {removed && <span>{t("review.removed", { title: removed.event.title || t("review.untitled") })}</span>}
         {removed && (
           <button
             type="button"
             onClick={() => handleUndo(removed)}
             className={SECONDARY_BUTTON_CLASS}
           >
-            Undo
+            {t("review.undo")}
           </button>
         )}
-        {invalidCount > 0 && <span>Fix the highlighted fields in {invalidCount} of your events.</span>}
+        {invalidCount > 0 && <span>{t("review.fixFields", { count: invalidCount })}</span>}
       </div>
     </section>
   );

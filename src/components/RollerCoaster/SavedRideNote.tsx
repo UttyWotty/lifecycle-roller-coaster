@@ -7,34 +7,33 @@
 
 import { useState, type ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { useT } from "@/components/I18n/useLocale";
 
 interface SavedRideNoteProps {
   onStartOver: () => void;
 }
 
-const SAVED_NOTE = "Your ride is saved on this device only, so it is here when you come back. Your story text is not kept.";
-const CONFIRM_QUESTION = "Delete this ride from this device and start a new one?";
-
 export function SavedRideNote({ onStartOver }: SavedRideNoteProps): ReactElement {
   const [isConfirming, setIsConfirming] = useState(false);
+  const t = useT();
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm">
       {isConfirming ? (
         <>
-          <p>{CONFIRM_QUESTION}</p>
+          <p>{t("myRides.confirmStartOver")}</p>
           <button type="button" onClick={onStartOver} className={SECONDARY_BUTTON_CLASS}>
-            Yes, start over
+            {t("myRides.yesStartOver")}
           </button>
           <button type="button" onClick={() => setIsConfirming(false)} className={SECONDARY_BUTTON_CLASS}>
-            Keep my ride
+            {t("myRides.keepRide")}
           </button>
         </>
       ) : (
         <>
-          <p className="text-muted">{SAVED_NOTE}</p>
+          <p className="text-muted">{t("myRides.savedNote")}</p>
           <button type="button" onClick={() => setIsConfirming(true)} className={SECONDARY_BUTTON_CLASS}>
-            Start over
+            {t("myRides.startOver")}
           </button>
         </>
       )}

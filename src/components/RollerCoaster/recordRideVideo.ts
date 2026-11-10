@@ -1,11 +1,14 @@
 /**
  * Browser recorder for the ride video: it paints each frame to a canvas and records it with the ride sounds.
- * The drawing and cart come from the ride on screen in the export palette, and the timing reuses Ride it's timeline.
+ * The drawing and cart come from the ride on screen in the export palette, and the timing reuses Ride it's timeline;
+ * the theme music plays under it when the user has Music on.
  * Everything stays on the device until the user shares the file, and a cancel stops the recording at once.
  */
 import { EXPORT_HIDDEN_ATTRIBUTE, applyExportPalette } from "@/lib/export/rideImage";
 import { buildTimeline, poseAt, positionAt, type RailSample, type Timeline } from "@/lib/ride/ridePlayback";
 import { FINISH_CUE, cueForStep, stepIndexAt, stepsToSound, type SoundCue } from "@/lib/ride/rideSounds";
+import type { Locale } from "@/lib/i18n/locales";
+import type { Tune } from "@/lib/music/themeTunes";
 import { pastStops } from "@/lib/track/futureStops";
 import type { Track } from "@/lib/track/types";
 import {
@@ -23,6 +26,7 @@ import {
 } from "@/lib/video/rideVideo";
 import { SVG_DATA_PREFIX, loadImage } from "./downloadRideImage";
 import { railPathOf, railSamples } from "./measureRail";
+import { createMusicPlayer } from "./musicPlayer";
 import { createRideSoundPlayer, type RideSoundPlayer } from "./rideSoundPlayer";
 import { CART_BOX, drawFrame, type FrameAssets } from "./videoFrame";
 
@@ -42,6 +46,10 @@ export interface RideVideoInput {
   isMonochrome: boolean;
   /** Rolls through every stop without pausing, as Ride it does with Non-stop on. */
   isNonStop: boolean;
+  /** The theme's tune to play under the video, or null without music. */
+  music: Tune | null;
+  /** The language of the video's captions and cards. */
+  locale: Locale;
   onProgress: (share: number) => void;
   signal: AbortSignal;
 }
@@ -164,8 +172,8 @@ function recordFrames(
       const caption =
         stop === null || position.stopIndex === null
           ? null
-          : stopCaption({ ...stop, title: input.titles.get(stop.id) ?? stop.title }, position.stopIndex, stops.length);
-      drawFrame(context, assets, { phase, pose: poseAt(samples, position.length), caption, title: input.title, host });
+          : stopCaption({ ...stop, title: input.titles.get(stop.id) ?? stop.title }, position.stopIndex, stops.length, input.locale);
+      drawFrame(context, assets, { phase, pose: poseAt(samples, position.length), caption, title: input.title, host, locale: input.locale });
       input.onProgress(Math.min(seconds / total, 1));
       if (seconds >= total) {
         resolve();
@@ -184,8 +192,11 @@ export async function recordRideVideo(input: RideVideoInput): Promise<RideVideo>
     throw new RideVideoError("unsupported");
   }
   const audioContext = new AudioContext();
+  /** Some phones start a new audio context asleep; this call comes from the click, so it is allowed to wake it. */
+  void audioContext.resume();
   const destination = audioContext.createMediaStreamDestination();
   const audio = { context: audioContext, player: createRideSoundPlayer(audioContext, destination) };
+  const musicPlayer = createMusicPlayer(audioContext, destination);
   const canvas = document.createElement("canvas");
   canvas.width = VIDEO_WIDTH;
   canvas.height = VIDEO_HEIGHT;
@@ -197,6 +208,9 @@ export async function recordRideVideo(input: RideVideoInput): Promise<RideVideo>
     recorder.ondataavailable = (event) => chunks.push(event.data);
     const stopped = new Promise<void>((resolve) => (recorder.onstop = () => resolve()));
     recorder.start(CHUNK_MS);
+    if (input.music !== null) {
+      musicPlayer.play(input.music);
+    }
     try {
       await recordFrames(input, assets, canvas, audio);
     } finally {
@@ -208,6 +222,7 @@ export async function recordRideVideo(input: RideVideoInput): Promise<RideVideo>
     throw error instanceof RideVideoError ? error : new RideVideoError("failed");
   } finally {
     audio.player.stop();
+    musicPlayer.stop();
     stream.getTracks().forEach((track) => track.stop());
     void audioContext.close();
   }

@@ -4,6 +4,7 @@
  * The review stage and the ride stage share these controls.
  */
 import type { ReactElement } from "react";
+import { useT } from "@/components/I18n/useLocale";
 import type { EventPatch } from "@/lib/events/editing";
 import {
   EVENT_SENTIMENTS,
@@ -12,7 +13,7 @@ import {
   type EventSentiment,
   type LifeEvent,
 } from "@/lib/events/schema";
-import { FIELD_CLASS, LABEL_CLASS, toLabel } from "./fieldStyles";
+import { FIELD_CLASS, LABEL_CLASS } from "./fieldStyles";
 
 interface IntensityFieldsProps {
   event: LifeEvent;
@@ -20,10 +21,11 @@ interface IntensityFieldsProps {
 }
 
 export function IntensityFields({ event, onChange }: IntensityFieldsProps): ReactElement {
+  const t = useT();
   return (
     <>
       <label className={LABEL_CLASS}>
-        How it felt
+        {t("review.feelingLabel")}
         <select
           value={event.sentiment}
           onChange={({ target }) => onChange({ sentiment: target.value as EventSentiment })}
@@ -31,13 +33,13 @@ export function IntensityFields({ event, onChange }: IntensityFieldsProps): Reac
         >
           {EVENT_SENTIMENTS.map((sentiment) => (
             <option key={sentiment} value={sentiment}>
-              {toLabel(sentiment)}
+              {t(`events.${sentiment}`)}
             </option>
           ))}
         </select>
       </label>
       <label className={LABEL_CLASS}>
-        Impact: {event.impact} of {IMPACT_MAX}
+        {t("review.impactLabel", { impact: event.impact, max: IMPACT_MAX })}
         <input
           type="range"
           min={IMPACT_MIN}

@@ -1,7 +1,7 @@
 /**
- * Ride together: two people's rides on one timeline, read from the link and shown side by side in time.
- * Both rides share a style and theme the viewer can change, keep their own riders, and can be ridden together.
- * A link that is broken or not a pair shows a friendly message, and nothing from the link is saved.
+ * Ride together: two to four people's rides on one timeline, read from the link and shown side by side in time.
+ * The rides share a style and theme the viewer can change, keep their own riders, and can be ridden together.
+ * A link that is broken or not a group of rides shows a friendly message, and nothing from the link is saved.
  */
 "use client";
 
@@ -13,7 +13,9 @@ import type { RideTheme } from "@/lib/scene/themes";
 import type { SharedRide } from "@/lib/share/sharedRide";
 import { sharedMoments } from "@/lib/together/alignRides";
 import { composeTogether, type TogetherStyle } from "@/lib/together/composeTogether";
+import { namesInWords } from "@/lib/together/names";
 import { decodeTogether } from "@/lib/together/togetherLink";
+import { AddRideToGroup } from "./TogetherEntry";
 import { TogetherDrawings } from "./TogetherDrawings";
 import { TogetherPanel } from "./TogetherPanel";
 import { TogetherShare } from "./TogetherShare";
@@ -23,7 +25,7 @@ const STYLES: readonly { id: TogetherStyle; name: string }[] = [
   { id: "coaster", name: "Coaster" },
   { id: "loops", name: "Loop-the-loops" },
 ];
-const FALLBACK_NAMES = ["First ride", "Second ride"] as const;
+const FALLBACK_NAMES = ["First ride", "Second ride", "Third ride", "Fourth ride"] as const;
 const PRIMARY_LINK_CLASS = "inline-flex min-h-11 items-center rounded-full bg-accent px-6 py-2 font-semibold text-on-accent";
 const NO_FRAGMENT = "";
 
@@ -49,24 +51,29 @@ function MakeYourOwn(): ReactElement {
   );
 }
 
-function TogetherContent({ a, b }: { a: SharedRide; b: SharedRide }): ReactElement {
-  const [style, setStyle] = useState<TogetherStyle>(startingStyle(a));
-  const [theme, setTheme] = useState<RideTheme>(a.theme);
+function TogetherContent({ shared: rideList }: { shared: readonly SharedRide[] }): ReactElement {
+  const [first] = rideList;
+  const [style, setStyle] = useState<TogetherStyle>(startingStyle(first));
+  const [theme, setTheme] = useState<RideTheme>(first.theme);
   const scroller = useRef<HTMLDivElement>(null);
   const drawing = useRef<HTMLDivElement>(null);
-  const { aligned, rides } = useMemo(() => composeTogether([a, b], style, theme), [a, b, style, theme]);
-  const names = [a.title.trim() || FALLBACK_NAMES[0], b.title.trim() || FALLBACK_NAMES[1]] as const;
-  const playback = useTogetherPlayback({ tracks: [rides[0].track, rides[1].track], columns: aligned.columns, scroller, drawing });
+  const { aligned, rides } = useMemo(() => composeTogether(rideList, style, theme), [rideList, style, theme]);
+  const names = rideList.map((ride, index) => ride.title.trim() || FALLBACK_NAMES[index]);
+  const tracks = useMemo(() => rides.map(({ track }) => track), [rides]);
+  const playback = useTogetherPlayback({ tracks, columns: aligned.columns, scroller, drawing });
   const column = playback.columnIndex === null ? null : aligned.columns[playback.columnIndex];
-  const eventA = column?.a == null ? null : a.events[column.a];
-  const eventB = column?.b == null ? null : b.events[column.b];
+  const moments = rideList.map((ride, index) => {
+    const entry = column?.entries[index] ?? null;
+    return entry === null ? null : ride.events[entry];
+  });
   const shared = sharedMoments(aligned.columns);
+  const sharedHeading = rideList.length === 2 ? "The same year, two stories" : "The same year, more than one story";
 
   return (
     <section className="flex flex-col gap-4">
       <h1 className="text-3xl font-bold">Riding together</h1>
       <p className="wrap-anywhere text-lg">
-        {names[0]} and {names[1]}, with the same years lined up.
+        {namesInWords(names)}, with the same years lined up.
       </p>
       <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:gap-4">
         <fieldset className="min-w-0 lg:shrink-0">
@@ -91,7 +98,7 @@ function TogetherContent({ a, b }: { a: SharedRide; b: SharedRide }): ReactEleme
       <TogetherDrawings
         rides={rides}
         names={names}
-        highlighted={[eventA?.id ?? null, eventB?.id ?? null]}
+        highlighted={moments.map((event) => event?.id ?? null)}
         isRiding={playback.status !== null}
         cartRefs={playback.cartRefs}
         scroller={scroller}
@@ -111,8 +118,9 @@ function TogetherContent({ a, b }: { a: SharedRide; b: SharedRide }): ReactEleme
         <TogetherPanel
           status={playback.status}
           date={column?.date ?? null}
-          moments={column ? [{ name: names[0], event: eventA }, { name: names[1], event: eventB }] : null}
+          moments={column ? names.map((name, index) => ({ name, event: moments[index] })) : null}
           sharedYears={shared.length}
+          rideCount={rideList.length}
           onTogglePause={playback.togglePause}
           onNext={playback.next}
           onBack={playback.back}
@@ -120,17 +128,19 @@ function TogetherContent({ a, b }: { a: SharedRide; b: SharedRide }): ReactEleme
         />
       )}
       {shared.length > 0 && (
-        <section aria-label="The same year, two stories" className="flex flex-col gap-2">
-          <h2 className="text-xl font-semibold">The same year, two stories</h2>
+        <section aria-label={sharedHeading} className="flex flex-col gap-2">
+          <h2 className="text-xl font-semibold">{sharedHeading}</h2>
           <ul className="flex flex-col gap-1">
             {shared.map((entry) => (
               <li key={entry.x} className="wrap-anywhere">
-                <span className="font-semibold">{entry.date}:</span> {a.events[entry.a ?? 0].title} / {b.events[entry.b ?? 0].title}
+                <span className="font-semibold">{entry.date}:</span>{" "}
+                {entry.entries.flatMap((index, ride) => (index === null ? [] : [rideList[ride].events[index].title])).join(" / ")}
               </li>
             ))}
           </ul>
         </section>
       )}
+      <AddRideToGroup rides={rideList} />
       <TogetherShare names={names} />
       <MakeYourOwn />
     </section>
@@ -139,8 +149,8 @@ function TogetherContent({ a, b }: { a: SharedRide; b: SharedRide }): ReactEleme
 
 export function TogetherView(): ReactElement {
   const fragment = useSyncExternalStore(subscribeToHash, () => window.location.hash, () => NO_FRAGMENT);
-  const pair = useMemo(() => decodeTogether(fragment), [fragment]);
-  if (pair === null) {
+  const rides = useMemo(() => decodeTogether(fragment), [fragment]);
+  if (rides === null) {
     return (
       <section className="flex flex-col gap-4">
         <h1 className="text-3xl font-bold">This ride together does not work</h1>
@@ -149,5 +159,5 @@ export function TogetherView(): ReactElement {
       </section>
     );
   }
-  return <TogetherContent key={fragment} a={pair.a} b={pair.b} />;
+  return <TogetherContent key={fragment} shared={rides} />;
 }

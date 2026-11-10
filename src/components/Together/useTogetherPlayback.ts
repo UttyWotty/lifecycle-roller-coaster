@@ -1,5 +1,5 @@
 /**
- * Browser side of Ride together: one clock moves both carts through time, side by side, and keeps them in view.
+ * Browser side of Ride together: one clock moves every cart through time, side by side, and keeps them in view.
  * The ride pauses at each column of the shared timeline, where the card shows what happened to each person, and each
  * cart follows its own rail by x, so it rides every loop. Carts and scrolling change directly in the DOM each frame;
  * React state changes only at a new column or status.
@@ -27,7 +27,8 @@ import type { PlaybackStatus } from "@/components/RollerCoaster/useRidePlayback"
 export interface TogetherPlayback {
   status: PlaybackStatus | null;
   columnIndex: number | null;
-  cartRefs: readonly [RefObject<SVGGElement | null>, RefObject<SVGGElement | null>];
+  /** One cart per ride, in ride order, with spare ones after the last ride. */
+  cartRefs: readonly RefObject<SVGGElement | null>[];
   start: () => void;
   togglePause: () => void;
   next: () => void;
@@ -36,7 +37,7 @@ export interface TogetherPlayback {
 }
 
 interface TogetherOptions {
-  tracks: readonly [Track, Track];
+  tracks: readonly Track[];
   columns: readonly TogetherColumn[];
   scroller: RefObject<HTMLElement | null>;
   drawing: RefObject<HTMLElement | null>;
@@ -58,8 +59,8 @@ interface CartRail {
 interface ActiveTogether {
   value: Timeline;
   startX: number;
-  tracks: readonly [Track, Track];
-  rails: readonly [CartRail, CartRail];
+  tracks: readonly Track[];
+  rails: readonly CartRail[];
 }
 
 function cartRail(track: Track): CartRail {
@@ -75,19 +76,22 @@ export function useTogetherPlayback({ tracks, columns, scroller, drawing }: Toge
   const [timeline, setTimeline] = useState<ActiveTogether | null>(null);
   const [status, setStatus] = useState<PlaybackStatus>("playing");
   const [columnIndex, setColumnIndex] = useState<number | null>(null);
-  const cartA = useRef<SVGGElement | null>(null);
-  const cartB = useRef<SVGGElement | null>(null);
+  const cart0 = useRef<SVGGElement | null>(null);
+  const cart1 = useRef<SVGGElement | null>(null);
+  const cart2 = useRef<SVGGElement | null>(null);
+  const cart3 = useRef<SVGGElement | null>(null);
+  /** Hooks cannot be called in a loop, so there is one ref for each ride a group can have; extra ones stay unused. */
+  const carts = [cart0, cart1, cart2, cart3];
   const elapsed = useRef(0);
   const shown = useRef(NO_COLUMN);
-  const isActive = timeline !== null && timeline.tracks[0] === tracks[0] && timeline.tracks[1] === tracks[1];
+  const isActive = timeline !== null && timeline.tracks.length === tracks.length && timeline.tracks.every((track, index) => track === tracks[index]);
 
   function render(active: ActiveTogether): boolean {
     const position = positionAt(active.value, elapsed.current);
     const x = active.startX + position.length;
-    [cartA, cartB].forEach((cart, index) => {
-      const { samples, anchors } = active.rails[index];
+    active.rails.forEach(({ samples, anchors }, index) => {
       const pose = poseAt(samples, lengthAtX(anchors, x));
-      cart.current?.setAttribute("transform", `translate(${pose.x} ${pose.y}) rotate(${pose.angle})`);
+      carts[index].current?.setAttribute("transform", `translate(${pose.x} ${pose.y}) rotate(${pose.angle})`);
     });
     const box = scroller.current;
     const width = drawing.current?.clientWidth ?? 0;
@@ -144,7 +148,7 @@ export function useTogetherPlayback({ tracks, columns, scroller, drawing }: Toge
     shown.current = NO_COLUMN;
     setColumnIndex(null);
     setStatus("playing");
-    setTimeline({ value, startX, tracks, rails: [cartRail(tracks[0]), cartRail(tracks[1])] });
+    setTimeline({ value, startX, tracks, rails: tracks.map(cartRail) });
     drawing.current?.scrollIntoView({ block: "nearest" });
   }
 
@@ -193,7 +197,7 @@ export function useTogetherPlayback({ tracks, columns, scroller, drawing }: Toge
   return {
     status: isActive ? status : null,
     columnIndex: isActive ? columnIndex : null,
-    cartRefs: [cartA, cartB],
+    cartRefs: carts,
     start,
     togglePause,
     next,

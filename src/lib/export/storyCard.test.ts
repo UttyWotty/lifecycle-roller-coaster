@@ -6,6 +6,7 @@
 import { describe, expect, it } from "vitest";
 import type { LifeEvent } from "@/lib/events/schema";
 import {
+  STORY_CONTENT_WIDTH,
   STORY_HEIGHT,
   STORY_WIDTH,
   UNNAMED_STORY_TITLE,
@@ -87,19 +88,19 @@ describe("storyLayout", () => {
 
 describe("titleLines", () => {
   it("uses a friendly title for an unnamed ride and wraps at spaces", () => {
-    expect(titleLines("  ", measure)).toEqual([UNNAMED_STORY_TITLE]);
-    expect(titleLines("Maya's Startup Rollercoaster", measure)).toEqual(["Maya's Startup", "Rollercoaster"]);
+    expect(titleLines("  ", measure, STORY_CONTENT_WIDTH)).toEqual([UNNAMED_STORY_TITLE]);
+    expect(titleLines("Maya's Startup Rollercoaster", measure, STORY_CONTENT_WIDTH)).toEqual(["Maya's Startup", "Rollercoaster"]);
   });
 
   it("keeps at most two lines and marks a cut title", () => {
-    const lines = titleLines("One two three four five six seven eight nine ten eleven twelve twelve thirteen fourteen fifteen", measure);
+    const lines = titleLines("One two three four five six seven eight nine ten eleven twelve twelve thirteen fourteen fifteen", measure, STORY_CONTENT_WIDTH);
     expect(lines).toHaveLength(2);
     expect(lines[1].endsWith("...")).toBe(true);
   });
 
   it("keeps wide, CJK and emoji titles inside the card", () => {
     for (const title of ["W".repeat(22), "我的人生过山车".repeat(4), "\u{1F600}".repeat(25), "Supercalifragilisticexpialidocious"]) {
-      const lines = titleLines(title, measure);
+      const lines = titleLines(title, measure, STORY_CONTENT_WIDTH);
       expect(lines.length).toBeLessThanOrEqual(2);
       for (const line of lines) {
         expect(measure(line)).toBeLessThanOrEqual(CARD_TEXT_WIDTH);
@@ -143,9 +144,34 @@ describe("buildStoryCard", () => {
 describe("titleLines with emoji", () => {
   it("never splits an emoji, so the picture can always be encoded", () => {
     for (const title of ["\u{1F600}".repeat(25), "a\u{1F600}".repeat(12), `${"A".repeat(18)}\u{1F600}\u{1F600}`]) {
-      for (const line of titleLines(title, measure)) {
+      for (const line of titleLines(title, measure, STORY_CONTENT_WIDTH)) {
         expect(() => encodeURIComponent(line)).not.toThrow();
       }
     }
+  });
+});
+
+describe("the story picture in Turkish", () => {
+  it("words the years, the stops and an unnamed title in Turkish", () => {
+    expect(storySubtitle([event("2009"), event("2025-03"), event(null)], "tr")).toBe("2009–2025, 3 durak");
+    expect(storySubtitle([event("2020")], "tr")).toBe("2020, 1 durak");
+    expect(storySubtitle([event(null)], "tr")).toBe("1 durak");
+    expect(titleLines(" ", measure, STORY_CONTENT_WIDTH, "tr")).toEqual(["Hayatımın Hız Treni"]);
+  });
+
+  it("puts the Turkish footer and subtitle on the card", () => {
+    const card = buildStoryCard({
+      markup: RIDE_MARKUP,
+      drawing: drawing(3000, 10),
+      title: "",
+      events: [event("2010"), event("2020")],
+      host: "example.com",
+      measureTitle: measure,
+      locale: "tr",
+    });
+    expect(card).toContain("Kendi trenini yap: example.com");
+    expect(card).toContain("2010–2020, 2 durak");
+    expect(card).toContain("Hayatımın");
+    expect(card).not.toContain("Make your own ride");
   });
 });

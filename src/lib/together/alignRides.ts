@@ -1,28 +1,25 @@
 /**
- * Pure layout that lines two rides up on one timeline, so the same year sits at the same place in both.
- * It merges the two event lists into shared columns, keeping each list's own order, then spaces the columns by the
+ * Pure layout that lines two to four rides up on one timeline, so the same year sits at the same place in every ride.
+ * It merges the event lists into shared columns, keeping each list's own order, then spaces the columns by the
  * time between them and widens any gap that would let one ride's neighbouring labels run into each other.
- * The result gives each ride its stop positions and both rides one common width.
+ * The result gives each ride its stop positions and all rides one common width.
  */
 import type { LifeEvent } from "@/lib/events/schema";
 import { labelWidth } from "@/lib/track/labelWidth";
 import { shortenLabel } from "@/lib/track/buildTrack";
 import { dateGapShare, yearsBetween } from "@/lib/track/stopSpacing";
 
-export type RideSide = "a" | "b";
-
 export interface TogetherColumn {
   x: number;
-  /** Index of the first ride's event in this column, or null when it has none here. */
-  a: number | null;
-  b: number | null;
+  /** For each ride, the index of its event in this column, or null when it has none here. */
+  entries: (number | null)[];
   date: string | null;
 }
 
 export interface AlignedRides {
   columns: TogetherColumn[];
-  positionsA: number[];
-  positionsB: number[];
+  /** Each ride's stop positions, in its own event order. */
+  positions: number[][];
   /** The end of the last column; each drawing is made at least this wide plus its own lead-out. */
   lastX: number;
 }
@@ -35,44 +32,54 @@ export interface AlignOptions {
 
 /** Room between two labels of the same ride side by side. Labels sit above or below, so this is generous. */
 const LABEL_GAP = 16;
+/** A moment counts as shared when at least this many people have one in the same column. */
+const SHARED_PEOPLE = 2;
 
 type MergedColumn = Omit<TogetherColumn, "x">;
 
-function column(a: number | null, b: number | null, date: string | null): MergedColumn {
-  return { a, b, date };
+function only(count: number, ride: number, index: number, date: string | null): MergedColumn {
+  return { entries: Array.from({ length: count }, (_, side) => (side === ride ? index : null)), date };
+}
+
+/** The ride whose next dated event comes first, or null when none has a dated event next. */
+function earliest(nexts: readonly (LifeEvent | undefined)[]): number | null {
+  let best: number | null = null;
+  nexts.forEach((next, ride) => {
+    const bestDate = best === null ? null : (nexts[best]?.date ?? null);
+    if (next?.date != null && (bestDate === null || yearsBetween(bestDate, next.date) < 0)) {
+      best = ride;
+    }
+  });
+  return best;
 }
 
 /**
- * Walks both lists at once. Two dated events of the same time at their shared precision share a column; otherwise the
- * earlier one goes first. An undated event goes straight after the event before it in its own list.
+ * Walks every list at once. Dated events of the same time at their shared precision share a column; otherwise the
+ * earliest goes first. An undated event goes straight after the event before it in its own list.
  */
-export function mergeColumns(a: readonly LifeEvent[], b: readonly LifeEvent[]): MergedColumn[] {
+export function mergeColumns(lists: readonly (readonly LifeEvent[])[]): MergedColumn[] {
   const columns: MergedColumn[] = [];
-  let i = 0;
-  let j = 0;
-  while (i < a.length || j < b.length) {
-    const nextA = a[i];
-    const nextB = b[j];
-    if (nextB === undefined || (nextA !== undefined && nextA.date === null)) {
-      columns.push(column(i, null, nextA.date));
-      i += 1;
-    } else if (nextA === undefined || nextB.date === null) {
-      columns.push(column(null, j, nextB.date));
-      j += 1;
-    } else if (nextA.date !== null) {
-      const years = yearsBetween(nextA.date, nextB.date);
-      if (years === 0) {
-        columns.push(column(i, j, nextA.date));
-        i += 1;
-        j += 1;
-      } else if (years > 0) {
-        columns.push(column(i, null, nextA.date));
-        i += 1;
-      } else {
-        columns.push(column(null, j, nextB.date));
-        j += 1;
-      }
+  const next = lists.map(() => 0);
+  while (lists.some((list, ride) => next[ride] < list.length)) {
+    const nexts = lists.map((list, ride) => list[next[ride]]);
+    const undated = nexts.findIndex((event) => event !== undefined && event.date === null);
+    if (undated !== -1) {
+      columns.push(only(lists.length, undated, next[undated], null));
+      next[undated] += 1;
+      continue;
     }
+    const first = earliest(nexts);
+    const date = first === null ? null : (nexts[first]?.date ?? null);
+    if (first === null || date === null) {
+      break;
+    }
+    const entries = nexts.map((event, ride) => (event?.date != null && yearsBetween(date, event.date) === 0 ? next[ride] : null));
+    entries.forEach((entry, ride) => {
+      if (entry !== null) {
+        next[ride] += 1;
+      }
+    });
+    columns.push({ entries, date });
   }
   return columns;
 }
@@ -82,59 +89,41 @@ function widthOf(event: LifeEvent): number {
 }
 
 /** Places merged columns along the timeline. */
-function placeColumns(
-  merged: readonly MergedColumn[],
-  a: readonly LifeEvent[],
-  b: readonly LifeEvent[],
-  options: AlignOptions,
-): number[] {
+function placeColumns(merged: readonly MergedColumn[], lists: readonly (readonly LifeEvent[])[], options: AlignOptions): number[] {
   const xs: number[] = [];
-  const lastSeen: Record<RideSide, { x: number; width: number } | null> = { a: null, b: null };
+  const lastSeen: ({ x: number; width: number } | null)[] = lists.map(() => null);
   merged.forEach((current, index) => {
     const previous = merged[index - 1];
     let x =
       previous === undefined
         ? options.firstX
         : xs[index - 1] + options.spacing * dateGapShare(previous.date, current.date, options.minShare);
-    for (const [side, events, eventIndex] of [
-      ["a", a, current.a],
-      ["b", b, current.b],
-    ] as const) {
-      const seen = lastSeen[side];
-      if (eventIndex !== null && seen !== null) {
-        x = Math.max(x, seen.x + (seen.width + widthOf(events[eventIndex])) / 2 + LABEL_GAP);
+    current.entries.forEach((entry, ride) => {
+      const seen = lastSeen[ride];
+      if (entry !== null && seen !== null) {
+        x = Math.max(x, seen.x + (seen.width + widthOf(lists[ride][entry])) / 2 + LABEL_GAP);
       }
-    }
+    });
     x = Math.round(x);
     xs.push(x);
-    if (current.a !== null) {
-      lastSeen.a = { x, width: widthOf(a[current.a]) };
-    }
-    if (current.b !== null) {
-      lastSeen.b = { x, width: widthOf(b[current.b]) };
-    }
+    current.entries.forEach((entry, ride) => {
+      if (entry !== null) {
+        lastSeen[ride] = { x, width: widthOf(lists[ride][entry]) };
+      }
+    });
   });
   return xs;
 }
 
-export function alignRides(a: readonly LifeEvent[], b: readonly LifeEvent[], options: AlignOptions): AlignedRides {
-  const merged = mergeColumns(a, b);
-  const xs = placeColumns(merged, a, b, options);
+export function alignRides(lists: readonly (readonly LifeEvent[])[], options: AlignOptions): AlignedRides {
+  const merged = mergeColumns(lists);
+  const xs = placeColumns(merged, lists, options);
   const columns = merged.map((entry, index) => ({ ...entry, x: xs[index] }));
-  const positionsA: number[] = [];
-  const positionsB: number[] = [];
-  for (const entry of columns) {
-    if (entry.a !== null) {
-      positionsA.push(entry.x);
-    }
-    if (entry.b !== null) {
-      positionsB.push(entry.x);
-    }
-  }
-  return { columns, positionsA, positionsB, lastX: xs.at(-1) ?? options.firstX };
+  const positions = lists.map((_, ride) => columns.flatMap((column) => (column.entries[ride] === null ? [] : [column.x])));
+  return { columns, positions, lastX: xs.at(-1) ?? options.firstX };
 }
 
-/** Columns where both people have a moment: the same year, two stories. */
+/** Columns where at least two people have a moment: the same year, more than one story. */
 export function sharedMoments(columns: readonly TogetherColumn[]): TogetherColumn[] {
-  return columns.filter((entry) => entry.a !== null && entry.b !== null);
+  return columns.filter((column) => column.entries.filter((entry) => entry !== null).length >= SHARED_PEOPLE);
 }

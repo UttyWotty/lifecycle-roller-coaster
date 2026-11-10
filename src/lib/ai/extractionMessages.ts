@@ -1,32 +1,40 @@
 /**
- * Friendly messages for each way extraction can fail.
- * Error codes come from the server, and this module turns them into plain language.
+ * Friendly messages for each way extraction can fail, in the visitor's language.
+ * Error codes come from the server, and this module turns them into a message key the interface translates.
  * The module is pure, and unknown codes fall back to a general message.
  */
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locales";
+import { translate, type MessageKey } from "@/lib/i18n/messages";
 import type { ExtractErrorCode } from "./extractRequest";
 
-const FALLBACK_MESSAGE = "Something went wrong while reading your story. Please try again.";
+export const FALLBACK_MESSAGE_KEY: MessageKey = "story.errorFallback";
 
-const MESSAGES: Readonly<Record<ExtractErrorCode, string>> = {
-  refused:
-    "We could not turn this story into a ride. You did nothing wrong. Rewording it or leaving out a part may help.",
-  truncated: "This story has more events than we can read at once. Please try a shorter version.",
-  rate_limited: "The ride is very busy right now. Please try again in a minute.",
-  visitor_limit:
-    "You have made a lot of rides in a short time. Please take a break and try again later, or explore a sample life.",
-  daily_limit:
-    "Today's free story readings are used up. Please come back tomorrow, or explore a sample life in the meantime.",
-  forbidden: "This request looked automated, so it was blocked. Please reload the page and try again.",
-  not_configured: "The story reader is not set up on this server yet.",
-  provider_failed: FALLBACK_MESSAGE,
-  invalid_request: FALLBACK_MESSAGE,
-  payload_too_large: "This story is too long to send. Please shorten it and try again.",
-  unsupported_media_type: FALLBACK_MESSAGE,
+/** Shown when the browser cannot reach the server at all. */
+export const NETWORK_MESSAGE_KEY: MessageKey = "story.errorNetwork";
+
+const MESSAGE_KEYS: Readonly<Record<ExtractErrorCode, MessageKey>> = {
+  refused: "story.errorRefused",
+  truncated: "story.errorTruncated",
+  rate_limited: "story.errorRateLimited",
+  visitor_limit: "story.errorVisitorLimit",
+  daily_limit: "story.errorDailyLimit",
+  forbidden: "story.errorForbidden",
+  not_configured: "story.errorNotConfigured",
+  provider_failed: FALLBACK_MESSAGE_KEY,
+  invalid_request: FALLBACK_MESSAGE_KEY,
+  payload_too_large: "story.errorTooLarge",
+  unsupported_media_type: FALLBACK_MESSAGE_KEY,
 };
 
-export function getExtractionMessage(code: unknown): string {
-  if (typeof code === "string" && Object.hasOwn(MESSAGES, code)) {
-    return MESSAGES[code as ExtractErrorCode];
+/** The message key for a server error code; anything that is not a known code gets the fallback. */
+export function getExtractionMessageKey(code: unknown): MessageKey {
+  if (typeof code === "string" && Object.hasOwn(MESSAGE_KEYS, code)) {
+    return MESSAGE_KEYS[code as ExtractErrorCode];
   }
-  return FALLBACK_MESSAGE;
+  return FALLBACK_MESSAGE_KEY;
+}
+
+/** The message for a server error code in one language; the locale defaults to English (DEFAULT_LOCALE). */
+export function getExtractionMessage(code: unknown, locale: Locale = DEFAULT_LOCALE): string {
+  return translate(locale, getExtractionMessageKey(code));
 }

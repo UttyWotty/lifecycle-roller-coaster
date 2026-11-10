@@ -1,0 +1,44 @@
+/**
+ * Turkish words for how a ride looks: the ride styles, the themes and their groups, and the characters.
+ * It must give every key the English file gives, which the message index checks when it is compiled.
+ * Keys follow the style, theme and rider ids, so a component can look a name up straight from a choice.
+ */
+import type { look as english } from "../en/look";
+
+export const look: Record<keyof typeof english, string> = {
+  styleLegend: "Tren biçimi",
+  themeLegend: "Tema",
+  riderLegend: "Karakterini seç",
+  coasterName: "Hız treni",
+  coasterDescription: "Klasik tren: güzel zamanlarda yukarı, zor zamanlarda aşağı.",
+  coasterDrawing: "Hız treni olarak hayatın",
+  loopsName: "Taklalı",
+  loopsDescription: "Daha sert inişler ve her büyük anda tam bir takla.",
+  loopsDrawing: "Taklalı bir hız treni olarak hayatın",
+  metroName: "Metro haritası",
+  metroDescription: "Hayatının her bölümü için bir hat; hepsi büyük anlarda buluşur.",
+  metroDrawing: "Metro haritası olarak hayatın",
+  groupArtModes: "Sanat modları",
+  groupWorlds: "Dünyalar",
+  groupScenes: "Sahneler",
+  classicTheme: "Klasik tren",
+  nightmareTheme: "Kâbus modu",
+  minimalTheme: "Minimal mod",
+  posterTheme: "Retro mod",
+  spaceTheme: "Uzay görevi",
+  oceanTheme: "Okyanus yolculuğu",
+  mountainTheme: "Dağ yürüyüşü",
+  arcadeTheme: "Atari bölümü",
+  sunnyTheme: "Güneşli gün",
+  sunsetTheme: "Altın gün batımı",
+  nightTheme: "Yıldızlı gece",
+  retroTheme: "Eski lunapark",
+  hauntedTheme: "Perili gece",
+  plainTheme: "Sade",
+  smileyRider: "Gülen yüz",
+  catRider: "Kedi",
+  robotRider: "Robot",
+  astronautRider: "Astronot",
+  dinoRider: "Dino",
+  ghostRider: "Hayalet",
+};

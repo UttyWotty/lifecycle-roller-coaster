@@ -1,18 +1,19 @@
 /**
  * React hook that tracks one extraction request at a time.
  * Starting or resetting cancels any request in flight, so a stale answer can never appear.
- * A successful result goes straight to the caller, which decides where it lives.
+ * A successful result goes straight to the caller, which decides where it lives; a failure keeps only a message key.
  */
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ExtractionResult } from "@/lib/ai/extraction";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { requestExtraction } from "./requestExtraction";
 
 export type ExtractionState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "error"; message: string };
+  | { status: "error"; messageKey: MessageKey };
 
 interface UseExtraction {
   state: ExtractionState;
@@ -45,7 +46,7 @@ export function useExtraction(): UseExtraction {
       setState(IDLE);
       onResult(outcome.result);
     } else {
-      setState({ status: "error", message: outcome.message });
+      setState({ status: "error", messageKey: outcome.messageKey });
     }
   }, []);
 
