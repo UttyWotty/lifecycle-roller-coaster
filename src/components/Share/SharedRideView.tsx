@@ -11,6 +11,8 @@ import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import { CategoryLegend } from "@/components/RollerCoaster/CategoryLegend";
 import { ExportButton } from "@/components/RollerCoaster/ExportButton";
 import { storyDrawingOf } from "@/components/RollerCoaster/storyImage";
+import { useToday } from "@/components/RollerCoaster/useToday";
+import { splitFuture } from "@/lib/track/futureStops";
 import { LifeStatsPanel } from "@/components/RollerCoaster/LifeStatsPanel";
 import { RideDrawing } from "@/components/RollerCoaster/RideDrawing";
 import { RideLookBar } from "@/components/RollerCoaster/RideLookBar";
@@ -52,9 +54,10 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
   const [fitToScreen, setFitToScreen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const svg = useRef<SVGSVGElement>(null);
+  const today = useToday();
   const { track, scene } = useMemo(
-    () => composeRide(ride.events, { style, theme, title: ride.title, rider: ride.rider, chapters: ride.chapters }),
-    [ride, style, theme],
+    () => composeRide(ride.events, { style, theme, title: ride.title, rider: ride.rider, chapters: ride.chapters, today }),
+    [ride, style, theme, today],
   );
   return (
     <section className="flex flex-col gap-4">
@@ -81,7 +84,7 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
         story={{ drawing: storyDrawingOf(track), title: ride.title, events: ride.events }}
         shareRide={{ ...ride, style, theme }}
       />
-      <LifeStatsPanel events={ride.events} />
+      <LifeStatsPanel events={splitFuture(ride.events, today).past} />
       <RideTogetherWithMine theirs={ride} />
       <MakeYourOwn />
     </section>

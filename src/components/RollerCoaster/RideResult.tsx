@@ -13,6 +13,7 @@ import type { LifeChapter, LifeReport } from "@/lib/events/insights";
 import type { LifeEvent } from "@/lib/events/schema";
 import { WHOLE_LIFE, applyLens, availableLenses } from "@/lib/lenses/rideLenses";
 import { composeRide } from "@/lib/scene/composeRide";
+import { splitFuture } from "@/lib/track/futureStops";
 import type { Rider } from "@/lib/scene/riders";
 import type { RideTheme } from "@/lib/scene/themes";
 import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
@@ -30,6 +31,7 @@ import { RideLookBar } from "./RideLookBar";
 import { RideDrawing } from "./RideDrawing";
 import { SavedRideNote } from "./SavedRideNote";
 import { StopDetails } from "./StopDetails";
+import { useToday } from "./useToday";
 
 interface RideResultProps {
   events: readonly LifeEvent[];
@@ -56,6 +58,8 @@ interface RideResultProps {
   onFitToScreenChange: (fitToScreen: boolean) => void;
   onEventsChange: (events: LifeEvent[]) => void;
   onEditEvents: () => void;
+  /** Adds a stop dated next year and opens it for editing, for something the user is looking forward to. */
+  onAddFutureStop: () => void;
   onBackToStory: () => void;
   onShowAnotherSample: () => void;
   onStartOver: () => void;
@@ -66,7 +70,7 @@ const CREATIVE_NOTE = "This ride is a creative picture of your story, not a meas
 
 export function RideResult(props: RideResultProps): ReactElement {
   const { events, clarifications, isDemo, isSample, isSavedOnDevice, title, rideStyle, rideTheme, chapters, report, rider, fitToScreen, rideLens, birthYear } = props;
-  const { onFitToScreenChange, onTitleChange, onRideStyleChange, onRideThemeChange, onRiderChange, onEventsChange, onEditEvents, onBackToStory, onShowAnotherSample, onStartOver, onRideLensChange, onBirthYearChange } = props;
+  const { onFitToScreenChange, onTitleChange, onRideStyleChange, onRideThemeChange, onRiderChange, onEventsChange, onEditEvents, onAddFutureStop, onBackToStory, onShowAnotherSample, onStartOver, onRideLensChange, onBirthYearChange } = props;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const svg = useRef<SVGSVGElement>(null);
@@ -79,10 +83,12 @@ export function RideResult(props: RideResultProps): ReactElement {
   /** A ride the user has not named takes its lens's title, ready for sharing. */
   const drawingTitle = title.trim() === "" && lens ? lens.title : title;
   const shareable = { title: drawingTitle, style: rideStyle, theme: rideTheme, rider, events: lensEvents, chapters };
+  const today = useToday();
   const { track, scene } = useMemo(
-    () => composeRide(lensEvents, { style: rideStyle, theme: rideTheme, title: drawingTitle, rider, chapters }),
-    [lensEvents, rideStyle, rideTheme, drawingTitle, rider, chapters],
+    () => composeRide(lensEvents, { style: rideStyle, theme: rideTheme, title: drawingTitle, rider, chapters, today }),
+    [lensEvents, rideStyle, rideTheme, drawingTitle, rider, chapters, today],
   );
+  const happened = useMemo(() => splitFuture(lensEvents, today).past, [lensEvents, today]);
   const hasCart = scene !== null && track.style !== "metro";
   const selected = events.find((event) => event.id === selectedId);
 
@@ -100,6 +106,9 @@ export function RideResult(props: RideResultProps): ReactElement {
           </button>
           <button type="button" onClick={onEditEvents} className={SECONDARY_BUTTON_CLASS}>
             Edit my events
+          </button>
+          <button type="button" onClick={onAddFutureStop} className={SECONDARY_BUTTON_CLASS}>
+            Add a future stop
           </button>
           {isSample && (
             <button type="button" onClick={onShowAnotherSample} className={SECONDARY_BUTTON_CLASS}>
@@ -162,7 +171,7 @@ export function RideResult(props: RideResultProps): ReactElement {
       <ShareLinkPanel ride={shareable} />
       <RideTogetherInvite mine={shareable} />
       {report && <LifeReportPanel report={report} isSample={isSample} />}
-      <LifeStatsPanel events={lensEvents} />
+      <LifeStatsPanel events={happened} />
       <p className="text-sm text-muted">{CREATIVE_NOTE}</p>
     </section>
   );

@@ -5,6 +5,7 @@
  */
 import type { LifeChapter } from "@/lib/events/insights";
 import type { LifeEvent } from "@/lib/events/schema";
+import { addFuture } from "@/lib/track/futureStops";
 import { addChapters } from "@/lib/track/rideChapters";
 import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
 import { addTitle } from "@/lib/track/rideTitle";
@@ -34,6 +35,8 @@ interface RideChoices {
   chapters?: readonly LifeChapter[];
   /** Stop positions decided elsewhere, such as two rides lined up on one timeline. Defaults to the style's own. */
   layout?: StopLayout | null;
+  /** Today as YYYY-MM-DD, which marks stops dated later as still to come. Defaults to null: nothing is marked. */
+  today?: string | null;
 }
 
 /** Sky kept clear above the track, so the tallest flag and its label always fit. */
@@ -55,7 +58,9 @@ function addHeadroom(track: Track, headroom: number): Track {
 
 export function composeRide(events: readonly LifeEvent[], choices: RideChoices): ComposedRide {
   const { palette } = RIDE_THEME_DETAILS[choices.theme];
-  const base = addChapters(RIDE_STYLE_DETAILS[choices.style].build(events, choices.layout ?? null), choices.chapters ?? []);
+  const built = RIDE_STYLE_DETAILS[choices.style].build(events, choices.layout ?? null);
+  const today = choices.today ?? null;
+  const base = addChapters(today === null ? built : addFuture(built, events, today), choices.chapters ?? []);
   if (palette === null) {
     return { track: addTitle(base, choices.title), scene: null };
   }

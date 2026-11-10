@@ -46,6 +46,7 @@ export function RideFlow({ startWithSample }: RideFlowProps): ReactElement {
         onFitToScreenChange={ride.setFitToScreen}
         onEventsChange={ride.setEvents}
         onEditEvents={() => ride.setStage("review")}
+        onAddFutureStop={ride.addFutureStop}
         onBackToStory={() => ride.setStage("story")}
         onShowAnotherSample={ride.showSample}
         onStartOver={ride.startOver}

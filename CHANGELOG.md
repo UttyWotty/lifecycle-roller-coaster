@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- Future stops: add something you are looking forward to with Add a future stop, or date any event after today. The track past a dashed TODAY line is softly veiled, future stops are drawn softer, the cart parks at today, Ride it ends there with a list of what is still to come, and statistics leave future stops out.
+
 - Ride sounds: turn on Sound for a click-clack up each climb, a whoosh down each drop, a chime at highs, a low note at lows and a fanfare at the finish, sized by how big each moment is. Off by default, remembered on the device, and made in the browser with no audio files.
 
 ## [0.12.0] - 2026-11-10
