@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Fixed
+
+- The TODAY sign is now a solid label like a stop's, so it reads over any scenery, and its dashed line shows in every theme, including the Space world.
+- An undated stop after a future stop no longer hides the future: undated stops at the end join what is still to come, in the drawing and in the statistics.
+- Ride videos keep the whole cart in view at the start, and the ending card's text fades in only once the drawing has faded away, so it never sits over faded labels.
+
 ## [0.13.1] - 2026-11-10
 
 ### Added

@@ -54,7 +54,12 @@ const ENDING_TITLE_FONT = `700 72px ${FONT_FAMILY}`;
 const ENDING_TEXT = "That was my ride.";
 const ENDING_LINK_FONT = `700 46px ${FONT_FAMILY}`;
 const ENDING_GAP = 90;
-const ENDING_VEIL = "rgba(255, 247, 237, 0.9)";
+/**
+ * The ending covers the drawing in three equal parts of its time: the card colour fades in until the drawing is hidden,
+ * then the text fades in over the clean card, then it holds. So the text never sits over faded stop labels.
+ */
+const ENDING_PARTS = 3;
+const TEXT_DELAY_PARTS = 1;
 const MONOCHROME = "grayscale(1)";
 const NO_FILTER = "none";
 const DEGREES_PER_HALF_TURN = 180;
@@ -106,10 +111,12 @@ function drawRide(context: CanvasRenderingContext2D, assets: FrameAssets, pose: 
 }
 
 function drawEnding(context: CanvasRenderingContext2D, state: FrameState, progress: number): void {
+  const share = (parts: number): number => Math.min(Math.max(progress * ENDING_PARTS - parts, 0), 1);
   context.save();
-  context.globalAlpha = Math.min(progress * HALF, 1);
-  context.fillStyle = ENDING_VEIL;
+  context.globalAlpha = share(0);
+  context.fillStyle = STORY_COLORS.card;
   context.fillRect(0, DRAWING_BAND_TOP, VIDEO_WIDTH, DRAWING_BAND_HEIGHT);
+  context.globalAlpha = share(TEXT_DELAY_PARTS);
   const middle = DRAWING_BAND_TOP + DRAWING_BAND_HEIGHT / HALF;
   centredText(context, ENDING_TEXT, middle - ENDING_GAP / HALF, ENDING_TITLE_FONT, STORY_COLORS.title);
   centredText(context, `Make yours at ${state.host}`, middle + ENDING_GAP, ENDING_LINK_FONT, STORY_COLORS.accent);

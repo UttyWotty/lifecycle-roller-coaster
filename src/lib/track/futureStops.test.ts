@@ -44,6 +44,33 @@ describe("futureFromIndex and splitFuture", () => {
     expect(futureFromIndex([event(0, "2030"), event(1, "2015")], TODAY)).toBeNull();
   });
 
+  it("lets undated stops among or after the future stops join the future", () => {
+    const undated = event(5, null);
+    expect(futureFromIndex([...LIFE, undated], TODAY)).toBe(3);
+    expect(futureFromIndex([event(0, "2015"), event(1, null), event(2, "2030"), event(3, null)], TODAY)).toBe(2);
+    expect(futureFromIndex([event(0, "2015"), event(1, null)], TODAY)).toBeNull();
+    expect(futureFromIndex([event(0, null), event(1, null)], TODAY)).toBeNull();
+    const { past, future } = splitFuture([...LIFE, undated], TODAY);
+    expect(past.map(({ id }) => id)).toEqual(["e0", "e1", "e2"]);
+    expect(future.map(({ id }) => id)).toEqual(["e3", "e4", "e5"]);
+  });
+
+  it("keeps past-only rides with undated stops in any position as all past, and agrees with splitFuture", () => {
+    const rides = [
+      [event(0, null), event(1, "2015")],
+      [event(0, "2015"), event(1, null), event(2, "2020")],
+      [event(0, null), event(1, "2030"), event(2, null), event(3, null)],
+      [event(0, "2030"), event(1, null), event(2, "2015")],
+    ];
+    expect(futureFromIndex(rides[0], TODAY)).toBeNull();
+    expect(splitFuture(rides[0], TODAY).future).toEqual([]);
+    expect(futureFromIndex(rides[1], TODAY)).toBeNull();
+    expect(splitFuture(rides[1], TODAY).past).toHaveLength(3);
+    expect(futureFromIndex(rides[2], TODAY)).toBe(1);
+    expect(splitFuture(rides[2], TODAY).future.map(({ id }) => id)).toEqual(["e1", "e2", "e3"]);
+    expect(futureFromIndex(rides[3], TODAY)).toBeNull();
+  });
+
   it("splits events into what happened and what is to come", () => {
     const { past, future } = splitFuture(LIFE, TODAY);
     expect(past.map(({ id }) => id)).toEqual(["e0", "e1", "e2"]);

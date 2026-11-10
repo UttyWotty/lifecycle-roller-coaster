@@ -44,8 +44,13 @@ describe("camera", () => {
 
   it("follows the cart and stays inside the drawing", () => {
     expect(cameraLeft(1500, drawing, scale)).toBeCloseTo(1500 - view * 0.4);
-    expect(cameraLeft(10, drawing, scale)).toBe(0);
+    expect(cameraLeft(200, drawing, scale)).toBe(0);
     expect(cameraLeft(2990, drawing, scale)).toBeCloseTo(3000 - view);
+  });
+
+  it("keeps a cart at the very start of the rail whole, looking a little past the drawing's left edge", () => {
+    expect(cameraLeft(10, drawing, scale)).toBe(-90);
+    expect(cameraLeft(150, drawing, scale)).toBe(0);
   });
 
   it("centres a drawing narrower than the frame", () => {
