@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **Download poster:** a print-ready A3 landscape poster of your ride, with its title, years and stops, the whole drawing and the wordmark, at about 290 dpi. It is made on your device like the other images.
+
 - **Music:** a new button next to Sound plays a short looping tune that suits your theme while Ride it plays, from a music box for the toy theme to a chiptune for the arcade world, quietly under the ride sounds. Every tune is original and made in your browser with no audio files. Ride videos include it when Music is on. It starts off and is remembered on this device.
 
 - **Narrate:** a new button next to Sound has your device's own voice read each stop's place, date and title as the cart reaches it during Ride it, and say when the ride ends. Nothing is downloaded or sent anywhere. It starts off and is remembered on this device; pausing or exiting stops the voice at once. Ride videos are not narrated, because browsers cannot record their own voice.
