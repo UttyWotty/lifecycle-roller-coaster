@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-10
+
 ### Added
 
 - **Languages:** a language picker in the footer, starting with Turkish. A Turkish browser gets Turkish automatically, and the choice is remembered on this device. The landing page, the story box, the event review, My rides and the ride screen are translated so far, including their errors and confirmations: Ride it, the look choices, lenses, statistics, the life report panel, the TODAY sign, export, video and share controls. Narrate speaks in the chosen language, and the story picture, the poster and the ride video carry their words in it too; the rest of the app follows. The AI already writes your events and report in the language of your story.
