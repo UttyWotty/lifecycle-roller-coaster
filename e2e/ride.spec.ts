@@ -379,6 +379,8 @@ test.describe("ride styles and titles", () => {
     await openRide(page);
     await page.getByRole("radio", { name: "Minimal Mode" }).check();
     await expect(page.getByRole("list", { name: "Marker colours" })).toHaveCount(0);
+    /** Labels are outlined tags, so a rail passing behind one never looks cut. */
+    await expect(rideStop(page, "Got married").locator("rect[rx]")).toHaveAttribute("stroke", "#111111");
     await rideStop(page, "Got married").click();
     await expect(page.getByRole("region", { name: "Selected stop" }).getByRole("heading")).toHaveText("Got married");
   });
