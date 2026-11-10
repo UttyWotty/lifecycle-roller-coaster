@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-10
+
 ### Added
 
 - Anonymous page-view counting on the live site with Vercel Web Analytics (free plan, no cookies). Addresses are cut down to the page before they are sent, so shared rides never leave the browser. It counts nothing in previews, local runs or tests.
