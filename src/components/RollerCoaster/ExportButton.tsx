@@ -1,5 +1,5 @@
 /**
- * Buttons that download the ride as an image, or share it.
+ * Buttons that download the ride as a wide image, or share it as a portrait story picture with a link to the ride.
  * They stay disabled while an image is being made, and explain the result.
  * The image is created on the user's device, and nothing is shared unless they choose to.
  */
@@ -7,16 +7,24 @@
 
 import { useState, type ReactElement, type RefObject } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
-import { downloadRideImage, shareRideImage, type ShareOutcome } from "./downloadRideImage";
+import { SHARED_RIDE_PATH } from "@/components/Share/ShareLinkPanel";
+import { encodeSharedRide, type SharedRideInput } from "@/lib/share/sharedRide";
+import { shareMessage } from "@/lib/share/shareTargets";
+import { downloadRideImage, shareImageFile, type ShareOutcome } from "./downloadRideImage";
+import { STORY_FILE_NAME, createStoryImage, type StoryPicture } from "./storyImage";
 
 interface ExportButtonProps {
   svg: RefObject<SVGSVGElement | null>;
   width: number;
   height: number;
+  story: StoryPicture;
+  /** The ride as its share link carries it, matching the drawing on screen. */
+  shareRide: SharedRideInput;
 }
 
 const FAILURE_MESSAGE = "We could not create your image. Please try again.";
-const PRIVACY_NOTE = "The image is created on your device. Nothing is shared unless you choose to.";
+const PRIVACY_NOTE =
+  "The image is created on your device. Nothing is shared unless you choose to. Share my ride sends a story-sized picture with a link to this ride; descriptions, the life report and your story are never in it.";
 const SHARE_MESSAGES: Readonly<Record<ShareOutcome, string>> = {
   shared: "",
   cancelled: "",
@@ -24,7 +32,7 @@ const SHARE_MESSAGES: Readonly<Record<ShareOutcome, string>> = {
   downloaded: "Sharing is not available here, so your image was downloaded instead.",
 };
 
-export function ExportButton({ svg, width, height }: ExportButtonProps): ReactElement {
+export function ExportButton({ svg, width, height, story, shareRide }: ExportButtonProps): ReactElement {
   const [isExporting, setIsExporting] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -49,7 +57,14 @@ export function ExportButton({ svg, width, height }: ExportButtonProps): ReactEl
   }
 
   async function handleShare(element: SVGSVGElement): Promise<string> {
-    return SHARE_MESSAGES[await shareRideImage(element, { width, height })];
+    const picture = await createStoryImage(element, story);
+    const link = `${window.location.origin}${SHARED_RIDE_PATH}#${encodeSharedRide(shareRide)}`;
+    const message = shareMessage(shareRide.title);
+    const outcome = await shareImageFile(picture, STORY_FILE_NAME, {
+      title: shareRide.title.trim() || message,
+      text: `${message} ${link}`,
+    });
+    return SHARE_MESSAGES[outcome];
   }
 
   return (

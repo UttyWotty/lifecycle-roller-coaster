@@ -50,7 +50,7 @@ Ride it lives in `RideDrawing`: `src/lib/ride/ridePlayback.ts` is the pure timel
 
 Ride together (`/together`) lines two shared rides up in time: `src/lib/together/alignRides.ts` merges both event lists into shared columns (same year at shared precision, each list's own order kept), the coaster generators accept a `StopLayout` of given positions and a minimum width, and `composeTogether` makes both drawings the same width; with a layout, each rail runs on to the shared end, so both carts finish together. Its playback runs one clock in x, and each cart follows its own measured rail through `railAnchors` and `lengthAtX`, so loops are ridden there too. The pair link is `a=<ride>&b=<ride>` in the fragment, with the share-link rules.
 
-Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites its markup with a fixed light palette, and `downloadRideImage.ts` converts it to PNG in the browser, so nothing is uploaded.
+Image export reuses the on-screen SVG. `src/lib/export/rideImage.ts` rewrites its markup with a fixed light palette, and `downloadRideImage.ts` converts it to PNG in the browser, so nothing is uploaded. Share my ride sends the story picture instead: `src/lib/export/storyCard.ts` lays out a 1080 by 1920 card from the same markup (title, years and stops, the drawing wrapped onto rows cut halfway between stops, at least three stops a row, the drawing's title strip left out) and `storyImage.ts` paints it, shared with the ride's link in the text.
 
 ## Event Data Model
 

@@ -1,0 +1,151 @@
+/**
+ * Tests for the story picture layout.
+ * They confirm long rides wrap onto rows cut between stops, every row fits the card, and short rides are not blown up.
+ * They also confirm the title, subtitle and footer text, and that user text cannot inject markup.
+ */
+import { describe, expect, it } from "vitest";
+import type { LifeEvent } from "@/lib/events/schema";
+import {
+  STORY_HEIGHT,
+  STORY_WIDTH,
+  UNNAMED_STORY_TITLE,
+  buildStoryCard,
+  storyLayout,
+  storyRows,
+  storySubtitle,
+  titleLines,
+  type StoryDrawing,
+} from "./storyCard";
+
+function drawing(width: number, stopCount: number): StoryDrawing {
+  const spacing = (width - 200) / Math.max(stopCount - 1, 1);
+  return { width, height: 600, titleBand: 72, stopXs: Array.from({ length: stopCount }, (_, i) => 100 + i * spacing) };
+}
+
+function event(date: string | null): LifeEvent {
+  return { id: `e_${date}`, date, title: "T", description: "", category: "career", sentiment: "positive", impact: 5, confidence: 1 };
+}
+
+/** A stand-in for the browser's text measuring: wide letters, emoji and CJK take more room than others. */
+const WIDE_FROM = 0x1100;
+const CARD_TEXT_WIDTH = STORY_WIDTH - 120;
+function measure(text: string): number {
+  return Array.from(text).reduce((width, character) => {
+    const code = character.codePointAt(0) ?? 0;
+    return width + (code >= WIDE_FROM ? 76 : character === "W" ? 72 : 40);
+  }, 0);
+}
+
+const RIDE_MARKUP = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 600"><rect id="sky"/></svg>';
+
+describe("storyRows", () => {
+  it("cuts halfway between neighbouring stops and covers the whole drawing", () => {
+    const long = drawing(3000, 10);
+    const rows = storyRows(long, 3);
+    expect(rows).toHaveLength(3);
+    expect(rows[0].fromX).toBe(0);
+    expect(rows.at(-1)?.toX).toBe(3000);
+    const midpoints = long.stopXs.slice(1).map((x, i) => (long.stopXs[i] + x) / 2);
+    for (const row of rows.slice(1)) {
+      expect(midpoints).toContain(row.fromX);
+    }
+    rows.slice(1).forEach((row, i) => expect(row.fromX).toBe(rows[i].toX));
+  });
+
+  it("makes fewer rows when there are not enough gaps between stops", () => {
+    expect(storyRows(drawing(3000, 2), 4)).toHaveLength(2);
+    expect(storyRows(drawing(3000, 1), 3)).toHaveLength(1);
+  });
+});
+
+describe("storyLayout", () => {
+  it("wraps a long ride onto several rows that fit the card", () => {
+    const long = drawing(4000, 14);
+    const { rows, scale } = storyLayout(long);
+    expect(rows.length).toBeGreaterThan(1);
+    for (const { fromX, toX } of rows) {
+      expect((toX - fromX) * scale).toBeLessThanOrEqual(STORY_WIDTH);
+    }
+    expect(rows.length * (long.height - long.titleBand) * scale).toBeLessThan(STORY_HEIGHT);
+  });
+
+  it("keeps at least three stops on every row", () => {
+    expect(storyLayout(drawing(1200, 4)).rows).toHaveLength(1);
+    const { rows } = storyLayout(drawing(4000, 14));
+    const long = drawing(4000, 14);
+    for (const { fromX, toX } of rows) {
+      expect(long.stopXs.filter((x) => x > fromX && x < toX).length).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it("keeps a short ride on one row without blowing it up", () => {
+    const { rows, scale } = storyLayout(drawing(500, 3));
+    expect(rows).toHaveLength(1);
+    expect(scale).toBeLessThanOrEqual(1.6);
+  });
+});
+
+describe("titleLines", () => {
+  it("uses a friendly title for an unnamed ride and wraps at spaces", () => {
+    expect(titleLines("  ", measure)).toEqual([UNNAMED_STORY_TITLE]);
+    expect(titleLines("Maya's Startup Rollercoaster", measure)).toEqual(["Maya's Startup", "Rollercoaster"]);
+  });
+
+  it("keeps at most two lines and marks a cut title", () => {
+    const lines = titleLines("One two three four five six seven eight nine ten eleven twelve twelve thirteen fourteen fifteen", measure);
+    expect(lines).toHaveLength(2);
+    expect(lines[1].endsWith("...")).toBe(true);
+  });
+
+  it("keeps wide, CJK and emoji titles inside the card", () => {
+    for (const title of ["W".repeat(22), "我的人生过山车".repeat(4), "\u{1F600}".repeat(25), "Supercalifragilisticexpialidocious"]) {
+      const lines = titleLines(title, measure);
+      expect(lines.length).toBeLessThanOrEqual(2);
+      for (const line of lines) {
+        expect(measure(line)).toBeLessThanOrEqual(CARD_TEXT_WIDTH);
+      }
+    }
+  });
+});
+
+describe("storySubtitle", () => {
+  it("names the years and the stops", () => {
+    expect(storySubtitle([event("2009"), event("2025-03"), event(null)])).toBe("2009 to 2025, 3 stops");
+    expect(storySubtitle([event("2020")])).toBe("2020, 1 stop");
+    expect(storySubtitle([event(null), event(null)])).toBe("2 stops");
+  });
+});
+
+describe("buildStoryCard", () => {
+  const card = buildStoryCard({
+    markup: RIDE_MARKUP,
+    drawing: drawing(3000, 10),
+    title: '<script>alert("x")</script> & co',
+    events: [event("2010"), event("2020")],
+    host: "example.com",
+    measureTitle: measure,
+  });
+
+  it("is a story-sized picture with the ride rows and the footer", () => {
+    expect(card).toContain(`width="${STORY_WIDTH}" height="${STORY_HEIGHT}"`);
+    expect(card.match(/id="sky"/g)?.length).toBeGreaterThan(1);
+    expect(card).toContain("Make your own ride at example.com");
+    expect(card).toContain("2010 to 2020, 2 stops");
+  });
+
+  it("escapes the title so it cannot add markup", () => {
+    expect(card).not.toContain("<script>");
+    expect(card).toContain("&lt;script&gt;");
+    expect(card).toContain("&amp;");
+  });
+});
+
+describe("titleLines with emoji", () => {
+  it("never splits an emoji, so the picture can always be encoded", () => {
+    for (const title of ["\u{1F600}".repeat(25), "a\u{1F600}".repeat(12), `${"A".repeat(18)}\u{1F600}\u{1F600}`]) {
+      for (const line of titleLines(title, measure)) {
+        expect(() => encodeURIComponent(line)).not.toThrow();
+      }
+    }
+  });
+});
