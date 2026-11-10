@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-11
+
 ### Fixed
 
 - The story picture no longer cuts a stop's label or a chapter name in half where a long ride wraps onto the next row, and a short ride sits centred on the card with its title, instead of between wide empty bands.
