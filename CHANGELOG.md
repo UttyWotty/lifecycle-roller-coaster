@@ -6,7 +6,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
-- **Languages:** a language picker in the footer, starting with Turkish. A Turkish browser gets Turkish automatically, and the choice is remembered on this device. The landing page is translated first; the rest of the app follows. The AI already writes your events and report in the language of your story.
+- **Languages:** a language picker in the footer, starting with Turkish. A Turkish browser gets Turkish automatically, and the choice is remembered on this device. The landing page, the story box, the event review and My rides are translated so far, including their errors and confirmations; the rest of the app follows. The AI already writes your events and report in the language of your story.
 
 - **Group rides:** Ride together now takes up to four rides. On a ride together, Add a friend's ride brings in another ride link; everyone's years line up, each ride gets its own cart, and the card names everyone's moment. Two-ride links work as before.
 
