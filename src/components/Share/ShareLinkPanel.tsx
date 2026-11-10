@@ -7,6 +7,7 @@
 
 import { useState, type ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { embedCode } from "@/lib/share/embedCode";
 import { encodeSharedRide, type SharedRideInput } from "@/lib/share/sharedRide";
 import { shareMessage, shareTargets } from "@/lib/share/shareTargets";
 
@@ -18,6 +19,7 @@ export const SHARED_RIDE_PATH = "/ride";
 const CONTENTS_NOTE =
   "Anyone with the link can see this ride: event titles, dates, how each felt and mattered, chapter names and the title. Descriptions, the life report and your story are never included, and the ride lives only in the link.";
 const COPIED = "Link copied. Paste it anywhere to share your ride.";
+const EMBED_COPIED = "Embed code copied. Paste it into your website or blog's HTML to show your ride there.";
 const COPY_FAILED = "Copying is blocked here. Select the link above and copy it.";
 
 function canUseShareSheet(): boolean {
@@ -29,17 +31,18 @@ export function ShareLinkPanel({ ride }: ShareLinkPanelProps): ReactElement {
   const [status, setStatus] = useState("");
   const message = shareMessage(ride.title);
   /** Rebuilt from the ride on screen every time, so later edits, lenses and titles are always in the link. */
-  const link = isOpen ? `${window.location.origin}${SHARED_RIDE_PATH}#${encodeSharedRide(ride)}` : null;
+  const fragment = isOpen ? encodeSharedRide(ride) : null;
+  const link = fragment === null ? null : `${window.location.origin}${SHARED_RIDE_PATH}#${fragment}`;
 
   function open(): void {
     setIsOpen(true);
     setStatus("");
   }
 
-  async function copy(url: string): Promise<void> {
+  async function copy(text: string, copied: string): Promise<void> {
     try {
-      await navigator.clipboard.writeText(url);
-      setStatus(COPIED);
+      await navigator.clipboard.writeText(text);
+      setStatus(copied);
     } catch {
       setStatus(COPY_FAILED);
     }
@@ -53,7 +56,7 @@ export function ShareLinkPanel({ ride }: ShareLinkPanelProps): ReactElement {
     }
   }
 
-  if (link === null) {
+  if (link === null || fragment === null) {
     return (
       <div>
         <button type="button" onClick={open} className={SECONDARY_BUTTON_CLASS}>
@@ -84,8 +87,15 @@ export function ShareLinkPanel({ ride }: ShareLinkPanelProps): ReactElement {
             Share...
           </button>
         )}
-        <button type="button" onClick={() => void copy(link)} className={SECONDARY_BUTTON_CLASS}>
+        <button type="button" onClick={() => void copy(link, COPIED)} className={SECONDARY_BUTTON_CLASS}>
           Copy link
+        </button>
+        <button
+          type="button"
+          onClick={() => void copy(embedCode(window.location.origin, fragment, ride.title), EMBED_COPIED)}
+          className={SECONDARY_BUTTON_CLASS}
+        >
+          Copy embed code
         </button>
         {shareTargets(link, message).map((target) => (
           <a
