@@ -1,6 +1,6 @@
 {
   "name": "lifecycle-roller-coaster",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -32,7 +32,7 @@
     "eslint": "^10",
     "eslint-config-next": "16.4.5",
     "tailwindcss": "^4",
-    "typescript": "^5",
+    "typescript": "^6",
     "vitest": "5.1.0"
   },
   "overrides": {
