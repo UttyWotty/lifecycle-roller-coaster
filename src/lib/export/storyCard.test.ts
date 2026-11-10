@@ -6,6 +6,7 @@
 import { describe, expect, it } from "vitest";
 import type { LifeEvent } from "@/lib/events/schema";
 import {
+  STORY_CONTENT_WIDTH,
   STORY_HEIGHT,
   STORY_WIDTH,
   UNNAMED_STORY_TITLE,
@@ -87,19 +88,19 @@ describe("storyLayout", () => {
 
 describe("titleLines", () => {
   it("uses a friendly title for an unnamed ride and wraps at spaces", () => {
-    expect(titleLines("  ", measure)).toEqual([UNNAMED_STORY_TITLE]);
-    expect(titleLines("Maya's Startup Rollercoaster", measure)).toEqual(["Maya's Startup", "Rollercoaster"]);
+    expect(titleLines("  ", measure, STORY_CONTENT_WIDTH)).toEqual([UNNAMED_STORY_TITLE]);
+    expect(titleLines("Maya's Startup Rollercoaster", measure, STORY_CONTENT_WIDTH)).toEqual(["Maya's Startup", "Rollercoaster"]);
   });
 
   it("keeps at most two lines and marks a cut title", () => {
-    const lines = titleLines("One two three four five six seven eight nine ten eleven twelve twelve thirteen fourteen fifteen", measure);
+    const lines = titleLines("One two three four five six seven eight nine ten eleven twelve twelve thirteen fourteen fifteen", measure, STORY_CONTENT_WIDTH);
     expect(lines).toHaveLength(2);
     expect(lines[1].endsWith("...")).toBe(true);
   });
 
   it("keeps wide, CJK and emoji titles inside the card", () => {
     for (const title of ["W".repeat(22), "我的人生过山车".repeat(4), "\u{1F600}".repeat(25), "Supercalifragilisticexpialidocious"]) {
-      const lines = titleLines(title, measure);
+      const lines = titleLines(title, measure, STORY_CONTENT_WIDTH);
       expect(lines.length).toBeLessThanOrEqual(2);
       for (const line of lines) {
         expect(measure(line)).toBeLessThanOrEqual(CARD_TEXT_WIDTH);
@@ -143,7 +144,7 @@ describe("buildStoryCard", () => {
 describe("titleLines with emoji", () => {
   it("never splits an emoji, so the picture can always be encoded", () => {
     for (const title of ["\u{1F600}".repeat(25), "a\u{1F600}".repeat(12), `${"A".repeat(18)}\u{1F600}\u{1F600}`]) {
-      for (const line of titleLines(title, measure)) {
+      for (const line of titleLines(title, measure, STORY_CONTENT_WIDTH)) {
         expect(() => encodeURIComponent(line)).not.toThrow();
       }
     }

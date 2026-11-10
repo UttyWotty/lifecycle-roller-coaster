@@ -1,5 +1,5 @@
 /**
- * Buttons that download the ride as a wide image, or share it as a portrait story picture with a link to the ride.
+ * Buttons that download the ride as a wide image or an A3 poster, or share it as a portrait story picture with a link to the ride.
  * They stay disabled while an image is being made, and explain the result.
  * The image is created on the user's device, and nothing is shared unless they choose to.
  */
@@ -10,7 +10,9 @@ import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import { SHARED_RIDE_PATH } from "@/components/Share/ShareLinkPanel";
 import { encodeSharedRide, type SharedRideInput } from "@/lib/share/sharedRide";
 import { shareMessage } from "@/lib/share/shareTargets";
-import { downloadRideImage, shareImageFile, type ShareOutcome } from "./downloadRideImage";
+import { POSTER_FILE_NAME } from "@/lib/export/poster";
+import { downloadRideImage, saveFile, shareImageFile, type ShareOutcome } from "./downloadRideImage";
+import { createPosterImage } from "./posterImage";
 import { STORY_FILE_NAME, createStoryImage, type StoryPicture } from "./storyImage";
 
 interface ExportButtonProps {
@@ -22,6 +24,7 @@ interface ExportButtonProps {
   shareRide: SharedRideInput;
 }
 
+const POSTER_SAVED = "Your poster was downloaded: A3 landscape, ready to print.";
 const FAILURE_MESSAGE = "We could not create your image. Please try again.";
 const PRIVACY_NOTE =
   "The image is created on your device. Nothing is shared unless you choose to. Share my ride sends a story-sized picture with a link to this ride; descriptions, the life report and your story are never in it.";
@@ -56,6 +59,11 @@ export function ExportButton({ svg, width, height, story, shareRide }: ExportBut
     return "";
   }
 
+  async function handlePoster(element: SVGSVGElement): Promise<string> {
+    saveFile(await createPosterImage(element, story), POSTER_FILE_NAME);
+    return POSTER_SAVED;
+  }
+
   async function handleShare(element: SVGSVGElement): Promise<string> {
     const picture = await createStoryImage(element, story);
     const link = `${window.location.origin}${SHARED_RIDE_PATH}#${encodeSharedRide(shareRide)}`;
@@ -85,6 +93,14 @@ export function ExportButton({ svg, width, height, story, shareRide }: ExportBut
           className={SECONDARY_BUTTON_CLASS}
         >
           Share my ride
+        </button>
+        <button
+          type="button"
+          disabled={isExporting}
+          onClick={() => void run(handlePoster)}
+          className={SECONDARY_BUTTON_CLASS}
+        >
+          Download poster
         </button>
       </div>
       <p className="text-sm text-muted">{PRIVACY_NOTE}</p>
