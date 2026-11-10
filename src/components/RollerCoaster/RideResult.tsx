@@ -17,7 +17,7 @@ import { splitFuture } from "@/lib/track/futureStops";
 import type { Rider } from "@/lib/scene/riders";
 import type { RideTheme } from "@/lib/scene/themes";
 import { RIDE_STYLE_DETAILS } from "@/lib/track/rideStyles";
-import type { RideStyle } from "@/lib/track/types";
+import { RIDE_STYLES, type RideStyle } from "@/lib/track/types";
 import { CategoryLegend } from "./CategoryLegend";
 import { ShareLinkPanel } from "@/components/Share/ShareLinkPanel";
 import { RideTogetherInvite } from "@/components/Together/TogetherEntry";
@@ -121,6 +121,7 @@ export function RideResult(props: RideResultProps): ReactElement {
       <ReadingNotes isDemo={isDemo} isSample={isSample} clarifications={clarifications} />
       <RideLookBar
         style={rideStyle}
+        styles={RIDE_STYLES}
         theme={rideTheme}
         onStyleChange={onRideStyleChange}
         onThemeChange={onRideThemeChange}
@@ -136,6 +137,7 @@ export function RideResult(props: RideResultProps): ReactElement {
         svgRef={svg}
         onSelect={setSelectedId}
         onFitToScreenChange={onFitToScreenChange}
+        curtain={null}
       />
       <RideLensPicker
         lenses={lenses}
