@@ -25,8 +25,10 @@ const SUBTITLE_SIZE = 40;
 const SUBTITLE_GAP = 70;
 const FOOTER_SIZE = 36;
 const FOOTER_BASELINE = STORY_HEIGHT - 90;
-const FONT_FAMILY = "Arial, Helvetica, sans-serif";
-const COLORS = { card: "#fff7ed", title: "#171717", muted: "#5b5b66", accent: "#e11d48" };
+export const FONT_FAMILY = "Arial, Helvetica, sans-serif";
+/** Card colours, shared with the ride video so both look like one brand. */
+export const STORY_COLORS = { card: "#fff7ed", title: "#171717", muted: "#5b5b66", accent: "#e11d48" };
+const COLORS = STORY_COLORS;
 export const UNNAMED_STORY_TITLE = "My Life Roller Coaster";
 const YEAR_DIGITS = 4;
 const ROOT_TAG = /^[\s\S]*?<svg\b[^>]*>/;
