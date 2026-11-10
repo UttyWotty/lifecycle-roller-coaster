@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **Languages:** a language picker in the footer, starting with Turkish. A Turkish browser gets Turkish automatically, and the choice is remembered on this device. The landing page is translated first; the rest of the app follows. The AI already writes your events and report in the language of your story.
+
 - **Group rides:** Ride together now takes up to four rides. On a ride together, Add a friend's ride brings in another ride link; everyone's years line up, each ride gets its own cart, and the card names everyone's moment. Two-ride links work as before.
 
 - **Embed your ride:** Copy embed code, in the share panel, gives a snippet to paste into a blog or website. It shows your ride there with Ride it, and links back to the full ride and to make your own, opening in a new tab. The ride lives only in the snippet's link, as with share links, and only the embed page may be shown inside other sites.
