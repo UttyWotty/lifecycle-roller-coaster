@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- Ride sounds: turn on Sound for a click-clack up each climb, a whoosh down each drop, a chime at highs, a low note at lows and a fanfare at the finish, sized by how big each moment is. Off by default, remembered on the device, and made in the browser with no audio files.
+
 ## [0.12.0] - 2026-11-10
 
 ### Added
