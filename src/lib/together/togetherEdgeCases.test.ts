@@ -30,9 +30,9 @@ const CASES: Record<string, [(string | null)[], (string | null)[]]> = {
 
 describe("ride together edge cases", () => {
   it.each(Object.entries(CASES))("%s lines up without losing or repeating an event", (_name, [datesA, datesB]) => {
-    const aligned = alignRides(ride(datesA, "a").events, ride(datesB, "b").events, OPTIONS);
-    expect(aligned.columns.flatMap((c) => (c.a === null ? [] : [c.a]))).toEqual(datesA.map((_, i) => i));
-    expect(aligned.columns.flatMap((c) => (c.b === null ? [] : [c.b]))).toEqual(datesB.map((_, i) => i));
+    const aligned = alignRides([ride(datesA, "a").events, ride(datesB, "b").events], OPTIONS);
+    expect(aligned.columns.flatMap((c) => (c.entries[0] === null ? [] : [c.entries[0]]))).toEqual(datesA.map((_, i) => i));
+    expect(aligned.columns.flatMap((c) => (c.entries[1] === null ? [] : [c.entries[1]]))).toEqual(datesB.map((_, i) => i));
     const xs = aligned.columns.map((c) => c.x);
     expect(xs.every((x, i) => i === 0 || x > xs[i - 1])).toBe(true);
     expect(xs.every(Number.isFinite)).toBe(true);
