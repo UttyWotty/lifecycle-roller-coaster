@@ -15,8 +15,7 @@ import { decodeSharedRide, type SharedRide, type SharedRideInput } from "@/lib/s
 import { MAX_TOGETHER_RIDES, encodeTogether } from "@/lib/together/togetherLink";
 
 const TOGETHER_PATH = "/together";
-const NO_SAVED_RIDE =
-  "Make your own ride first, on this device. Then open this link again and ride together.";
+const NO_MESSAGE = "";
 const FRAGMENT_START = "#";
 
 function togetherHref(rides: readonly SharedRideInput[]): string {
@@ -31,13 +30,14 @@ function rideFromLink(link: string): SharedRide | null {
 
 /** On a friend's shared ride: pairs it with the ride saved on this device. */
 export function RideTogetherWithMine({ theirs }: { theirs: SharedRideInput }): ReactElement {
+  const t = useT();
   const router = useRouter();
-  const [message, setMessage] = useState("");
+  const [hasNoSavedRide, setHasNoSavedRide] = useState(false);
 
   function start(): void {
     const saved = loadSavedRide();
     if (saved === null) {
-      setMessage(NO_SAVED_RIDE);
+      setHasNoSavedRide(true);
       return;
     }
     const mine = { title: saved.title, style: saved.style, theme: saved.theme, rider: saved.rider, events: saved.events, chapters: saved.chapters };
@@ -48,14 +48,14 @@ export function RideTogetherWithMine({ theirs }: { theirs: SharedRideInput }): R
     <div className="flex flex-col gap-2">
       <div>
         <button type="button" onClick={start} className={SECONDARY_BUTTON_CLASS}>
-          Ride together with my ride
+          {t("shared.togetherWithMine")}
         </button>
       </div>
       <p role="status" className="text-sm">
-        {message}{" "}
-        {message === NO_SAVED_RIDE && (
+        {hasNoSavedRide ? t("shared.noSavedRide") : NO_MESSAGE}{" "}
+        {hasNoSavedRide && (
           <Link href="/story" className="underline">
-            Make my ride
+            {t("shared.makeMyRide")}
           </Link>
         )}
       </p>
@@ -128,12 +128,12 @@ export function AddRideToGroup({ rides }: { rides: readonly SharedRide[] }): Rea
   }
 
   return (
-    <section aria-label="Add a friend's ride" className="flex flex-col gap-2 rounded-lg border border-muted p-4">
-      <h2 className="font-semibold">Add a friend&apos;s ride</h2>
-      <p className="text-sm">Ride with up to {MAX_TOGETHER_RIDES} people. Paste another ride link to add it to this group.</p>
+    <section aria-label={t("together.addHeading")} className="flex flex-col gap-2 rounded-lg border border-muted p-4">
+      <h2 className="font-semibold">{t("together.addHeading")}</h2>
+      <p className="text-sm">{t("together.addIntro", { max: MAX_TOGETHER_RIDES })}</p>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
         <label className={`${LABEL_CLASS} flex-1`}>
-          Another ride link
+          {t("together.addLink")}
           <input
             type="url"
             value={link}
@@ -146,7 +146,7 @@ export function AddRideToGroup({ rides }: { rides: readonly SharedRide[] }): Rea
           />
         </label>
         <button type="button" onClick={add} disabled={link.trim() === ""} className={SECONDARY_BUTTON_CLASS}>
-          Add to the ride
+          {t("together.addButton")}
         </button>
       </div>
       <p role="status" className="text-sm">

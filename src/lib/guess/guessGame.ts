@@ -4,6 +4,8 @@
  * It also says where the curtain over the unrevealed track begins, so the drawing never gives an answer away.
  */
 import type { EventSentiment, LifeEvent } from "@/lib/events/schema";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locales";
+import { translate, type MessageKey } from "@/lib/i18n/messages";
 import { RIDE_STYLES, type RideStyle, type TrackStop } from "@/lib/track/types";
 
 export type StopSize = "small" | "medium" | "big";
@@ -18,17 +20,11 @@ export interface GuessResult {
   isSizeRight: boolean;
 }
 
-export const FEELING_CHOICES: readonly { value: EventSentiment; name: string }[] = [
-  { value: "positive", name: "Good" },
-  { value: "negative", name: "Hard" },
-  { value: "neutral", name: "In between" },
-];
+/** The feelings a player picks from, in the order the buttons show them; components name them in the chosen language. */
+export const FEELING_CHOICES: readonly EventSentiment[] = ["positive", "negative", "neutral"];
 
-export const SIZE_CHOICES: readonly { value: StopSize; name: string; range: string }[] = [
-  { value: "small", name: "Small", range: "1 to 3" },
-  { value: "medium", name: "Medium", range: "4 to 6" },
-  { value: "big", name: "Big", range: "7 to 10" },
-];
+/** The sizes a player picks from, smallest first; components name them with their impact ranges. */
+export const SIZE_CHOICES: readonly StopSize[] = ["small", "medium", "big"];
 
 /** Highest impact that still counts as small, and as medium. */
 const SMALL_UP_TO = 3;
@@ -38,11 +34,11 @@ const DRAWING_LEFT = 0;
 /** Past the widest stop marker (15) with a little room, before the rail starts to bend. */
 const CURTAIN_GAP = 22;
 /** Shares of the best score that earn each verdict, from the top. */
-const VERDICTS: readonly { from: number; text: string }[] = [
-  { from: 0.9, text: "You could have built this ride yourself." },
-  { from: 0.7, text: "You know this ride really well." },
-  { from: 0.4, text: "You know the big moments." },
-  { from: 0, text: "Plenty of surprises on this ride." },
+const VERDICTS: readonly { from: number; key: MessageKey }[] = [
+  { from: 0.9, key: "guess.verdictTop" },
+  { from: 0.7, key: "guess.verdictHigh" },
+  { from: 0.4, key: "guess.verdictMiddle" },
+  { from: 0, key: "guess.verdictLow" },
 ];
 
 export function sizeOf(impact: number): StopSize {
@@ -60,9 +56,10 @@ export function scoreOf(results: readonly GuessResult[]): number {
   return results.reduce((total, { isFeelingRight, isSizeRight }) => total + Number(isFeelingRight) + Number(isSizeRight), 0);
 }
 
-export function verdict(score: number, best: number): string {
+/** The playful verdict for a score, in the given language (English, DEFAULT_LOCALE, unless one is passed). */
+export function verdict(score: number, best: number, locale: Locale = DEFAULT_LOCALE): string {
   const share = best > 0 ? score / best : 0;
-  return (VERDICTS.find(({ from }) => share >= from) ?? VERDICTS[VERDICTS.length - 1]).text;
+  return translate(locale, (VERDICTS.find(({ from }) => share >= from) ?? VERDICTS[VERDICTS.length - 1]).key);
 }
 
 /** Where the curtain over the unrevealed track begins, and the revealed stop it starts just after. */
@@ -98,8 +95,9 @@ export function guessStyle(style: RideStyle): RideStyle {
   return GUESS_STYLES.includes(style) ? style : GUESS_FALLBACK_STYLE;
 }
 
-/** The message shared with a score, which carries the link so friends can take the same ride. */
-export function scoreMessage(title: string, score: number, best: number, link: string): string {
-  const name = title.trim() === "" ? "this ride" : `"${title.trim()}"`;
-  return `I scored ${score}/${best} guessing ${name}. Can you beat me? ${link}`;
+/** The message shared with a score, which carries the link so friends can take the same ride; English unless a locale is passed. */
+export function scoreMessage(title: string, score: number, best: number, link: string, locale: Locale = DEFAULT_LOCALE): string {
+  const trimmed = title.trim();
+  const values = { title: trimmed, score, best, link };
+  return translate(locale, trimmed === "" ? "guess.scoreUntitled" : "guess.scoreTitled", values);
 }

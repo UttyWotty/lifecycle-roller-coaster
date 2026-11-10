@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- **Languages:** the rest of the app now speaks Turkish too: a ride someone shared with you, Guess my ride with its questions, reveals, score and shared score message, Ride together with its names, card, ending and share box, adding a friend's ride to a group, the embed page, and the messages for links that do not work. With this, every screen of the app is translated.
+
 ## [0.14.0] - 2026-11-10
 
 ### Added

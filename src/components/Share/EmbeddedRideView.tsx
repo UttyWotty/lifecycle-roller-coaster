@@ -13,8 +13,6 @@ import { composeRide } from "@/lib/scene/composeRide";
 import { decodeSharedRide, type SharedRide } from "@/lib/share/sharedRide";
 import { SHARED_RIDE_PATH } from "./ShareLinkPanel";
 
-const BROKEN = "This ride could not be shown. The embed code may have been cut short when it was copied.";
-const UNTITLED = "A shared ride";
 const NO_FRAGMENT = "";
 const LINK_CLASS = "font-semibold text-accent underline underline-offset-2";
 
@@ -24,15 +22,16 @@ function subscribeToHash(onChange: () => void): () => void {
 }
 
 function MakeYourOwn({ fragment }: { fragment: string | null }): ReactElement {
+  const t = useT();
   return (
     <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
       {fragment !== null && (
         <a href={`${SHARED_RIDE_PATH}${fragment}`} target="_blank" rel="noopener" className={LINK_CLASS}>
-          Open the full ride
+          {t("shared.openFull")}
         </a>
       )}
       <a href="/story" target="_blank" rel="noopener" className={LINK_CLASS}>
-        Make your own ride
+        {t("shared.embedMakeOwn")}
       </a>
     </p>
   );
@@ -50,7 +49,7 @@ function EmbeddedRide({ ride, fragment }: { ride: SharedRide; fragment: string }
   );
   return (
     <section className="flex flex-col gap-3">
-      <h1 className="wrap-anywhere text-xl font-bold">{ride.title.trim() || UNTITLED}</h1>
+      <h1 className="wrap-anywhere text-xl font-bold">{ride.title.trim() || t("shared.untitled")}</h1>
       <RideDrawing
         track={track}
         scene={scene}
@@ -72,10 +71,11 @@ function EmbeddedRide({ ride, fragment }: { ride: SharedRide; fragment: string }
 export function EmbeddedRideView(): ReactElement {
   const fragment = useSyncExternalStore(subscribeToHash, () => window.location.hash, () => NO_FRAGMENT);
   const ride = useMemo(() => decodeSharedRide(fragment), [fragment]);
+  const t = useT();
   if (ride === null) {
     return (
       <section className="flex flex-col gap-3">
-        <p>{BROKEN}</p>
+        <p>{t("shared.embedBroken")}</p>
         <MakeYourOwn fragment={null} />
       </section>
     );
