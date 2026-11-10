@@ -5,9 +5,10 @@
  */
 import type { ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { useT } from "@/components/I18n/useLocale";
+import type { MessageKey } from "@/lib/i18n/messages";
 import type { LifeEvent } from "@/lib/events/schema";
 import type { PlaybackStatus } from "@/components/RollerCoaster/useRidePlayback";
-import { UNKNOWN_DATE } from "@/lib/track/labelWidth";
 
 export interface PersonMoment {
   name: string;
@@ -27,22 +28,32 @@ interface TogetherPanelProps {
   onExit: () => void;
 }
 
-const STARTING_TEXT = "Hold on together, the ride is starting.";
-const KEY_HINT = "Keys: Space pauses, arrows move through time, Escape exits.";
-const NOTHING_HERE = "Nothing marked here";
 const PAIR = 2;
+const ONE_YEAR = 1;
+
+/** The ending's words for how many years the rides shared and how many people rode. */
+function endingKey(sharedYears: number, isPair: boolean): MessageKey {
+  if (sharedYears === 0) {
+    return "together.endingNone";
+  }
+  if (isPair) {
+    return sharedYears === ONE_YEAR ? "together.endingPairOne" : "together.endingPairMany";
+  }
+  return sharedYears === ONE_YEAR ? "together.endingGroupOne" : "together.endingGroupMany";
+}
 
 function Moments({ date, moments }: Pick<TogetherPanelProps, "date" | "moments">): ReactElement {
+  const t = useT();
   if (moments === null) {
-    return <p className="text-lg font-semibold">{STARTING_TEXT}</p>;
+    return <p className="text-lg font-semibold">{t("together.starting")}</p>;
   }
   return (
     <>
-      <p className="text-sm text-muted">{date ?? UNKNOWN_DATE}</p>
+      <p className="text-sm text-muted">{date ?? t("ride.dateUnknown")}</p>
       <ul className="flex flex-col gap-1">
         {moments.map(({ name, event }) => (
           <li key={name} className="wrap-anywhere">
-            <span className="font-semibold">{name}:</span> {event?.title ?? NOTHING_HERE}
+            <span className="font-semibold">{name}:</span> {event?.title ?? t("together.nothingHere")}
           </li>
         ))}
       </ul>
@@ -52,37 +63,33 @@ function Moments({ date, moments }: Pick<TogetherPanelProps, "date" | "moments">
 
 export function TogetherPanel(props: TogetherPanelProps): ReactElement {
   const { status, date, moments, sharedYears, rideCount, onTogglePause, onNext, onBack, onExit } = props;
+  const t = useT();
   const isFinished = status === "finished";
-  const isPair = rideCount === PAIR;
-  const years = `${sharedYears} ${sharedYears === 1 ? "year" : "years"}`;
-  const ending =
-    sharedYears === 0
-      ? "That was your ride together. Your big moments never landed in the same year."
-      : `That was your ride together. You shared ${years} with big moments for ${isPair ? "you both" : "more than one of you"}.`;
+  const ending = t(endingKey(sharedYears, rideCount === PAIR), { years: sharedYears });
   return (
-    <section aria-label="Ride together" className="flex flex-col gap-3 rounded-lg border-2 border-accent p-4">
+    <section aria-label={t("together.panel")} className="flex flex-col gap-3 rounded-lg border-2 border-accent p-4">
       <div aria-live="polite" className="flex min-h-24 flex-col gap-1">
         {isFinished ? <p className="text-lg font-semibold">{ending}</p> : <Moments date={date} moments={moments} />}
       </div>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={onBack} disabled={isFinished} className={SECONDARY_BUTTON_CLASS}>
-          Back
+          {t("ride.back")}
         </button>
         <button
           type="button"
           onClick={onTogglePause}
           className="min-h-11 rounded-full bg-accent px-6 py-2 font-semibold text-on-accent"
         >
-          {isFinished ? "Ride again" : status === "playing" ? "Pause" : "Play"}
+          {t(isFinished ? "ride.rideAgain" : status === "playing" ? "ride.pause" : "ride.play")}
         </button>
         <button type="button" onClick={onNext} disabled={isFinished} className={SECONDARY_BUTTON_CLASS}>
-          Next
+          {t("ride.next")}
         </button>
         <button type="button" onClick={onExit} className={SECONDARY_BUTTON_CLASS}>
-          Exit ride
+          {t("ride.exitRide")}
         </button>
       </div>
-      <p className="text-sm text-muted">{KEY_HINT}</p>
+      <p className="text-sm text-muted">{t("together.keyHint")}</p>
     </section>
   );
 }

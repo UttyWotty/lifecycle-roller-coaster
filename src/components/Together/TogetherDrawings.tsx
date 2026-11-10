@@ -4,6 +4,8 @@
  * All drawings have the same width, so one scroll position fits them all.
  */
 import type { ReactElement, RefObject } from "react";
+import { useT } from "@/components/I18n/useLocale";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { MIN_TRACK_SCALE, RideTrack } from "@/components/RollerCoaster/RideTrack";
 import { PlaybackCart } from "@/components/Scene/PlaybackCart";
 import { sceneModeFor } from "@/components/Scene/sceneModes";
@@ -21,23 +23,25 @@ interface TogetherDrawingsProps {
 
 const RIDING_CLASS = "ride-it-active";
 /** How many rides are shown, in words, for the drawing area's accessible name. */
-const COUNT_WORDS: Readonly<Record<number, string>> = { 2: "Two", 3: "Three", 4: "Four" };
+const COUNT_WORDS: Readonly<Record<number, MessageKey>> = { 2: "together.countTwo", 3: "together.countThree", 4: "together.countFour" };
 
 export function TogetherDrawings(props: TogetherDrawingsProps): ReactElement {
   const { rides, names, highlighted, isRiding, cartRefs, scroller, drawing } = props;
+  const t = useT();
+  const countWord = COUNT_WORDS[rides.length];
   const width = rides[0].track.width;
   return (
     <div
       ref={scroller}
       tabIndex={0}
       role="region"
-      aria-label={`${COUNT_WORDS[rides.length] ?? rides.length} rides on one timeline, scrolls sideways on small screens`}
+      aria-label={t("together.drawings", { count: countWord === undefined ? rides.length : t(countWord) })}
       className="overflow-x-auto"
     >
       <div ref={drawing} className="flex flex-col gap-2" style={{ minWidth: width * MIN_TRACK_SCALE }}>
         {rides.map(({ track, scene }, index) => (
           <div key={names[index] + String(index)} className={isRiding ? `relative ${RIDING_CLASS}` : "relative"}>
-            <RideTrack track={track} scene={scene} label={`${names[index]}, as a roller coaster`} selectedId={highlighted[index]} />
+            <RideTrack track={track} scene={scene} label={t("together.drawingLabel", { name: names[index] })} selectedId={highlighted[index]} />
             {isRiding && (
               <PlaybackCart
                 track={track}

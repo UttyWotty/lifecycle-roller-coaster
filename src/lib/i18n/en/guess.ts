@@ -1,0 +1,42 @@
+/**
+ * English words for Guess my ride, where a friend guesses how each stop of a shared ride felt and how big it was.
+ * Every other language must give the same keys, which the message index checks when it is compiled.
+ * Placeholders in braces, such as {score}, are filled in when the message is shown.
+ */
+export const guess = {
+  region: "Guess my ride",
+  progress: "Stop {number} of {count} · {date} · Score {score}",
+  feelingQuestion: "How did it feel?",
+  sizeQuestion: "How big was it?",
+  feelingPositive: "Good",
+  feelingNegative: "Hard",
+  feelingNeutral: "In between",
+  sizeSmall: "Small (1 to 3)",
+  sizeMedium: "Medium (4 to 6)",
+  sizeBig: "Big (7 to 10)",
+  feltPositive: "good",
+  feltNegative: "hard",
+  feltNeutral: "in between",
+  wasSmall: "small",
+  wasMedium: "medium",
+  wasBig: "big",
+  truth: "It felt {feeling}, and it was {size} ({impact} out of 10).",
+  judged: "Feeling: {feeling}. Size: {size}.",
+  right: "Right",
+  wrong: "Not quite",
+  reveal: "Reveal",
+  nextStop: "Next stop",
+  stop: "Stop guessing",
+  yourScore: "Your score",
+  shareScore: "Share my score",
+  playAgain: "Play again",
+  done: "Done",
+  copied: "Score copied. Paste it anywhere to challenge your friends.",
+  shareFailed: "Sharing is blocked here.",
+  verdictTop: "You could have built this ride yourself.",
+  verdictHigh: "You know this ride really well.",
+  verdictMiddle: "You know the big moments.",
+  verdictLow: "Plenty of surprises on this ride.",
+  scoreTitled: "I scored {score}/{best} guessing \"{title}\". Can you beat me? {link}",
+  scoreUntitled: "I scored {score}/{best} guessing this ride. Can you beat me? {link}",
+};

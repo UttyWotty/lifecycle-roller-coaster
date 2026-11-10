@@ -1,0 +1,45 @@
+/**
+ * English words for Ride together, where two to four shared rides are lined up in time and ridden at once.
+ * Every other language must give the same keys, which the message index checks when it is compiled.
+ * Placeholders in braces, such as {names}, are filled in when the message is shown.
+ */
+export const together = {
+  heading: "Riding together",
+  intro: "{names}, with the same years lined up.",
+  namesJoined: "{rest} and {last}",
+  namesSeparator: ", ",
+  firstRide: "First ride",
+  secondRide: "Second ride",
+  thirdRide: "Third ride",
+  fourthRide: "Fourth ride",
+  styleLegend: "Ride style",
+  start: "Ride together",
+  sharedPair: "The same year, two stories",
+  sharedGroup: "The same year, more than one story",
+  brokenTitle: "This ride together does not work",
+  brokenDetails: "The link may have been cut short when it was copied. Ask for it again, or make a ride of your own.",
+  drawings: "{count} rides on one timeline, scrolls sideways on small screens",
+  countTwo: "Two",
+  countThree: "Three",
+  countFour: "Four",
+  drawingLabel: "{name}, as a roller coaster",
+  panel: "Ride together",
+  starting: "Hold on together, the ride is starting.",
+  keyHint: "Keys: Space pauses, arrows move through time, Escape exits.",
+  nothingHere: "Nothing marked here",
+  endingNone: "That was your ride together. Your big moments never landed in the same year.",
+  endingPairOne: "That was your ride together. You shared 1 year with big moments for you both.",
+  endingPairMany: "That was your ride together. You shared {years} years with big moments for you both.",
+  endingGroupOne: "That was your ride together. You shared 1 year with big moments for more than one of you.",
+  endingGroupMany: "That was your ride together. You shared {years} years with big moments for more than one of you.",
+  shareHeading: "Share this ride together",
+  shareNote:
+    "Anyone with this link can see every ride in it: event titles, dates, how each felt and mattered, chapter names and titles. Descriptions and stories are never in it.",
+  shareMessage: "Take a ride through {names} together.",
+  linkCopied: "Link copied. Paste it anywhere to share this ride together.",
+  copyFailed: "Copying is blocked here. Copy the address from your browser instead.",
+  addHeading: "Add a friend's ride",
+  addIntro: "Ride with up to {max} people. Paste another ride link to add it to this group.",
+  addLink: "Another ride link",
+  addButton: "Add to the ride",
+};

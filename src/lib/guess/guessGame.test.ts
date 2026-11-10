@@ -1,6 +1,6 @@
 /**
  * Tests for the Guess my ride rules.
- * They confirm sizes, judging and scoring, the verdicts at each level, and the shared score message.
+ * They confirm sizes, judging and scoring, the verdicts at each level, and the shared score message, in English and Turkish.
  * They also confirm the curtain always hides the stop being guessed and lifts fully after the last one.
  */
 import { describe, expect, it } from "vitest";
@@ -41,11 +41,13 @@ describe("sizes, judging and scoring", () => {
     expect(verdict(4, 10)).toMatch(/big moments/);
     expect(verdict(0, 10)).toMatch(/surprises/);
     expect(verdict(0, 0)).toMatch(/surprises/);
+    expect(verdict(10, 10, "tr")).toBe("Bu treni kendin yapmış olabilirdin.");
   });
 
   it("shares the score with the ride's link", () => {
     expect(scoreMessage("Maya's ride", 9, 12, "https://x/ride#r=a")).toBe('I scored 9/12 guessing "Maya\'s ride". Can you beat me? https://x/ride#r=a');
     expect(scoreMessage(" ", 1, 2, "L")).toBe("I scored 1/2 guessing this ride. Can you beat me? L");
+    expect(scoreMessage("Maya", 9, 12, "L", "tr")).toBe('"Maya" trenini tahmin ederek 9/12 puan aldım. Beni geçebilir misin? L');
   });
 });
 

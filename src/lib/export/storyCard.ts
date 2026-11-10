@@ -1,11 +1,12 @@
 /**
  * Pure layout of the story picture: a portrait card, sized for phone stories, that carries a ride for sharing.
- * It wraps a long ride onto up to four rows cut halfway between stops, so the drawing stays large on a tall screen.
- * It adds the title, a line of years and stops, and where to make your own, and works on markup only, with no DOM.
+ * It wraps a long ride onto up to four rows cut halfway between stops, never through a label or chapter name when it can
+ * help it, and centres the title, years and stops, drawing and footer as one block. It works on markup only, with no DOM.
  */
 import type { LifeEvent } from "@/lib/events/schema";
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locales";
 import { translate } from "@/lib/i18n/messages";
+import { cutsThrough, type Span } from "./storySpans";
 
 export const STORY_WIDTH = 1080;
 export const STORY_HEIGHT = 1920;
@@ -26,7 +27,12 @@ const ELLIPSIS = "...";
 const SUBTITLE_SIZE = 40;
 const SUBTITLE_GAP = 70;
 const FOOTER_SIZE = 36;
-const FOOTER_BASELINE = STORY_HEIGHT - 90;
+/** Space between the footer's baseline and the bottom of a full card. */
+const FOOTER_BOTTOM_MARGIN = 90;
+/** From the subtitle's baseline to the top of the drawing, as on a full card with a two-line title. */
+const DRAWING_GAP = HEADER_HEIGHT - (TITLE_TOP + (MAX_TITLE_LINES - 1) * TITLE_LINE_HEIGHT + SUBTITLE_GAP);
+/** From the bottom of the drawing to the footer's baseline, as on a full card. */
+const FOOTER_GAP = FOOTER_HEIGHT - FOOTER_BOTTOM_MARGIN;
 export const FONT_FAMILY = "Arial, Helvetica, sans-serif";
 /** Card colours, shared with the ride video so both look like one brand. */
 export const STORY_COLORS = { card: "#fff7ed", title: "#171717", muted: "#5b5b66", accent: "#e11d48" };
@@ -49,6 +55,16 @@ export interface StoryDrawing {
   /** The drawing's own title strip at the top, which the card leaves out because it shows the title itself. */
   titleBand: number;
   stopXs: readonly number[];
+  /** Stretches a row cut should not pass through, such as stop labels and chapter names (see storySpans). */
+  keepWhole: readonly Span[];
+}
+
+/** Where the card's parts sit vertically: the first title baseline, the subtitle baseline, the drawing and the footer. */
+export interface StoryPositions {
+  titleTop: number;
+  subtitleY: number;
+  drawingTop: number;
+  footerBaseline: number;
 }
 
 export interface StoryRow {
@@ -79,19 +95,27 @@ export const STORY_CONTENT_WIDTH = STORY_WIDTH - SIDE_MARGIN * 2;
 const CONTENT_WIDTH = STORY_CONTENT_WIDTH;
 const CONTENT_HEIGHT = STORY_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT;
 
-/** Cuts the drawing into a number of rows of about equal width, each cut halfway between two neighbouring stops. */
+function nearestTo(target: number, options: readonly number[]): number | null {
+  return options.reduce<number | null>(
+    (nearest, cut) => (nearest === null || Math.abs(cut - target) < Math.abs(nearest - target) ? cut : nearest),
+    null,
+  );
+}
+
+/**
+ * Cuts the drawing into a number of rows of about equal width, each cut halfway between two neighbouring stops.
+ * A cut that splits nothing in keepWhole is preferred; only when there is none does a cut go through a label or name.
+ */
 export function storyRows(drawing: StoryDrawing, count: number): StoryRow[] {
   const xs = [...drawing.stopXs].sort((a, b) => a - b);
   const candidates = xs.slice(1).map((x, index) => (xs[index] + x) / 2);
+  const isClean = (cut: number): boolean => !drawing.keepWhole.some((span) => cutsThrough(cut, span));
   const cuts: number[] = [];
   for (let row = 1; row < count; row += 1) {
     const target = (drawing.width * row) / count;
     const previous = cuts.at(-1) ?? 0;
     const options = candidates.filter((cut) => cut > previous);
-    const best = options.reduce<number | null>(
-      (nearest, cut) => (nearest === null || Math.abs(cut - target) < Math.abs(nearest - target) ? cut : nearest),
-      null,
-    );
+    const best = nearestTo(target, options.filter(isClean)) ?? nearestTo(target, options);
     if (best === null) {
       break;
     }
@@ -192,12 +216,31 @@ export function storySubtitle(events: readonly LifeEvent[], locale: Locale = DEF
     : translate(locale, "pictures.subtitleYears", { first, last, stops });
 }
 
-function drawingRows(input: StoryCardInput, layout: StoryLayout): string {
+function rowHeightOf(drawing: StoryDrawing, layout: StoryLayout): number {
+  return (drawing.height - drawing.titleBand) * layout.scale;
+}
+
+/** The height the drawing's rows take on the card, gaps included. */
+export function drawingHeightOf(drawing: StoryDrawing, layout: StoryLayout): number {
+  return rowHeightOf(drawing, layout) * layout.rows.length + ROW_GAP * (layout.rows.length - 1);
+}
+
+/**
+ * Stacks the title, subtitle, drawing and footer with fixed gaps and centres the stack on the card, so a short ride
+ * or a one-line title leaves its spare room at the card's top and bottom edges instead of around the drawing.
+ */
+export function storyPositions(titleLineCount: number, drawingHeight: number): StoryPositions {
+  const subtitleY = TITLE_TOP + (titleLineCount - 1) * TITLE_LINE_HEIGHT + SUBTITLE_GAP;
+  const drawingTop = subtitleY + DRAWING_GAP;
+  const footerBaseline = drawingTop + drawingHeight + FOOTER_GAP;
+  const shift = Math.max(0, (STORY_HEIGHT - (footerBaseline + FOOTER_BOTTOM_MARGIN)) / 2);
+  return { titleTop: TITLE_TOP + shift, subtitleY: subtitleY + shift, drawingTop: drawingTop + shift, footerBaseline: footerBaseline + shift };
+}
+
+function drawingRows(input: StoryCardInput, layout: StoryLayout, top: number): string {
   const inner = input.markup.replace(ROOT_TAG, "").replace(CLOSING_TAG, "");
   const visibleHeight = input.drawing.height - input.drawing.titleBand;
-  const rowHeight = visibleHeight * layout.scale;
-  const total = rowHeight * layout.rows.length + ROW_GAP * (layout.rows.length - 1);
-  const top = HEADER_HEIGHT + (CONTENT_HEIGHT - total) / 2;
+  const rowHeight = rowHeightOf(input.drawing, layout);
   return layout.rows
     .map(({ fromX, toX }, index) => {
       const width = (toX - fromX) * layout.scale;
@@ -213,10 +256,11 @@ function drawingRows(input: StoryCardInput, layout: StoryLayout): string {
 export function buildStoryCard(input: StoryCardInput): string {
   const locale = input.locale ?? DEFAULT_LOCALE;
   const lines = titleLines(input.title, input.measureTitle, STORY_CONTENT_WIDTH, locale);
+  const layout = storyLayout(input.drawing);
+  const { titleTop, subtitleY, drawingTop, footerBaseline } = storyPositions(lines.length, drawingHeightOf(input.drawing, layout));
   const title = lines
-    .map((line, index) => `<tspan x="${STORY_WIDTH / 2}" y="${TITLE_TOP + index * TITLE_LINE_HEIGHT}">${escapeXml(line)}</tspan>`)
+    .map((line, index) => `<tspan x="${STORY_WIDTH / 2}" y="${titleTop + index * TITLE_LINE_HEIGHT}">${escapeXml(line)}</tspan>`)
     .join("");
-  const subtitleY = TITLE_TOP + (lines.length - 1) * TITLE_LINE_HEIGHT + SUBTITLE_GAP;
   const middle = STORY_WIDTH / 2;
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${STORY_WIDTH}" height="${STORY_HEIGHT}" ` +
@@ -225,8 +269,8 @@ export function buildStoryCard(input: StoryCardInput): string {
     `<text text-anchor="middle" font-size="${TITLE_SIZE}" font-weight="700" fill="${COLORS.title}">${title}</text>` +
     `<text x="${middle}" y="${subtitleY}" text-anchor="middle" font-size="${SUBTITLE_SIZE}" fill="${COLORS.muted}">` +
     `${escapeXml(storySubtitle(input.events, locale))}</text>` +
-    drawingRows(input, storyLayout(input.drawing)) +
-    `<text x="${middle}" y="${FOOTER_BASELINE}" text-anchor="middle" font-size="${FOOTER_SIZE}" fill="${COLORS.accent}" ` +
+    drawingRows(input, layout, drawingTop) +
+    `<text x="${middle}" y="${footerBaseline}" text-anchor="middle" font-size="${FOOTER_SIZE}" fill="${COLORS.accent}" ` +
     `font-weight="700">${escapeXml(translate(locale, "pictures.storyFooter", { host: input.host }))}</text>` +
     `</svg>`
   );
