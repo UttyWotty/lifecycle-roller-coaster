@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-11-11
+
+### Fixed
+
+- In Minimal Mode, labels are now outlined tags, so where the rail runs behind a label it reads as passing behind it instead of looking cut.
+
 ## [0.15.0] - 2026-11-11
 
 ### Fixed
