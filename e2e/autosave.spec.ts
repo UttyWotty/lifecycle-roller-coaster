@@ -3,14 +3,10 @@
  * They confirm a reload brings the ride and its look back, that the story text is never stored, and that samples are not saved.
  * They also confirm Start over deletes the saved ride, and that broken or blocked storage is ignored.
  */
-import { expect, test, type Page } from "@playwright/test";
-import { button, openRide, SECRET, storyBox } from "./helpers";
+import { expect, test } from "@playwright/test";
+import { button, openRide, SECRET, SHELF_KEY, storedRide, storyBox } from "./helpers";
 
-const STORAGE_KEY = "lifecycle-roller-coaster:ride";
-
-async function storedRide(page: Page): Promise<string | null> {
-  return page.evaluate((key) => window.localStorage.getItem(key), STORAGE_KEY);
-}
+const STORAGE_KEY = SHELF_KEY;
 
 test("a reload brings back the ride and its look", async ({ page }) => {
   await openRide(page);

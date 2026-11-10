@@ -14,10 +14,12 @@ import { useRideState } from "./useRideState";
 interface RideFlowProps {
   /** Opens on a random sample life instead of the empty story box. */
   startWithSample: boolean;
+  /** The id this ride is saved under on the device. */
+  rideId: string;
 }
 
-export function RideFlow({ startWithSample }: RideFlowProps): ReactElement {
-  const ride = useRideState(startWithSample);
+export function RideFlow({ startWithSample, rideId }: RideFlowProps): ReactElement {
+  const ride = useRideState(startWithSample, rideId);
 
   if (ride.stage === "ride") {
     return (

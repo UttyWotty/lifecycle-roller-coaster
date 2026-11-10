@@ -18,7 +18,7 @@ import { DEFAULT_RIDE_STYLE } from "@/lib/track/rideStyles";
 import type { RideStyle } from "@/lib/track/types";
 import { WHOLE_LIFE, keptLens } from "@/lib/lenses/rideLenses";
 import type { SavedRide } from "@/lib/saved/savedRide";
-import { clearSavedRide, loadSavedRide, saveRide } from "./rideStorage";
+import { deleteRide, loadRide, saveRide } from "./rideStorage";
 
 export type Stage = "story" | "review" | "ride";
 
@@ -61,12 +61,12 @@ export interface RideState {
 }
 
 /** Runs only in the browser (see BrowserRideFlow), because it reads the ride saved on the device. */
-export function useRideState(startWithSample: boolean): RideState {
+export function useRideState(startWithSample: boolean, rideId: string): RideState {
   const [opening] = useState<SampleLife | null>(() =>
     startWithSample ? pickSample(null, Math.random()) : null,
   );
   /** Read once in the browser; this hook only runs there, so the first render already shows a saved ride. */
-  const [saved] = useState<SavedRide | null>(() => (startWithSample ? null : loadSavedRide()));
+  const [saved] = useState<SavedRide | null>(() => (startWithSample ? null : loadRide(rideId)));
   const [stage, setStage] = useState<Stage>(opening || saved ? "ride" : "story");
   const [story, setStory] = useState(opening ? sampleStory(opening) : "");
   const [events, setEvents] = useState<readonly LifeEvent[]>(opening?.events ?? saved?.events ?? []);
@@ -87,7 +87,7 @@ export function useRideState(startWithSample: boolean): RideState {
   const isOwnRide = sample === null;
   useEffect(() => {
     if (isOwnRide) {
-      saveRide({
+      saveRide(rideId, {
         events,
         chapters,
         report,
@@ -102,7 +102,7 @@ export function useRideState(startWithSample: boolean): RideState {
         birthYear,
       });
     }
-  }, [isOwnRide, events, chapters, report, clarifications, isDemo, rideTitle, rideStyle, rideTheme, rider, fitToScreen, rideLens, birthYear]);
+  }, [rideId, isOwnRide, events, chapters, report, clarifications, isDemo, rideTitle, rideStyle, rideTheme, rider, fitToScreen, rideLens, birthYear]);
 
   /** An edit that leaves the chosen lens without a ride falls back to the whole life for good. */
   function changeEvents(next: readonly LifeEvent[]): void {
@@ -177,7 +177,7 @@ export function useRideState(startWithSample: boolean): RideState {
   }
 
   function startOver(): void {
-    clearSavedRide();
+    deleteRide(rideId);
     setSample(null);
     setStory("");
     setEvents([]);

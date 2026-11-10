@@ -34,7 +34,7 @@ This is a playful, creative picture of a story. It is not a psychological assess
 - **Ride lenses:** turn one story into several rides, such as My Career Coaster, My 2010s or My Life Before 30. Add the year you were born for age lenses. A ride you have not named takes the lens's title, ready to share.
 - **Guess my ride:** on a ride someone shared with you, press Guess my ride. The track ahead hides behind a curtain; for each stop you see its title and date, guess how it felt and how big it was, and the curtain lifts to show the answer. At the end you get a score and can share it with the ride's link, so friends can try to beat it.
 - **Ride together:** open a friend's ride link and press Ride together with my ride, or paste their link on your own ride. Your two lives appear on one timeline, with the same years lined up, both carts ride through time side by side, and "The same year, two stories" lists the years you both had big moments. The pair has its own link to share.
-- **Saved on your device:** your ride is still there when you come back. Your story text is never saved, and Start over deletes the ride.
+- **Saved on your device:** your ride is still there when you come back. **My rides** keeps up to 12 rides, such as your life, your career or a parent's story: start a **New ride**, open another, or delete one. Your story text is never saved, and Start over deletes the ride that is open.
 - **Fit to screen:** an optional toggle that shows a whole long ride at once, instead of scrolling sideways.
 - **Image export:** download a PNG that is created on your device.
 
@@ -92,7 +92,7 @@ Life stories can be personal, so the app is built to hold on to as little as pos
 
 - Nothing leaves your browser until you press Generate. The page tells you this before you do.
 - In `anthropic` mode, pressing Generate sends your story to the Anthropic API. Anthropic's own data policies apply to that request.
-- The app has no database of stories and no accounts. Your own ride (its events, chapters, report and look) is saved in your browser on this device only, so it is still there when you come back. The story text you typed is never saved, and **Start over** on the ride page deletes the saved ride. Sample lives are never saved.
+- The app has no database of stories and no accounts. Your own rides (their events, chapters, report and look) are saved in your browser on this device only, up to 12 of them, so they are still there when you come back. The story text you typed is never saved; **Start over** deletes the open ride and **Delete** in My rides removes any of them. Sample lives are never saved.
 - On the public site, a small counter store keeps how many readings each visitor started this hour and day, and the day's total spend. A visitor is a keyed one-way hash of their network address, never the address itself, and every counter deletes itself within two days.
 - The public site counts page views with Vercel Web Analytics: which page was opened, the country, browser and device type. It uses no cookies and identifies no one. Before anything is sent, the address is cut down to the site and page, so the ride in a shared link (after "#") never reaches Vercel. Nothing is counted in previews or local runs.
 - The server never logs story content, only error codes and token counts.
@@ -129,7 +129,7 @@ The AI layer and the rendering engine are independent. The AI produces structure
 | `src/lib/lenses/` | Pure ride lenses: parts of life, decades and ages |
 | `src/lib/share/` | Pure share-link encoding and social share URLs |
 | `src/lib/together/` | Pure Ride together: lining two rides up in time, and the pair link |
-| `src/lib/saved/` | Pure shape of the ride saved on the device |
+| `src/lib/saved/` | Pure shape of the rides saved on the device (one ride, and the shelf of up to 12) |
 | `e2e/` | Browser tests for the full user journey |
 | `docs/` | The product blueprint |
 

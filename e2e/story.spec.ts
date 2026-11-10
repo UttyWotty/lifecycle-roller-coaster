@@ -82,7 +82,7 @@ test("Generate goes straight to the ride, with editing as an option", async ({ p
   await button(page, "Generate my ride").click();
   await expect(page.getByRole("heading", { name: "Your ride" })).toBeVisible();
   await expect(page.locator('svg g[role="button"]')).toHaveCount(4);
-  await expect(page.getByLabel("Title")).toHaveCount(0);
+  await expect(page.getByLabel("Title", { exact: true })).toHaveCount(0);
   await expect(page.getByText("sample events, not your story")).toBeVisible();
   await button(page, "Edit my events").click();
   await expect(page.getByRole("heading", { name: "Review your events" })).toBeVisible();
