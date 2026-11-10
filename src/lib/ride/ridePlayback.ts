@@ -2,7 +2,8 @@
  * Pure timing and geometry for Ride it, the guided playback where the cart rides the track stop by stop.
  * It turns samples of the rail into each stop's distance along it, a timeline of moves and pauses, and the cart's
  * position and heading at any moment; climbs take longer than drops, loops are ridden on the way out of a stop, and the
- * cart pauses just short of each stop so it never hides the stop's marker, flag or label. It holds no clock and
+ * cart pauses just short of each stop so it never hides the stop's marker, flag or label, unless the ride is non-stop,
+ * when it rolls through every stop and only slows a little there. It holds no clock and
  * touches no DOM, so the browser hooks only measure the rail and ask it where the cart is.
  */
 import type { TrackPoint } from "@/lib/track/types";
@@ -17,12 +18,19 @@ export interface CartPose extends TrackPoint {
   angle: number;
 }
 
+export interface MoveEnds {
+  start: number;
+  end: number;
+}
+
 interface Move {
   kind: "move";
   from: number;
   to: number;
   start: number;
   duration: number;
+  /** The cart's speed as the move begins and ends, as a share of its average speed: 0 is at rest. */
+  ends: MoveEnds;
 }
 
 interface Pause {
@@ -52,6 +60,8 @@ export interface TimelineSettings {
   trackHeight: number;
   /** Moves take no time, for people who prefer reduced motion. */
   isInstant: boolean;
+  /** Rolls through every stop without holding still: pauses take no time and the cart only slows a little at a stop. */
+  isNonStop: boolean;
 }
 
 /** Cart speed on level track, in drawing pixels per second. */
@@ -61,6 +71,15 @@ const SHORTEST_MOVE_SECONDS = 0.6;
 const CLIMB_SLOWDOWN = 1.2;
 const DROP_SPEEDUP = 1.2;
 export const STOP_PAUSE_SECONDS = 2.8;
+/** A non-stop ride still passes through each stop, but takes no time there. */
+const NON_STOP_PAUSE_SECONDS = 0;
+const AT_REST = 0;
+/** A non-stop ride passes each stop at this share of its average speed, so it slows a little but never halts. */
+export const NON_STOP_PASSING_SPEED = 0.6;
+const RESTING_ENDS: MoveEnds = { start: AT_REST, end: AT_REST };
+/** Coefficients of the cubic Hermite curve from 0 to 1 over a move, written for its start and end speeds. */
+const HERMITE_TWO = 2;
+const HERMITE_THREE = 3;
 const NO_TIME = 0;
 const DEGREES_PER_HALF_TURN = 180;
 /** How close a rail sample must come to a stop to count as reaching it. */
@@ -140,6 +159,11 @@ export function moveSeconds(railLength: number, from: TrackPoint, to: TrackPoint
   return Math.max(SHORTEST_MOVE_SECONDS, (railLength / LEVEL_SPEED) * factor);
 }
 
+/** A non-stop move pulls away from rest at the ride's start, comes to rest at its end, and rolls through each stop. */
+function nonStopEnds(isFirst: boolean, isLast: boolean): MoveEnds {
+  return { start: isFirst ? AT_REST : NON_STOP_PASSING_SPEED, end: isLast ? AT_REST : NON_STOP_PASSING_SPEED };
+}
+
 /** Moves between stops with a pause at each, ending at the end of the rail. */
 export function buildTimeline(
   samples: readonly RailSample[],
@@ -151,27 +175,40 @@ export function buildTimeline(
   const steps: TimelineStep[] = [];
   let clock = 0;
   let at = 0;
-  const addMove = (to: number): void => {
+  /** Reduced motion keeps its pauses, since with instant moves they are the only time each stop is shown. */
+  const isNonStop = settings.isNonStop && !settings.isInstant;
+  const pauseSeconds = isNonStop ? NON_STOP_PAUSE_SECONDS : STOP_PAUSE_SECONDS;
+  const addMove = (to: number, isLast: boolean): void => {
     const duration = settings.isInstant
       ? NO_TIME
       : moveSeconds(to - at, poseAt(samples, at), poseAt(samples, to), settings.trackHeight);
-    steps.push({ kind: "move", from: at, to, start: clock, duration });
+    const ends = isNonStop ? nonStopEnds(steps.length === 0, isLast) : RESTING_ENDS;
+    steps.push({ kind: "move", from: at, to, start: clock, duration, ends });
     clock += duration;
     at = to;
   };
   lengths.forEach((length, stopIndex) => {
     const pauseAt = Math.max(length - PAUSE_SHORT_OF_STOP, at);
-    addMove(pauseAt);
-    steps.push({ kind: "pause", stopIndex, at: pauseAt, start: clock, duration: STOP_PAUSE_SECONDS });
-    clock += STOP_PAUSE_SECONDS;
+    addMove(pauseAt, false);
+    steps.push({ kind: "pause", stopIndex, at: pauseAt, start: clock, duration: pauseSeconds });
+    clock += pauseSeconds;
   });
-  addMove(railEnd);
+  addMove(railEnd, true);
   return { steps, duration: clock };
 }
 
-/** Eases in and out, so the cart pulls away and arrives gently. */
-function ease(share: number): number {
-  return (1 - Math.cos(Math.PI * share)) / 2;
+/**
+ * How far through a move the cart is at a share of its time. A move from rest to rest eases in and out on a cosine,
+ * so the cart pulls away and arrives gently; otherwise a cubic curve starts and ends at the given speeds, as shares
+ * of the average speed, which keeps it moving forward for any speeds from 0 to 1.
+ */
+export function ease(share: number, ends: MoveEnds): number {
+  if (ends.start === AT_REST && ends.end === AT_REST) {
+    return (1 - Math.cos(Math.PI * share)) / 2;
+  }
+  const cubic = ends.start + ends.end - HERMITE_TWO;
+  const square = HERMITE_THREE - HERMITE_TWO * ends.start - ends.end;
+  return ((cubic * share + square) * share + ends.start) * share;
 }
 
 /** Where the ride is after a number of seconds. */
@@ -189,7 +226,7 @@ export function positionAt(timeline: Timeline, elapsed: number): PlaybackPositio
       }
     } else if (elapsed < end) {
       const share = step.duration > 0 ? Math.max(elapsed - step.start, 0) / step.duration : 1;
-      return { length: step.from + (step.to - step.from) * ease(share), stopIndex, isFinished: false };
+      return { length: step.from + (step.to - step.from) * ease(share, step.ends), stopIndex, isFinished: false };
     }
   }
   const lastStep = timeline.steps.at(-1);

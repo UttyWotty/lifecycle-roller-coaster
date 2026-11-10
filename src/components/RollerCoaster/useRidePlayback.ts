@@ -15,7 +15,7 @@ import {
   type RailSample,
   type Timeline,
 } from "@/lib/ride/ridePlayback";
-import { FINISH_CUE, cueForStep, stepIndexAt } from "@/lib/ride/rideSounds";
+import { FINISH_CUE, cueForStep, stepIndexAt, stepsToSound } from "@/lib/ride/rideSounds";
 import { pastStops } from "@/lib/track/futureStops";
 import type { Track } from "@/lib/track/types";
 import type { RideSoundPlayer } from "./rideSoundPlayer";
@@ -49,6 +49,8 @@ interface PlaybackOptions {
   drawing: RefObject<HTMLElement | null>;
   /** Plays a sound as each part of the ride begins, or null when sound is off. */
   sound: RideSoundPlayer | null;
+  /** Rolls through every stop instead of pausing at each; read when a ride starts. */
+  isNonStop: boolean;
 }
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
@@ -62,7 +64,7 @@ function isTyping(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
 }
 
-export function useRidePlayback({ track, railPath, scroller, drawing, sound }: PlaybackOptions): RidePlayback {
+export function useRidePlayback({ track, railPath, scroller, drawing, sound, isNonStop }: PlaybackOptions): RidePlayback {
   const [ride, setRide] = useState<ActiveRide | null>(null);
   const [status, setStatus] = useState<PlaybackStatus>("playing");
   const [stopIndex, setStopIndex] = useState<number | null>(null);
@@ -72,19 +74,18 @@ export function useRidePlayback({ track, railPath, scroller, drawing, sound }: P
   const soundedStep = useRef(NO_STEP);
   const isActive = ride !== null && ride.track === track;
 
-  /** Sounds the part of the ride that has just begun, or the finish, once each. */
+  /** Sounds the parts of the ride that have just begun, including stops passed between frames, or the finish, once each. */
   function playNewStep(active: ActiveRide, isFinished: boolean): void {
-    const step = stepIndexAt(active.timeline.steps, elapsed.current);
-    if (step === soundedStep.current) {
-      return;
-    }
+    const { steps } = active.timeline;
+    const step = stepIndexAt(steps, elapsed.current);
+    const context = { samples: active.samples, stops: active.track.stops, trackHeight: active.track.height };
+    stepsToSound(steps, soundedStep.current, step).forEach((index) => {
+      const cue = index >= steps.length ? (isFinished ? FINISH_CUE : null) : cueForStep(steps[index], context);
+      if (cue !== null) {
+        sound?.play(cue);
+      }
+    });
     soundedStep.current = step;
-    const cue = isFinished
-      ? FINISH_CUE
-      : cueForStep(active.timeline.steps[step], { samples: active.samples, stops: active.track.stops, trackHeight: active.track.height });
-    if (cue !== null) {
-      sound?.play(cue);
-    }
   }
 
   /** Puts the cart and the view where the clock says, and reports a new stop or the end to React. */
@@ -143,7 +144,7 @@ export function useRidePlayback({ track, railPath, scroller, drawing, sound }: P
   function start(): void {
     const samples = railSamples(railPath, pastStops(track));
     const isInstant = window.matchMedia(REDUCED_MOTION_QUERY).matches;
-    const timeline = buildTimeline(samples, pastStops(track), { trackHeight: track.height, isInstant });
+    const timeline = buildTimeline(samples, pastStops(track), { trackHeight: track.height, isInstant, isNonStop });
     sound?.stop();
     elapsed.current = 0;
     shownStop.current = NO_STOP;

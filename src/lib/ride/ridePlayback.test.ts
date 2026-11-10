@@ -2,13 +2,15 @@
  * Tests for the Ride it timing and geometry.
  * They confirm stops are found along the rail in order, loops are ridden after a stop, and climbs take longer than drops.
  * They also confirm the timeline pauses just short of every stop, can jump to a stop, and finishes at the end of the rail,
- * and that a ride driven by x follows the rail through loops.
+ * that a non-stop ride rolls through every stop without halting, and that a ride driven by x follows the rail through loops.
  */
 import { describe, expect, it } from "vitest";
 import {
+  NON_STOP_PASSING_SPEED,
   PAUSE_SHORT_OF_STOP,
   STOP_PAUSE_SECONDS,
   buildTimeline,
+  ease,
   lengthAtX,
   moveSeconds,
   polylineSamples,
@@ -83,7 +85,7 @@ describe("moveSeconds", () => {
 });
 
 describe("buildTimeline and positionAt", () => {
-  const timeline = buildTimeline(FLAT, STOPS, { trackHeight: HEIGHT, isInstant: false });
+  const timeline = buildTimeline(FLAT, STOPS, { trackHeight: HEIGHT, isInstant: false, isNonStop: false });
 
   it("pauses short of every stop in order and ends at the rail's end", () => {
     const pauses = timeline.steps.filter((step) => step.kind === "pause");
@@ -107,19 +109,77 @@ describe("buildTimeline and positionAt", () => {
   });
 
   it("jumps straight between stops when motion is reduced", () => {
-    const instant = buildTimeline(FLAT, STOPS, { trackHeight: HEIGHT, isInstant: true });
+    const instant = buildTimeline(FLAT, STOPS, { trackHeight: HEIGHT, isInstant: true, isNonStop: false });
     expect(instant.duration).toBe(STOP_PAUSE_SECONDS * STOPS.length);
     expect(positionAt(instant, 0)).toEqual({ length: FIRST_PAUSE, stopIndex: 0, isFinished: false });
   });
 
   it("never pauses behind where the cart already is", () => {
-    const close = buildTimeline(FLAT, [{ x: 10, y: 100 }], { trackHeight: HEIGHT, isInstant: false });
+    const close = buildTimeline(FLAT, [{ x: 10, y: 100 }], { trackHeight: HEIGHT, isInstant: false, isNonStop: false });
     expect(close.steps.find((step) => step.kind === "pause")).toMatchObject({ at: 0 });
   });
 
   it("handles a ride with no stops", () => {
-    const empty = buildTimeline(FLAT, [], { trackHeight: HEIGHT, isInstant: false });
+    const empty = buildTimeline(FLAT, [], { trackHeight: HEIGHT, isInstant: false, isNonStop: false });
     expect(positionAt(empty, empty.duration).isFinished).toBe(true);
+  });
+});
+
+describe("non-stop rides", () => {
+  const stopping = buildTimeline(FLAT, STOPS, { trackHeight: HEIGHT, isInstant: false, isNonStop: false });
+  const nonStop = buildTimeline(FLAT, STOPS, { trackHeight: HEIGHT, isInstant: false, isNonStop: true });
+  const TINY = 0.001;
+
+  it("takes no time at a stop, so the ride is shorter by every pause", () => {
+    expect(nonStop.steps.filter((step) => step.kind === "pause").map((step) => step.duration)).toEqual([0, 0]);
+    expect(nonStop.duration).toBeCloseTo(stopping.duration - STOP_PAUSE_SECONDS * STOPS.length);
+  });
+
+  it("starts and ends at rest and keeps moving through every stop", () => {
+    const moves = nonStop.steps.flatMap((step) => (step.kind === "move" ? [step.ends] : []));
+    expect(moves).toEqual([
+      { start: 0, end: NON_STOP_PASSING_SPEED },
+      { start: NON_STOP_PASSING_SPEED, end: NON_STOP_PASSING_SPEED },
+      { start: NON_STOP_PASSING_SPEED, end: 0 },
+    ]);
+    const at = stopStartTime(nonStop, 0);
+    expect(positionAt(nonStop, at + TINY).length).toBeGreaterThan(positionAt(nonStop, at - TINY).length);
+  });
+
+  it("still reaches each stop in order and finishes at the rail's end", () => {
+    expect(positionAt(nonStop, stopStartTime(nonStop, 0) + TINY).stopIndex).toBe(0);
+    expect(positionAt(nonStop, stopStartTime(nonStop, 1) + TINY).stopIndex).toBe(1);
+    expect(positionAt(nonStop, nonStop.duration)).toEqual({ length: 300, stopIndex: 1, isFinished: true });
+  });
+
+  it("keeps its pauses when motion is reduced, so each stop is still shown", () => {
+    const instant = buildTimeline(FLAT, STOPS, { trackHeight: HEIGHT, isInstant: true, isNonStop: true });
+    expect(instant.duration).toBe(STOP_PAUSE_SECONDS * STOPS.length);
+  });
+});
+
+describe("ease", () => {
+  const rest = { start: 0, end: 0 };
+  const rolling = { start: NON_STOP_PASSING_SPEED, end: NON_STOP_PASSING_SPEED };
+  const SHARES = Array.from({ length: 21 }, (_, index) => index / 20);
+
+  it("runs from the start to the end of a move", () => {
+    for (const ends of [rest, rolling, { start: 0, end: 1 }, { start: 1, end: 0 }]) {
+      expect(ease(0, ends)).toBe(0);
+      expect(ease(1, ends)).toBeCloseTo(1);
+    }
+  });
+
+  it("never goes backwards, for any end speeds from rest to full", () => {
+    for (const ends of [rolling, { start: 0, end: 1 }, { start: 1, end: 1 }]) {
+      SHARES.slice(1).forEach((share, index) => expect(ease(share, ends)).toBeGreaterThanOrEqual(ease(SHARES[index], ends)));
+    }
+  });
+
+  it("passes the ends of a rolling move at the given speed", () => {
+    const step = 1e-4;
+    expect(ease(step, rolling) / step).toBeCloseTo(NON_STOP_PASSING_SPEED, 2);
+    expect((1 - ease(1 - step, rolling)) / step).toBeCloseTo(NON_STOP_PASSING_SPEED, 2);
   });
 });
 
