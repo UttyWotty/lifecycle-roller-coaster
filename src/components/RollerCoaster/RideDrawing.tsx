@@ -13,8 +13,10 @@ import type { LifeReport } from "@/lib/events/insights";
 import type { LifeEvent } from "@/lib/events/schema";
 import type { Scene } from "@/lib/scene/composeRide";
 import { pastStops } from "@/lib/track/futureStops";
+import type { Curtain } from "@/lib/guess/guessGame";
 import type { Track } from "@/lib/track/types";
 import { railPathOf } from "./measureRail";
+import { GuessCurtain } from "./GuessCurtain";
 import { RideItPanel } from "./RideItPanel";
 import { MIN_TRACK_SCALE, RideTrack } from "./RideTrack";
 import { useRidePlayback } from "./useRidePlayback";
@@ -31,9 +33,13 @@ interface RideDrawingProps {
   svgRef: RefObject<SVGSVGElement | null>;
   onSelect: (id: string) => void;
   onFitToScreenChange: (fitToScreen: boolean) => void;
+  /** Guess my ride's curtain, or null when no game is on; a game hides the ride's own controls. */
+  curtain: Curtain | null;
 }
 
 const FIRST_RIDE = 0;
+/** Where the curtain's edge sits across the visible part of the drawing during a game. */
+const CURTAIN_VIEW_SHARE = 0.7;
 /**
  * Hides the drawing's own carts on screen while Ride it draws its cart on top. Only page CSS hides them, so the
  * parked cart stays in the markup and an image exported during a ride matches one exported before it.
@@ -41,7 +47,8 @@ const FIRST_RIDE = 0;
 const RIDING_CLASS = "ride-it-active";
 
 export function RideDrawing(props: RideDrawingProps): ReactElement {
-  const { track, scene, label, events, report, fitToScreen, selectedId, svgRef, onSelect, onFitToScreenChange } = props;
+  const { track, scene, label, events, report, fitToScreen, selectedId, svgRef, onSelect, onFitToScreenChange, curtain } = props;
+  const isGuessing = curtain !== null;
   const [rideNumber, setRideNumber] = useState(FIRST_RIDE);
   const scroller = useRef<HTMLDivElement>(null);
   const drawing = useRef<HTMLDivElement>(null);
@@ -68,6 +75,16 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
         isMonochrome: scene.palette.kind === "line",
       }
     : null;
+
+  /** Keeps the curtain's edge in view as a game moves along the ride. */
+  const curtainX = curtain?.x ?? null;
+  useEffect(() => {
+    const box = scroller.current;
+    const width = drawing.current?.clientWidth ?? 0;
+    if (curtainX !== null && box && width > 0) {
+      box.scrollTo({ left: curtainX * (width / track.width) - box.clientWidth * CURTAIN_VIEW_SHARE, behavior: "smooth" });
+    }
+  }, [curtainX, track.width]);
 
   /** Resizing the drawing mid-ride moves the page, so bring the drawing back once the new size is laid out. */
   function toggleFitToScreen(): void {
@@ -98,10 +115,11 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
             label={label}
             fitToScreen={fitToScreen}
             selectedId={isRiding ? (ridingStop?.id ?? null) : selectedId}
-            onSelect={onSelect}
+            onSelect={isGuessing ? undefined : onSelect}
             svgRef={svgRef}
           />
           {isRiding && <PlaybackCart track={track} cartRef={playback.cartRef} vehicle={vehicle} />}
+          {curtain !== null && <GuessCurtain track={track} curtain={curtain} palette={scene?.palette ?? null} />}
         </div>
       </div>
       {playback.status !== null && (
@@ -118,7 +136,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           onExit={playback.exit}
         />
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className={isGuessing ? "hidden" : "flex flex-wrap gap-2"}>
         {!isRiding && (
           <button
             type="button"
