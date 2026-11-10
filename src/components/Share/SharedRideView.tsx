@@ -119,7 +119,7 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
             story={{ drawing: storyDrawingOf(track), title: ride.title, events: ride.events }}
             shareRide={{ ...ride, style, theme }}
           />
-          <RideVideoButton svg={svg} track={track} events={ride.events} title={ride.title} isMonochrome={scene?.palette.kind === "line"} />
+          <RideVideoButton svg={svg} track={track} events={ride.events} title={ride.title} isMonochrome={scene?.palette.kind === "line"} sceneryKind={scene?.palette.kind ?? null} />
           <LifeStatsPanel events={splitFuture(ride.events, today).past} />
         </>
       )}
