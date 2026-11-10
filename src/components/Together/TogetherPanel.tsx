@@ -1,5 +1,5 @@
 /**
- * The card and controls shown while two rides are ridden together, one column of the timeline at a time.
+ * The card and controls shown while two to four rides are ridden together, one column of the timeline at a time.
  * It names whose moment is whose, announces each column to screen readers, and ends with how many years they share.
  * It only displays what the playback hook reports and passes button presses back to it.
  */
@@ -19,6 +19,8 @@ interface TogetherPanelProps {
   date: string | null;
   moments: readonly PersonMoment[] | null;
   sharedYears: number;
+  /** How many rides are riding together, which sets the wording of the ending. */
+  rideCount: number;
   onTogglePause: () => void;
   onNext: () => void;
   onBack: () => void;
@@ -28,6 +30,7 @@ interface TogetherPanelProps {
 const STARTING_TEXT = "Hold on together, the ride is starting.";
 const KEY_HINT = "Keys: Space pauses, arrows move through time, Escape exits.";
 const NOTHING_HERE = "Nothing marked here";
+const PAIR = 2;
 
 function Moments({ date, moments }: Pick<TogetherPanelProps, "date" | "moments">): ReactElement {
   if (moments === null) {
@@ -48,12 +51,14 @@ function Moments({ date, moments }: Pick<TogetherPanelProps, "date" | "moments">
 }
 
 export function TogetherPanel(props: TogetherPanelProps): ReactElement {
-  const { status, date, moments, sharedYears, onTogglePause, onNext, onBack, onExit } = props;
+  const { status, date, moments, sharedYears, rideCount, onTogglePause, onNext, onBack, onExit } = props;
   const isFinished = status === "finished";
+  const isPair = rideCount === PAIR;
+  const years = `${sharedYears} ${sharedYears === 1 ? "year" : "years"}`;
   const ending =
     sharedYears === 0
       ? "That was your ride together. Your big moments never landed in the same year."
-      : `That was your ride together. You shared ${sharedYears} ${sharedYears === 1 ? "year" : "years"} with big moments for you both.`;
+      : `That was your ride together. You shared ${years} with big moments for ${isPair ? "you both" : "more than one of you"}.`;
   return (
     <section aria-label="Ride together" className="flex flex-col gap-3 rounded-lg border-2 border-accent p-4">
       <div aria-live="polite" className="flex min-h-24 flex-col gap-1">

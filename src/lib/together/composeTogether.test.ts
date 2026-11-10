@@ -27,8 +27,9 @@ describe("composeTogether", () => {
   it("puts a shared column at the same x in both drawings", () => {
     const { aligned, rides } = composeTogether(pair, "coaster", "sunny");
     for (const column of aligned.columns) {
-      if (column.a !== null && column.b !== null) {
-        expect(rides[0].track.stops[column.a].x).toBe(rides[1].track.stops[column.b].x);
+      const [first, second] = column.entries;
+      if (first !== null && second !== null) {
+        expect(rides[0].track.stops[first].x).toBe(rides[1].track.stops[second].x);
       }
     }
   });
@@ -39,5 +40,14 @@ describe("composeTogether", () => {
     const ends = rides.map(({ track }) => track.profile.at(-1)?.x);
     expect(ends[0]).toBe(ends[1]);
     expect(ends[0]).toBeGreaterThan(rides[0].track.stops.at(-1)?.x ?? 0);
+  });
+
+  it("makes three or four drawings exactly the same width", () => {
+    for (const count of [3, 4]) {
+      const group = Array.from({ length: count }, (_, index) => rideOf(index, index === 2 ? "A much longer title for the third ride of all" : undefined));
+      const { rides } = composeTogether(group, "loops", "sunny");
+      expect(rides).toHaveLength(count);
+      expect(new Set(rides.map(({ track }) => track.width)).size).toBe(1);
+    }
   });
 });

@@ -1,6 +1,6 @@
 /**
  * Share buttons for a ride together, using the link that is already open.
- * Both rides live in the part of the link after "#", so sharing it shares exactly what is on screen and nothing more.
+ * Every ride lives in the part of the link after "#", so sharing it shares exactly what is on screen and nothing more.
  * It says plainly what the link contains before anything is shared.
  */
 "use client";
@@ -8,18 +8,19 @@
 import { useState, type ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import { shareTargets } from "@/lib/share/shareTargets";
+import { namesInWords } from "@/lib/together/names";
 
 interface TogetherShareProps {
-  names: readonly [string, string];
+  names: readonly string[];
 }
 
 const NOTE =
-  "Anyone with this link can see both rides: event titles, dates, how each felt and mattered, chapter names and titles. Descriptions and stories are never in it.";
+  "Anyone with this link can see every ride in it: event titles, dates, how each felt and mattered, chapter names and titles. Descriptions and stories are never in it.";
 
 export function TogetherShare({ names }: TogetherShareProps): ReactElement {
   const [status, setStatus] = useState("");
   const link = window.location.href;
-  const message = `Take a ride through "${names[0]}" and "${names[1]}" together.`;
+  const message = `Take a ride through ${namesInWords(names.map((name) => `"${name}"`))} together.`;
 
   async function copy(): Promise<void> {
     try {

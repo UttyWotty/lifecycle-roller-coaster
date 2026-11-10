@@ -33,7 +33,7 @@ This is a playful, creative picture of a story. It is not a psychological assess
 - **Future stops:** press Add a future stop for something you are looking forward to, or give any event a date after today. Stops still to come sit past a dashed TODAY line on a softly veiled stretch of track, the cart parks at today, Ride it ends there with a list of what is coming, and statistics count only what has happened.
 - **Ride lenses:** turn one story into several rides, such as My Career Coaster, My 2010s or My Life Before 30. Add the year you were born for age lenses. A ride you have not named takes the lens's title, ready to share.
 - **Guess my ride:** on a ride someone shared with you, press Guess my ride. The track ahead hides behind a curtain; for each stop you see its title and date, guess how it felt and how big it was, and the curtain lifts to show the answer. At the end you get a score and can share it with the ride's link, so friends can try to beat it.
-- **Ride together:** open a friend's ride link and press Ride together with my ride, or paste their link on your own ride. Your two lives appear on one timeline, with the same years lined up, both carts ride through time side by side, and "The same year, two stories" lists the years you both had big moments. The pair has its own link to share.
+- **Ride together:** open a friend's ride link and press Ride together with my ride, or paste their link on your own ride. Your two lives appear on one timeline, with the same years lined up, both carts ride through time side by side, and "The same year, two stories" lists the years you both had big moments. The pair has its own link to share. On a ride together, **Add a friend's ride** brings in another ride link, for a family or group of up to four.
 - **Saved on your device:** your ride is still there when you come back. **My rides** keeps up to 12 rides, such as your life, your career or a parent's story: start a **New ride**, open another, or delete one. Your story text is never saved, and Start over deletes the ride that is open.
 - **Fit to screen:** an optional toggle that shows a whole long ride at once, instead of scrolling sideways.
 - **Image export:** download a PNG that is created on your device.
@@ -128,7 +128,7 @@ The AI layer and the rendering engine are independent. The AI produces structure
 | `src/lib/ride/` | Pure timing and geometry for Ride it playback |
 | `src/lib/lenses/` | Pure ride lenses: parts of life, decades and ages |
 | `src/lib/share/` | Pure share-link encoding and social share URLs |
-| `src/lib/together/` | Pure Ride together: lining two rides up in time, and the pair link |
+| `src/lib/together/` | Pure Ride together: lining two to four rides up in time, and the group link |
 | `src/lib/saved/` | Pure shape of the rides saved on the device (one ride, and the shelf of up to 12) |
 | `e2e/` | Browser tests for the full user journey |
 | `docs/` | The product blueprint |
