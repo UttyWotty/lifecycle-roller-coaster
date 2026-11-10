@@ -6,6 +6,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **Embed your ride:** Copy embed code, in the share panel, gives a snippet to paste into a blog or website. It shows your ride there with Ride it, and links back to the full ride and to make your own, opening in a new tab. The ride lives only in the snippet's link, as with share links, and only the embed page may be shown inside other sites.
+
+### Added
+
 - **Music:** a new button next to Sound plays a short looping tune that suits your theme while Ride it plays, from a music box for the toy theme to a chiptune for the arcade world, quietly under the ride sounds. Every tune is original and made in your browser with no audio files. Ride videos include it when Music is on. It starts off and is remembered on this device.
 
 - **Narrate:** a new button next to Sound has your device's own voice read each stop's place, date and title as the cart reaches it during Ride it, and say when the ride ends. Nothing is downloaded or sent anywhere. It starts off and is remembered on this device; pausing or exiting stops the voice at once. Ride videos are not narrated, because browsers cannot record their own voice.

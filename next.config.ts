@@ -14,7 +14,9 @@ const IS_DEVELOPMENT = (process.env.NODE_ENV ?? "production") === "development";
  * Every route except BotID's challenge path, which withBotId serves from Vercel with its own frame header.
  * Our strict frame-ancestors would otherwise override it and could break the challenge.
  */
-const APP_ROUTES = "/((?!149e9513-01fa-4fb0-aad4-566afd725d1b).*)";
+const APP_ROUTES = "/((?!149e9513-01fa-4fb0-aad4-566afd725d1b|embed$).*)";
+/** The embed page, which other sites may show in a frame; it gets the same policy with framing allowed. */
+const EMBED_ROUTE = "/embed";
 /**
  * Vercel sets VERCEL to "1" while building a deployment. Baking it into the browser bundle turns on the
  * BotID client only there, because off Vercel its challenge script does not exist and requests would wait for it.
@@ -27,7 +29,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   env: { NEXT_PUBLIC_BOT_PROTECTION: BOT_PROTECTION },
   async headers() {
-    return [{ source: APP_ROUTES, headers: securityHeaders(IS_DEVELOPMENT) }];
+    return [
+      { source: APP_ROUTES, headers: securityHeaders(IS_DEVELOPMENT, "deny") },
+      { source: EMBED_ROUTE, headers: securityHeaders(IS_DEVELOPMENT, "anyone") },
+    ];
   },
   turbopack: {
     rules: {
