@@ -3,7 +3,7 @@
  * The intro shows the ride's title over the start, and the ending card fades in over the drawing at the end.
  * Layout and timing come from the pure rideVideo plan; this file only paints what it is given.
  */
-import { FONT_FAMILY, STORY_COLORS, titleLines } from "@/lib/export/storyCard";
+import { FONT_FAMILY, STORY_COLORS, STORY_CONTENT_WIDTH, titleLines } from "@/lib/export/storyCard";
 import type { CartPose } from "@/lib/ride/ridePlayback";
 import {
   DRAWING_BAND_HEIGHT,
@@ -74,7 +74,7 @@ function centredText(context: CanvasRenderingContext2D, text: string, y: number,
 
 function wrappedText(context: CanvasRenderingContext2D, text: string, top: number, lineHeight: number, font: string, color: string): void {
   context.font = font;
-  titleLines(text, (line) => context.measureText(line).width).forEach((line, index) =>
+  titleLines(text, (line) => context.measureText(line).width, STORY_CONTENT_WIDTH).forEach((line, index) =>
     centredText(context, line, top + index * lineHeight, font, color),
   );
 }

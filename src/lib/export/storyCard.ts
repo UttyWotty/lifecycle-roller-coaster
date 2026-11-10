@@ -69,7 +69,9 @@ export interface StoryCardInput {
   measureTitle: TextMeasure;
 }
 
-const CONTENT_WIDTH = STORY_WIDTH - SIDE_MARGIN * 2;
+/** The width a title line may take on the story card; other layouts pass their own. */
+export const STORY_CONTENT_WIDTH = STORY_WIDTH - SIDE_MARGIN * 2;
+const CONTENT_WIDTH = STORY_CONTENT_WIDTH;
 const CONTENT_HEIGHT = STORY_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT;
 
 /** Cuts the drawing into a number of rows of about equal width, each cut halfway between two neighbouring stops. */
@@ -116,7 +118,7 @@ export function storyLayout(drawing: StoryDrawing): StoryLayout {
   return best;
 }
 
-function escapeXml(text: string): string {
+export function escapeXml(text: string): string {
   return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
@@ -126,11 +128,11 @@ function characters(text: string): string[] {
 }
 
 /** Splits a word too wide for one line into pieces that each fit, at whole characters. */
-function fittingPieces(word: string, measure: TextMeasure): string[] {
+function fittingPieces(word: string, measure: TextMeasure, maxWidth: number): string[] {
   const pieces: string[] = [];
   let piece = "";
   for (const character of characters(word)) {
-    if (piece !== "" && measure(piece + character) > CONTENT_WIDTH) {
+    if (piece !== "" && measure(piece + character) > maxWidth) {
       pieces.push(piece);
       piece = "";
     }
@@ -140,21 +142,21 @@ function fittingPieces(word: string, measure: TextMeasure): string[] {
 }
 
 /** Shortens a line at whole characters until it fits with an ellipsis after it. */
-function withEllipsis(line: string, measure: TextMeasure): string {
+function withEllipsis(line: string, measure: TextMeasure, maxWidth: number): string {
   const kept = characters(line);
-  while (kept.length > 0 && measure(`${kept.join("").trimEnd()}${ELLIPSIS}`) > CONTENT_WIDTH) {
+  while (kept.length > 0 && measure(`${kept.join("").trimEnd()}${ELLIPSIS}`) > maxWidth) {
     kept.pop();
   }
   return `${kept.join("").trimEnd()}${ELLIPSIS}`;
 }
 
-/** Splits a title into at most two lines that fit the card, measured at the title size, and marks a cut title. */
-export function titleLines(title: string, measure: TextMeasure): string[] {
-  const words = (title.trim() || UNNAMED_STORY_TITLE).split(/\s+/).flatMap((word) => fittingPieces(word, measure));
+/** Splits a title into at most two lines no wider than maxWidth, measured at the title size, and marks a cut title. */
+export function titleLines(title: string, measure: TextMeasure, maxWidth: number): string[] {
+  const words = (title.trim() || UNNAMED_STORY_TITLE).split(/\s+/).flatMap((word) => fittingPieces(word, measure, maxWidth));
   const lines: string[] = [];
   for (const word of words) {
     const current = lines.at(-1);
-    if (current !== undefined && measure(`${current} ${word}`) <= CONTENT_WIDTH) {
+    if (current !== undefined && measure(`${current} ${word}`) <= maxWidth) {
       lines[lines.length - 1] = `${current} ${word}`;
     } else {
       lines.push(word);
@@ -164,7 +166,7 @@ export function titleLines(title: string, measure: TextMeasure): string[] {
     return lines;
   }
   const kept = lines.slice(0, MAX_TITLE_LINES);
-  kept[MAX_TITLE_LINES - 1] = withEllipsis(kept[MAX_TITLE_LINES - 1], measure);
+  kept[MAX_TITLE_LINES - 1] = withEllipsis(kept[MAX_TITLE_LINES - 1], measure, maxWidth);
   return kept;
 }
 
@@ -199,7 +201,7 @@ function drawingRows(input: StoryCardInput, layout: StoryLayout): string {
 
 /** The whole story picture as standalone SVG markup, STORY_WIDTH by STORY_HEIGHT. */
 export function buildStoryCard(input: StoryCardInput): string {
-  const lines = titleLines(input.title, input.measureTitle);
+  const lines = titleLines(input.title, input.measureTitle, STORY_CONTENT_WIDTH);
   const title = lines
     .map((line, index) => `<tspan x="${STORY_WIDTH / 2}" y="${TITLE_TOP + index * TITLE_LINE_HEIGHT}">${escapeXml(line)}</tspan>`)
     .join("");

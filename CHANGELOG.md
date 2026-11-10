@@ -8,7 +8,7 @@ All notable changes to this project are documented in this file. The format foll
 
 - **Embed your ride:** Copy embed code, in the share panel, gives a snippet to paste into a blog or website. It shows your ride there with Ride it, and links back to the full ride and to make your own, opening in a new tab. The ride lives only in the snippet's link, as with share links, and only the embed page may be shown inside other sites.
 
-### Added
+- **Download poster:** a print-ready A3 landscape poster of your ride, with its title, years and stops, the whole drawing and the wordmark, at about 290 dpi. It is made on your device like the other images.
 
 - **Music:** a new button next to Sound plays a short looping tune that suits your theme while Ride it plays, from a music box for the toy theme to a chiptune for the arcade world, quietly under the ride sounds. Every tune is original and made in your browser with no audio files. Ride videos include it when Music is on. It starts off and is remembered on this device.
 
