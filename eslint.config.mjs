@@ -43,6 +43,7 @@ const eslintConfig = defineConfig([
   restrictImports(["src/lib/lenses/**"], [SDK_PATTERN, AI_PATTERN, TRACK_PATTERN, UI_PATTERN]),
   restrictImports(["src/lib/ride/**"], [SDK_PATTERN, AI_PATTERN, UI_PATTERN]),
   restrictImports(["src/lib/together/**"], [SDK_PATTERN, AI_PATTERN, UI_PATTERN]),
+  restrictImports(["src/lib/analytics/**"], [SDK_PATTERN, AI_PATTERN, UI_PATTERN]),
   globalIgnores([
     ".next/**",
     ".loop/**",

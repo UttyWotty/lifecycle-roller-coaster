@@ -7,7 +7,8 @@ import type { Track } from "./types";
 
 export const MAX_TITLE_LENGTH = 50;
 
-const TITLE_BAND = 72;
+/** Height of the strip at the top of a drawing that holds its title. */
+export const TITLE_BAND = 72;
 const TITLE_BASELINE = 46;
 const TITLE_INSET = 24;
 const LARGEST_FONT_SIZE = 30;

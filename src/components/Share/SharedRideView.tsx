@@ -10,6 +10,7 @@ import { useMemo, useRef, useState, useSyncExternalStore, type ReactElement } fr
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import { CategoryLegend } from "@/components/RollerCoaster/CategoryLegend";
 import { ExportButton } from "@/components/RollerCoaster/ExportButton";
+import { storyDrawingOf } from "@/components/RollerCoaster/storyImage";
 import { LifeStatsPanel } from "@/components/RollerCoaster/LifeStatsPanel";
 import { RideDrawing } from "@/components/RollerCoaster/RideDrawing";
 import { RideLookBar } from "@/components/RollerCoaster/RideLookBar";
@@ -73,7 +74,13 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
         onFitToScreenChange={setFitToScreen}
       />
       {scene?.palette.kind !== "line" && <CategoryLegend events={ride.events} />}
-      <ExportButton svg={svg} width={track.width} height={track.height} />
+      <ExportButton
+        svg={svg}
+        width={track.width}
+        height={track.height}
+        story={{ drawing: storyDrawingOf(track), title: ride.title, events: ride.events }}
+        shareRide={{ ...ride, style, theme }}
+      />
       <LifeStatsPanel events={ride.events} />
       <RideTogetherWithMine theirs={ride} />
       <MakeYourOwn />

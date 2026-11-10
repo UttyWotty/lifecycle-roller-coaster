@@ -21,6 +21,7 @@ import { CategoryLegend } from "./CategoryLegend";
 import { ShareLinkPanel } from "@/components/Share/ShareLinkPanel";
 import { RideTogetherInvite } from "@/components/Together/TogetherEntry";
 import { ExportButton } from "./ExportButton";
+import { storyDrawingOf } from "./storyImage";
 import { LifeReportPanel } from "./LifeReportPanel";
 import { LifeStatsPanel } from "./LifeStatsPanel";
 import { RideControls } from "./RideControls";
@@ -151,7 +152,13 @@ export function RideResult(props: RideResultProps): ReactElement {
         onTitleChange={onTitleChange}
         onRiderChange={onRiderChange}
       />
-      <ExportButton svg={svg} width={track.width} height={track.height} />
+      <ExportButton
+        svg={svg}
+        width={track.width}
+        height={track.height}
+        story={{ drawing: storyDrawingOf(track), title: drawingTitle, events: lensEvents }}
+        shareRide={shareable}
+      />
       <ShareLinkPanel ride={shareable} />
       <RideTogetherInvite mine={shareable} />
       {report && <LifeReportPanel report={report} isSample={isSample} />}

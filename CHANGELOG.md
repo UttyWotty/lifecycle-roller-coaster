@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-10
+
+### Added
+
+- Anonymous page-view counting on the live site with Vercel Web Analytics (free plan, no cookies). Addresses are cut down to the page before they are sent, so shared rides never leave the browser. It counts nothing in previews, local runs or tests.
+
+- Share my ride now sends a story-sized picture (1080 by 1920) made for phone stories: the ride's title, its years and stops, the ride wrapped onto rows so it stays large, and where to make your own. The share also carries a link to the ride for apps that accept one. Download image still saves the wide drawing.
+
 ## [0.11.2] - 2026-11-10
 
 ### Fixed
