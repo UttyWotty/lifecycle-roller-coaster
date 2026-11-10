@@ -1,5 +1,5 @@
 /**
- * The interactive ride drawing with its controls: Ride it, Ride again, Sound, Non-stop and Fit to screen.
+ * The interactive ride drawing with its controls: Ride it, Ride again, Sound, Narrate, Non-stop and Fit to screen.
  * It owns Ride it playback, laying the moving cart over the drawing and the story card under it.
  * While a ride runs, the stop the cart has reached is highlighted; otherwise the user's selection is.
  */
@@ -20,6 +20,7 @@ import { GuessCurtain } from "./GuessCurtain";
 import { RideItPanel } from "./RideItPanel";
 import { MIN_TRACK_SCALE, RideTrack } from "./RideTrack";
 import { useRidePlayback } from "./useRidePlayback";
+import { useNarrateRide, useNarration } from "./useNarration";
 import { useNonStop } from "./useNonStop";
 import { useRideSounds } from "./useRideSounds";
 
@@ -57,6 +58,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
   const hasCart = scene !== null && railPath !== null;
   const sounds = useRideSounds();
   const nonStop = useNonStop();
+  const narration = useNarration();
   const ridePath = track.future?.pastRail ?? railPath;
   const playback = useRidePlayback({ track, railPath: hasCart ? ridePath : null, scroller, drawing, sound: sounds.player, isNonStop: nonStop.isOn });
   const isRiding = playback.status !== null;
@@ -69,6 +71,13 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
   }, [isRiding, silence]);
   const ridingStop = playback.stopIndex === null ? null : track.stops[playback.stopIndex];
   const ridingEvent = events.find((event) => event.id === ridingStop?.id) ?? null;
+  useNarrateRide({
+    narration,
+    status: playback.status,
+    stopIndex: playback.stopIndex,
+    stop: ridingEvent ?? ridingStop ?? null,
+    stopCount: pastStops(track).length,
+  });
   const vehicle = scene && hasCart
     ? {
         Vehicle: sceneModeFor(scene.palette.kind).Vehicle,
@@ -168,6 +177,16 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
         >
           Sound
         </button>
+        {narration.isSupported && (
+          <button
+            type="button"
+            aria-pressed={narration.isOn}
+            onClick={narration.toggle}
+            className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
+          >
+            Narrate
+          </button>
+        )}
         <button
           type="button"
           aria-pressed={nonStop.isOn}
