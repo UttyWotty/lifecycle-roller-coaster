@@ -1,8 +1,10 @@
 /**
  * The illustrated themes a ride can be drawn in, with the colours of each one.
  * Colours are fixed values rather than page variables, so a scene looks the same on screen and in exports.
- * This module holds data only, and the Simple theme has no scene at all.
+ * This module holds data only, and the Simple theme has no scene at all; names on screen come from the look messages.
  */
+import { DEFAULT_LOCALE } from "@/lib/i18n/locales";
+import { translate } from "@/lib/i18n/messages";
 
 export const RIDE_THEMES = [
   "classic",
@@ -65,6 +67,7 @@ export interface ScenePalette {
 }
 
 interface RideThemeDetails {
+  /** The English name, for code outside the interface; components show the look.<theme>Theme message instead. */
   name: string;
   group: RideThemeGroup;
   /** Null means no scene, which draws the simple page-coloured ride. */
@@ -344,19 +347,23 @@ const ARCADE: ScenePalette = {
   floor: 0,
 };
 
+function englishName(theme: RideTheme): string {
+  return translate(DEFAULT_LOCALE, `look.${theme}Theme`);
+}
+
 export const RIDE_THEME_DETAILS: Readonly<Record<RideTheme, RideThemeDetails>> = {
-  classic: { name: "Classic Ride", group: "Art modes", palette: CLASSIC },
-  nightmare: { name: "Nightmare Mode", group: "Art modes", palette: NIGHTMARE },
-  minimal: { name: "Minimal Mode", group: "Art modes", palette: MINIMAL },
-  poster: { name: "Retro Mode", group: "Art modes", palette: POSTER },
-  space: { name: "Space mission", group: "Worlds", palette: SPACE },
-  ocean: { name: "Ocean voyage", group: "Worlds", palette: OCEAN },
-  mountain: { name: "Mountain trek", group: "Worlds", palette: MOUNTAIN },
-  arcade: { name: "Arcade level", group: "Worlds", palette: ARCADE },
-  sunny: { name: "Sunny day", group: "Scenes", palette: SUNNY },
-  sunset: { name: "Golden sunset", group: "Scenes", palette: SUNSET },
-  night: { name: "Starry night", group: "Scenes", palette: NIGHT },
-  retro: { name: "Retro fairground", group: "Scenes", palette: RETRO },
-  haunted: { name: "Haunted night", group: "Scenes", palette: HAUNTED },
-  plain: { name: "Simple", group: "Scenes", palette: null },
+  classic: { name: englishName("classic"), group: "Art modes", palette: CLASSIC },
+  nightmare: { name: englishName("nightmare"), group: "Art modes", palette: NIGHTMARE },
+  minimal: { name: englishName("minimal"), group: "Art modes", palette: MINIMAL },
+  poster: { name: englishName("poster"), group: "Art modes", palette: POSTER },
+  space: { name: englishName("space"), group: "Worlds", palette: SPACE },
+  ocean: { name: englishName("ocean"), group: "Worlds", palette: OCEAN },
+  mountain: { name: englishName("mountain"), group: "Worlds", palette: MOUNTAIN },
+  arcade: { name: englishName("arcade"), group: "Worlds", palette: ARCADE },
+  sunny: { name: englishName("sunny"), group: "Scenes", palette: SUNNY },
+  sunset: { name: englishName("sunset"), group: "Scenes", palette: SUNSET },
+  night: { name: englishName("night"), group: "Scenes", palette: NIGHT },
+  retro: { name: englishName("retro"), group: "Scenes", palette: RETRO },
+  haunted: { name: englishName("haunted"), group: "Scenes", palette: HAUNTED },
+  plain: { name: englishName("plain"), group: "Scenes", palette: null },
 };

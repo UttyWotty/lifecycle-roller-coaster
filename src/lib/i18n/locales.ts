@@ -14,6 +14,9 @@ export const LOCALE_NAMES: Readonly<Record<Locale, string>> = { en: "English", t
 /** The BCP 47 tag each language formats numbers with, such as 20,000 in English and 20.000 in Turkish. */
 export const NUMBER_LOCALES: Readonly<Record<Locale, string>> = { en: "en-US", tr: "tr-TR" };
 
+/** The BCP 47 tag each language is spoken in, so the device picks a voice that reads it properly. */
+export const SPEECH_LANGUAGES: Readonly<Record<Locale, string>> = { en: "en-US", tr: "tr-TR" };
+
 const LANGUAGE_SEPARATOR = "-";
 const PLACEHOLDER = /\{(\w+)\}/g;
 

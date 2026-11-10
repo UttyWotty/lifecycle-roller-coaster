@@ -80,3 +80,11 @@ describe("stopCaption", () => {
     expect(stopCaption({ ...stop, date: null }, 0, 1).line).toBe("Stop 1 of 1 · Date unknown");
   });
 });
+
+describe("stopCaption in Turkish", () => {
+  it("numbers the stop and shows its date in Turkish", () => {
+    const stop = { title: "Got married", date: "2022" } as TrackStop;
+    expect(stopCaption(stop, 1, 5, "tr")).toEqual({ line: "Durak 2 / 5 · 2022", title: "Got married" });
+    expect(stopCaption({ ...stop, date: null }, 0, 1, "tr").line).toBe("Durak 1 / 1 · Tarih yok");
+  });
+});

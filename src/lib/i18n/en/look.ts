@@ -1,0 +1,42 @@
+/**
+ * English words for how a ride looks: the ride styles, the themes and their groups, and the characters.
+ * Every other language must give the same keys, which the message index checks when it is compiled.
+ * Keys follow the style, theme and rider ids, so a component can look a name up straight from a choice.
+ */
+export const look = {
+  styleLegend: "Ride style",
+  themeLegend: "Theme",
+  riderLegend: "Choose your character",
+  coasterName: "Coaster",
+  coasterDescription: "The classic ride, up for good times and down for hard ones.",
+  coasterDrawing: "Your life as a roller coaster",
+  loopsName: "Loop-the-loops",
+  loopsDescription: "Sharper drops, and a full loop at every big moment.",
+  loopsDrawing: "Your life as a roller coaster with loops",
+  metroName: "Metro map",
+  metroDescription: "One line for each part of your life, meeting at big moments.",
+  metroDrawing: "Your life as a metro map",
+  groupArtModes: "Art modes",
+  groupWorlds: "Worlds",
+  groupScenes: "Scenes",
+  classicTheme: "Classic Ride",
+  nightmareTheme: "Nightmare Mode",
+  minimalTheme: "Minimal Mode",
+  posterTheme: "Retro Mode",
+  spaceTheme: "Space mission",
+  oceanTheme: "Ocean voyage",
+  mountainTheme: "Mountain trek",
+  arcadeTheme: "Arcade level",
+  sunnyTheme: "Sunny day",
+  sunsetTheme: "Golden sunset",
+  nightTheme: "Starry night",
+  retroTheme: "Retro fairground",
+  hauntedTheme: "Haunted night",
+  plainTheme: "Simple",
+  smileyRider: "Smiley",
+  catRider: "Cat",
+  robotRider: "Robot",
+  astronautRider: "Astronaut",
+  dinoRider: "Dino",
+  ghostRider: "Ghost",
+};

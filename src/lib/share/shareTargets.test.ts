@@ -27,3 +27,11 @@ describe("shareMessage", () => {
     expect(shareMessage("  ")).toBe("Take a ride through my life story.");
   });
 });
+
+describe("sharing in Turkish", () => {
+  it("words the message and names email in Turkish", () => {
+    expect(shareMessage("20'lerim", "tr")).toBe('"20\'lerim" treninde bir tur at.');
+    expect(shareMessage("", "tr")).toBe("Hayat hikâyemde bir tur at.");
+    expect(shareTargets(LINK, "Merhaba", "tr").map(({ name }) => name)).toEqual(["X", "WhatsApp", "Telegram", "E-posta"]);
+  });
+});

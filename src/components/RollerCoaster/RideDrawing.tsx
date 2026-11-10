@@ -7,6 +7,7 @@
 
 import { useEffect, useRef, useState, type ReactElement, type RefObject } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { useLocale, useT } from "@/components/I18n/useLocale";
 import { PlaybackCart } from "@/components/Scene/PlaybackCart";
 import { sceneModeFor } from "@/components/Scene/sceneModes";
 import type { LifeReport } from "@/lib/events/insights";
@@ -52,6 +53,8 @@ const RIDING_CLASS = "ride-it-active";
 export function RideDrawing(props: RideDrawingProps): ReactElement {
   const { track, scene, label, events, report, fitToScreen, selectedId, svgRef, onSelect, onFitToScreenChange, curtain } = props;
   const isGuessing = curtain !== null;
+  const t = useT();
+  const locale = useLocale();
   const [rideNumber, setRideNumber] = useState(FIRST_RIDE);
   const scroller = useRef<HTMLDivElement>(null);
   const drawing = useRef<HTMLDivElement>(null);
@@ -79,6 +82,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
     stopIndex: playback.stopIndex,
     stop: ridingEvent ?? ridingStop ?? null,
     stopCount: pastStops(track).length,
+    locale,
   });
   const vehicle = scene && hasCart
     ? {
@@ -113,7 +117,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
         ref={scroller}
         tabIndex={0}
         role="region"
-        aria-label="Roller coaster, scrolls sideways on small screens"
+        aria-label={t("ride.drawingRegion")}
         className="overflow-x-auto lg:scroll-mt-36"
       >
         <div
@@ -160,7 +164,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
             }}
             className="min-h-11 rounded-full bg-accent px-6 py-2 font-semibold text-on-accent"
           >
-            Ride it
+            {t("ride.rideIt")}
           </button>
         )}
         {hasCart && !isRiding && (
@@ -169,7 +173,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
             onClick={() => setRideNumber((number) => number + 1)}
             className={`${SECONDARY_BUTTON_CLASS} motion-reduce:hidden`}
           >
-            Ride again
+            {t("ride.rideAgain")}
           </button>
         )}
         <button
@@ -178,7 +182,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           onClick={sounds.toggle}
           className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
-          Sound
+          {t("ride.sound")}
         </button>
         <button
           type="button"
@@ -186,7 +190,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           onClick={music.toggle}
           className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
-          Music
+          {t("ride.music")}
         </button>
         {narration.isSupported && (
           <button
@@ -195,7 +199,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
             onClick={narration.toggle}
             className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
           >
-            Narrate
+            {t("ride.narrate")}
           </button>
         )}
         <button
@@ -204,7 +208,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           onClick={nonStop.toggle}
           className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
-          Non-stop
+          {t("ride.nonStop")}
         </button>
         <button
           type="button"
@@ -212,7 +216,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           onClick={toggleFitToScreen}
           className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
         >
-          Fit to screen
+          {t("ride.fitToScreen")}
         </button>
       </div>
     </>

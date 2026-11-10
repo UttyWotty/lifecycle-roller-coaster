@@ -1,12 +1,14 @@
 /**
  * Browser side of the narrated ride: the remembered on/off choice, and speaking each stop with the device's own voice.
- * Speech uses the browser's built-in voices, so nothing is downloaded or uploaded, and the choice starts off.
+ * Speech uses the browser's built-in voices in the visitor's language, so nothing is downloaded or uploaded, and the
+ * choice starts off.
  * A new line cuts off the last one instead of queueing, and pausing, exiting or leaving the page stops the voice at once.
  */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { NARRATION_END, narrationFor } from "@/lib/ride/narration";
+import { SPEECH_LANGUAGES, type Locale } from "@/lib/i18n/locales";
+import { narrationEnd, narrationFor } from "@/lib/ride/narration";
 import type { PlaybackStatus } from "./useRidePlayback";
 
 const NARRATE_KEY = "lifecycle-roller-coaster:narrate";
@@ -30,6 +32,8 @@ interface RideMoment {
   stopIndex: number | null;
   stop: { title: string; date: string | null } | null;
   stopCount: number;
+  /** The language the voice speaks, which also picks the device voice. */
+  locale: Locale;
 }
 
 function hasSpeech(): boolean {
@@ -58,9 +62,11 @@ function silence(): void {
   }
 }
 
-function say(text: string): void {
+function say(text: string, locale: Locale): void {
   window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = SPEECH_LANGUAGES[locale];
+  window.speechSynthesis.speak(utterance);
 }
 
 /** Runs only in the browser (the ride pages render client-side), so the saved choice is the initial state. */
@@ -81,10 +87,15 @@ export function useNarration(): Narration {
 }
 
 /** Speaks each stop once as the ride reaches it, and the end, while narration is on. */
-export function useNarrateRide({ narration, status, stopIndex, stop, stopCount }: RideMoment): void {
+export function useNarrateRide({ narration, status, stopIndex, stop, stopCount, locale }: RideMoment): void {
   const spoken = useRef<string | null>(null);
   const isOn = narration.isOn && narration.isSupported;
-  const line = status === "finished" ? NARRATION_END : stop === null || stopIndex === null ? null : narrationFor(stop, stopIndex, stopCount);
+  const line =
+    status === "finished"
+      ? narrationEnd(locale)
+      : stop === null || stopIndex === null
+        ? null
+        : narrationFor(stop, stopIndex, stopCount, locale);
   const key = status === "finished" ? END_KEY : stopIndex === null ? null : String(stopIndex);
 
   useEffect(() => {
@@ -98,9 +109,9 @@ export function useNarrateRide({ narration, status, stopIndex, stop, stopCount }
     }
     if (key !== null && line !== null && key !== spoken.current) {
       spoken.current = key;
-      say(line);
+      say(line, locale);
     }
-  }, [isOn, status, key, line]);
+  }, [isOn, status, key, line, locale]);
 
   useEffect(() => () => silence(), []);
 }

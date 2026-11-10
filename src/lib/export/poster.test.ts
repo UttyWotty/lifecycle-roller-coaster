@@ -77,3 +77,22 @@ describe("buildPoster", () => {
     }
   });
 });
+
+describe("buildPoster in Turkish", () => {
+  it("words the subtitle in Turkish and keeps the wordmark in English", () => {
+    const markup = buildPoster({
+      markup: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500"></svg>',
+      drawing: { width: 1000, height: 500, titleBand: 0, stopXs: [] },
+      title: "",
+      events: [
+        { id: "a", date: "2001", title: "A", description: "", category: "career", sentiment: "positive", impact: 5, confidence: 1 },
+        { id: "b", date: "2009", title: "B", description: "", category: "career", sentiment: "negative", impact: 5, confidence: 1 },
+      ],
+      measureTitle: measure,
+      locale: "tr",
+    });
+    expect(markup).toContain("2001–2009, 2 durak");
+    expect(markup).toContain("Hayatımın Hız Treni");
+    expect(markup).toContain("Lifecycle Roller Coaster");
+  });
+});

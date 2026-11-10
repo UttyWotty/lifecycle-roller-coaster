@@ -1,0 +1,50 @@
+/**
+ * Turkish words for the ride screen and its drawing: the stage buttons, the ride controls, Ride it and the stop card.
+ * It must give every key the English file gives, which the message index checks when it is compiled.
+ * Placeholders in braces, such as {count}, are kept as they are and filled in when the message is shown.
+ */
+import type { ride as english } from "../en/ride";
+
+export const ride: Record<keyof typeof english, string> = {
+  heading: "Trenin",
+  editEvents: "Olaylarımı düzenle",
+  addFutureStop: "Gelecekten bir durak ekle",
+  anotherSample: "Başka bir hayat göster",
+  selectPrompt: "Nasıl hissettirdiğini ve ne kadar önemli olduğunu ayarlamak için raydan bir durak seç.",
+  creativeNote: "Bu tren hikâyenin yaratıcı bir resmi, hayatının bir ölçümü değil.",
+  drawingRegion: "Hız treni, küçük ekranlarda yana kayar",
+  rideIt: "Bin ve sür",
+  rideAgain: "Yeniden sür",
+  sound: "Ses",
+  music: "Müzik",
+  narrate: "Anlat",
+  nonStop: "Durmadan",
+  fitToScreen: "Ekrana sığdır",
+  starting: "Sıkı tutun, tren kalkıyor.",
+  plainEnding: "İşte trenin buydu. Her durak keşfetmen için hâlâ rayda.",
+  comingUp: "Bugünden sonra seni bekleyenler:",
+  comingUpStop: "{title} ({date})",
+  keyHint: "Tuşlar: Boşluk duraklatır, oklar duraklar arasında gezer, Esc çıkar.",
+  stopOf: "Durak {number} / {count} · {date}",
+  endOfRide: "Yolculuğun sonu",
+  back: "Geri",
+  pause: "Duraklat",
+  play: "Oynat",
+  next: "İleri",
+  exitRide: "Trenden in",
+  nameLabel: "Trenine bir ad ver",
+  unnamedTitle: "Hayatımın Hız Treni",
+  selectedStop: "Seçili durak",
+  dateUnknown: "Tarih yok",
+  markerColours: "İşaret renkleri",
+  stopLabel: "{title}, {date}{future}, {feeling}, etki {impact}",
+  stillToCome: ", henüz gelmedi",
+  feelingPositive: "olumlu",
+  feelingNegative: "olumsuz",
+  feelingNeutral: "nötr",
+  today: "BUGÜN",
+  lensLegend: "Tren merceği",
+  wholeLife: "Tüm hayat",
+  bornIn: "Doğum yılın (isteğe bağlı)",
+  birthYearHint: "20'lerim gibi trenleri görmek için doğduğun yılı ekle. Yalnızca bu cihazda kalır.",
+};

@@ -6,6 +6,7 @@
 import { applyExportPalette } from "@/lib/export/rideImage";
 import { STORY_HEIGHT, STORY_TITLE_FONT, STORY_WIDTH, buildStoryCard, type StoryDrawing, type TextMeasure } from "@/lib/export/storyCard";
 import type { LifeEvent } from "@/lib/events/schema";
+import type { Locale } from "@/lib/i18n/locales";
 import { TITLE_BAND } from "@/lib/track/rideTitle";
 import type { Track } from "@/lib/track/types";
 import { RideExportError, SVG_DATA_PREFIX, drawToPng, loadImage, serializeForExport } from "./downloadRideImage";
@@ -36,7 +37,8 @@ function titleMeasure(): TextMeasure {
   return (text) => context.measureText(text).width;
 }
 
-export async function createStoryImage(svg: SVGSVGElement, story: StoryPicture): Promise<Blob> {
+/** Paints the story picture, with its own words in the given language. */
+export async function createStoryImage(svg: SVGSVGElement, story: StoryPicture, locale: Locale): Promise<Blob> {
   const markup = buildStoryCard({
     markup: applyExportPalette(serializeForExport(svg)),
     drawing: story.drawing,
@@ -44,6 +46,7 @@ export async function createStoryImage(svg: SVGSVGElement, story: StoryPicture):
     events: story.events,
     host: window.location.host,
     measureTitle: titleMeasure(),
+    locale,
   });
   const image = await loadImage(`${SVG_DATA_PREFIX}${encodeURIComponent(markup)}`);
   return drawToPng(image, { width: STORY_WIDTH, height: STORY_HEIGHT }, STORY_SCALE);

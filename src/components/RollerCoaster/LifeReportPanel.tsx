@@ -4,6 +4,7 @@
  * It is a bit of fun, not advice or an assessment.
  */
 import type { ReactElement } from "react";
+import { useT } from "@/components/I18n/useLocale";
 import type { LifeReport } from "@/lib/events/insights";
 
 interface LifeReportPanelProps {
@@ -11,13 +12,11 @@ interface LifeReportPanelProps {
   isSample: boolean;
 }
 
-const AI_NOTE = "Written by AI when it read your story, so later edits are not included.";
-const SAMPLE_NOTE = "Part of this made-up sample life.";
-
 export function LifeReportPanel({ report, isSample }: LifeReportPanelProps): ReactElement {
+  const t = useT();
   return (
-    <section aria-label="Life report" className="flex flex-col gap-2 rounded-lg border-2 border-accent p-4">
-      <h2 className="text-xl font-semibold">Your life report</h2>
+    <section aria-label={t("stats.reportLabel")} className="flex flex-col gap-2 rounded-lg border-2 border-accent p-4">
+      <h2 className="text-xl font-semibold">{t("stats.reportHeading")}</h2>
       <p className="wrap-anywhere text-lg font-semibold">{report.headline}</p>
       <ul className="list-disc pl-5">
         {report.highlights.map((highlight) => (
@@ -26,7 +25,7 @@ export function LifeReportPanel({ report, isSample }: LifeReportPanelProps): Rea
           </li>
         ))}
       </ul>
-      <p className="text-sm text-muted">{isSample ? SAMPLE_NOTE : AI_NOTE}</p>
+      <p className="text-sm text-muted">{isSample ? t("stats.reportSampleNote") : t("stats.reportAiNote")}</p>
     </section>
   );
 }

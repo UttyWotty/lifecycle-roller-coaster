@@ -4,7 +4,7 @@
  * They also confirm each stop's line gives its place, date and title, ending as one sentence.
  */
 import { describe, expect, it } from "vitest";
-import { NARRATION_END, narrationFor, spokenDate } from "./narration";
+import { NARRATION_END, narrationEnd, narrationFor, spokenDate } from "./narration";
 
 describe("spokenDate", () => {
   it("says years, months and days the way people do", () => {
@@ -27,5 +27,16 @@ describe("narrationFor", () => {
 
   it("ends the ride with its own line", () => {
     expect(NARRATION_END).toBe("End of the ride.");
+  });
+});
+
+describe("narration in Turkish", () => {
+  it("says dates, stops and the ending in Turkish", () => {
+    expect(spokenDate("2015-03", "tr")).toBe("Mart 2015");
+    expect(spokenDate("2015-08-07", "tr")).toBe("7 Ağustos 2015");
+    expect(spokenDate(null, "tr")).toBe("Tarih yok");
+    expect(narrationFor({ title: "Üniversiteye başladım", date: "2015" }, 0, 7, "tr")).toBe("Durak 1, toplam 7. 2015. Üniversiteye başladım.");
+    expect(narrationEnd("tr")).toBe("Yolculuğun sonu.");
+    expect(narrationEnd()).toBe(NARRATION_END);
   });
 });

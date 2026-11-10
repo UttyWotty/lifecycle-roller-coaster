@@ -4,6 +4,7 @@
  * It chooses the pixel scale for print resolution, held under a canvas limit that phones can paint, and returns markup only.
  */
 import type { LifeEvent } from "@/lib/events/schema";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locales";
 import {
   FONT_FAMILY,
   STORY_COLORS,
@@ -56,6 +57,8 @@ export interface PosterInput {
   title: string;
   events: readonly LifeEvent[];
   measureTitle: TextMeasure;
+  /** The language the poster's own words are in; English (DEFAULT_LOCALE) when left out. The wordmark stays English. */
+  locale?: Locale;
 }
 
 /** Pixels per poster unit: print resolution, or less where that would pass the canvas limit. */
@@ -78,7 +81,8 @@ export function drawingBox(drawing: StoryDrawing, headerBottom: number): Box {
 /** The whole poster as standalone SVG markup, POSTER_WIDTH by POSTER_HEIGHT units. */
 export function buildPoster(input: PosterInput): string {
   const middle = POSTER_WIDTH / HALF;
-  const lines = titleLines(input.title, input.measureTitle, POSTER_TEXT_WIDTH);
+  const locale = input.locale ?? DEFAULT_LOCALE;
+  const lines = titleLines(input.title, input.measureTitle, POSTER_TEXT_WIDTH, locale);
   const titleTop = MARGIN + POSTER_TITLE_SIZE;
   const title = lines
     .map((line, index) => `<tspan x="${middle}" y="${titleTop + index * TITLE_LINE_HEIGHT}">${escapeXml(line)}</tspan>`)
@@ -93,7 +97,7 @@ export function buildPoster(input: PosterInput): string {
     `<rect width="${POSTER_WIDTH}" height="${POSTER_HEIGHT}" fill="${STORY_COLORS.card}"/>` +
     `<text text-anchor="middle" font-size="${POSTER_TITLE_SIZE}" font-weight="700" fill="${STORY_COLORS.title}">${title}</text>` +
     `<text x="${middle}" y="${subtitleY}" text-anchor="middle" font-size="${SUBTITLE_SIZE}" fill="${STORY_COLORS.muted}">` +
-    `${escapeXml(storySubtitle(input.events))}</text>` +
+    `${escapeXml(storySubtitle(input.events, locale))}</text>` +
     `<svg x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" viewBox="${viewBox}">${inner}</svg>` +
     `<text x="${middle}" y="${POSTER_HEIGHT - MARGIN}" text-anchor="middle" font-size="${FOOTER_SIZE}" ` +
     `font-weight="700" fill="${STORY_COLORS.accent}">${WORDMARK}</text>` +

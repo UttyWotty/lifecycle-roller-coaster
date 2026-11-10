@@ -54,10 +54,10 @@ test("review and My rides speak Turkish", async ({ page }) => {
   await page.goto("/story");
   await page.getByRole("textbox", { name: "Hikâyen" }).fill(STORY);
   await button(page, "Trenimi oluştur").click();
-  await page.getByRole("heading", { name: "Your ride" }).waitFor();
+  await page.getByRole("heading", { name: "Trenin" }).waitFor();
   await expect(button(page, "Baştan başla")).toBeVisible();
-  await page.getByLabel("Name your ride").fill(RIDE_NAME);
-  await button(page, "Edit my events").click();
+  await page.getByLabel("Trenine bir ad ver").fill(RIDE_NAME);
+  await button(page, "Olaylarımı düzenle").click();
   await expect(page.getByRole("heading", { name: "Olaylarını gözden geçir" })).toBeVisible();
   await expect(page.getByText("Demo modu: bunlar örnek olaylar, senin hikâyen değil")).toBeVisible();
   await expect(eventCard(page, 1).getByLabel("Başlık")).toHaveValue("Started university");

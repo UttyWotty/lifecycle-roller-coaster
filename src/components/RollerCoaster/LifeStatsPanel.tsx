@@ -4,18 +4,16 @@
  * The numbers are playful observations about a list of events, not a measurement of a life.
  */
 import type { ReactElement } from "react";
-import { toLabel } from "@/components/EventReview/fieldStyles";
+import { useLocale, useT, type Translate } from "@/components/I18n/useLocale";
 import type { LifeEvent } from "@/lib/events/schema";
-import { buildLifeStats, formatYearRange, type EventMove } from "@/lib/stats/lifeStats";
+import { buildLifeStats, formatYearRange, type CalmStretch, type EventMove } from "@/lib/stats/lifeStats";
 
 interface LifeStatsPanelProps {
   events: readonly LifeEvent[];
 }
 
-const NOT_ENOUGH = "Not enough events yet";
-
-function moveText(move: EventMove | null): string {
-  return move ? `${move.from} to ${move.to}` : NOT_ENOUGH;
+function moveText(t: Translate, move: EventMove | CalmStretch | null): string {
+  return move ? t("stats.move", { from: move.from, to: move.to }) : t("stats.notEnough");
 }
 
 function Stat({ label, value }: { label: string; value: string }): ReactElement {
@@ -28,23 +26,23 @@ function Stat({ label, value }: { label: string; value: string }): ReactElement 
 }
 
 export function LifeStatsPanel({ events }: LifeStatsPanelProps): ReactElement {
+  const t = useT();
+  const locale = useLocale();
   const stats = buildLifeStats(events);
-  const years = formatYearRange(stats.firstYear, stats.lastYear) ?? NOT_ENOUGH;
+  const years = formatYearRange(stats.firstYear, stats.lastYear, locale) ?? t("stats.notEnough");
+  const heading = t("stats.heading");
   return (
-    <section aria-label="Life statistics" className="flex flex-col gap-3">
-      <h2 className="text-xl font-semibold">Life statistics</h2>
+    <section aria-label={heading} className="flex flex-col gap-3">
+      <h2 className="text-xl font-semibold">{heading}</h2>
       <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Moments" value={String(stats.moments)} />
-        <Stat label="Big moments" value={String(stats.bigMoments)} />
-        <Stat label="Big changes" value={String(stats.bigChanges)} />
-        <Stat label="Years covered" value={years} />
-        <Stat label="Biggest comeback" value={moveText(stats.biggestClimb)} />
-        <Stat label="Biggest drop" value={moveText(stats.biggestDrop)} />
-        <Stat
-          label="Longest steady stretch"
-          value={stats.calmestStretch ? `${stats.calmestStretch.from} to ${stats.calmestStretch.to}` : NOT_ENOUGH}
-        />
-        <Stat label="Most common theme" value={stats.topCategory ? toLabel(stats.topCategory) : NOT_ENOUGH} />
+        <Stat label={t("stats.moments")} value={String(stats.moments)} />
+        <Stat label={t("stats.bigMoments")} value={String(stats.bigMoments)} />
+        <Stat label={t("stats.bigChanges")} value={String(stats.bigChanges)} />
+        <Stat label={t("stats.yearsCovered")} value={years} />
+        <Stat label={t("stats.biggestComeback")} value={moveText(t, stats.biggestClimb)} />
+        <Stat label={t("stats.biggestDrop")} value={moveText(t, stats.biggestDrop)} />
+        <Stat label={t("stats.longestSteady")} value={moveText(t, stats.calmestStretch)} />
+        <Stat label={t("stats.topTheme")} value={stats.topCategory ? t(`events.${stats.topCategory}`) : t("stats.notEnough")} />
       </dl>
     </section>
   );

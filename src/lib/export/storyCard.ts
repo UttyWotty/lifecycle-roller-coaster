@@ -4,6 +4,8 @@
  * It adds the title, a line of years and stops, and where to make your own, and works on markup only, with no DOM.
  */
 import type { LifeEvent } from "@/lib/events/schema";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locales";
+import { translate } from "@/lib/i18n/messages";
 
 export const STORY_WIDTH = 1080;
 export const STORY_HEIGHT = 1920;
@@ -29,7 +31,8 @@ export const FONT_FAMILY = "Arial, Helvetica, sans-serif";
 /** Card colours, shared with the ride video so both look like one brand. */
 export const STORY_COLORS = { card: "#fff7ed", title: "#171717", muted: "#5b5b66", accent: "#e11d48" };
 const COLORS = STORY_COLORS;
-export const UNNAMED_STORY_TITLE = "My Life Roller Coaster";
+/** The English title of an unnamed ride; titleLines uses the chosen language's own. */
+export const UNNAMED_STORY_TITLE = translate(DEFAULT_LOCALE, "ride.unnamedTitle");
 const YEAR_DIGITS = 4;
 const ROOT_TAG = /^[\s\S]*?<svg\b[^>]*>/;
 const CLOSING_TAG = /<\/svg>\s*$/;
@@ -67,6 +70,8 @@ export interface StoryCardInput {
   /** The site address shown at the bottom, such as "example.com". */
   host: string;
   measureTitle: TextMeasure;
+  /** The language the card's own words are in; English (DEFAULT_LOCALE) when left out. */
+  locale?: Locale;
 }
 
 /** The width a title line may take on the story card; other layouts pass their own. */
@@ -150,9 +155,12 @@ function withEllipsis(line: string, measure: TextMeasure, maxWidth: number): str
   return `${kept.join("").trimEnd()}${ELLIPSIS}`;
 }
 
-/** Splits a title into at most two lines no wider than maxWidth, measured at the title size, and marks a cut title. */
-export function titleLines(title: string, measure: TextMeasure, maxWidth: number): string[] {
-  const words = (title.trim() || UNNAMED_STORY_TITLE).split(/\s+/).flatMap((word) => fittingPieces(word, measure, maxWidth));
+/**
+ * Splits a title into at most two lines no wider than maxWidth, measured at the title size, and marks a cut title.
+ * A blank title becomes the unnamed ride's title in the given language, English (DEFAULT_LOCALE) unless one is passed.
+ */
+export function titleLines(title: string, measure: TextMeasure, maxWidth: number, locale: Locale = DEFAULT_LOCALE): string[] {
+  const words = (title.trim() || translate(locale, "ride.unnamedTitle")).split(/\s+/).flatMap((word) => fittingPieces(word, measure, maxWidth));
   const lines: string[] = [];
   for (const word of words) {
     const current = lines.at(-1);
@@ -170,16 +178,18 @@ export function titleLines(title: string, measure: TextMeasure, maxWidth: number
   return kept;
 }
 
-/** "2009 to 2025, 12 stops", or only the stops when no event has a date. */
-export function storySubtitle(events: readonly LifeEvent[]): string {
+/** "2009 to 2025, 12 stops", or only the stops when no event has a date, in the given language (English by default). */
+export function storySubtitle(events: readonly LifeEvent[], locale: Locale = DEFAULT_LOCALE): string {
   const years = events.flatMap((event) => (event.date === null ? [] : [Number(event.date.slice(0, YEAR_DIGITS))]));
-  const stops = `${events.length} ${events.length === 1 ? "stop" : "stops"}`;
+  const stops = translate(locale, events.length === 1 ? "pictures.oneStop" : "pictures.manyStops", { count: events.length });
   if (years.length === 0) {
     return stops;
   }
   const first = Math.min(...years);
   const last = Math.max(...years);
-  return first === last ? `${first}, ${stops}` : `${first} to ${last}, ${stops}`;
+  return first === last
+    ? translate(locale, "pictures.subtitleYear", { year: first, stops })
+    : translate(locale, "pictures.subtitleYears", { first, last, stops });
 }
 
 function drawingRows(input: StoryCardInput, layout: StoryLayout): string {
@@ -201,7 +211,8 @@ function drawingRows(input: StoryCardInput, layout: StoryLayout): string {
 
 /** The whole story picture as standalone SVG markup, STORY_WIDTH by STORY_HEIGHT. */
 export function buildStoryCard(input: StoryCardInput): string {
-  const lines = titleLines(input.title, input.measureTitle, STORY_CONTENT_WIDTH);
+  const locale = input.locale ?? DEFAULT_LOCALE;
+  const lines = titleLines(input.title, input.measureTitle, STORY_CONTENT_WIDTH, locale);
   const title = lines
     .map((line, index) => `<tspan x="${STORY_WIDTH / 2}" y="${TITLE_TOP + index * TITLE_LINE_HEIGHT}">${escapeXml(line)}</tspan>`)
     .join("");
@@ -213,10 +224,10 @@ export function buildStoryCard(input: StoryCardInput): string {
     `<rect width="${STORY_WIDTH}" height="${STORY_HEIGHT}" fill="${COLORS.card}"/>` +
     `<text text-anchor="middle" font-size="${TITLE_SIZE}" font-weight="700" fill="${COLORS.title}">${title}</text>` +
     `<text x="${middle}" y="${subtitleY}" text-anchor="middle" font-size="${SUBTITLE_SIZE}" fill="${COLORS.muted}">` +
-    `${escapeXml(storySubtitle(input.events))}</text>` +
+    `${escapeXml(storySubtitle(input.events, locale))}</text>` +
     drawingRows(input, storyLayout(input.drawing)) +
     `<text x="${middle}" y="${FOOTER_BASELINE}" text-anchor="middle" font-size="${FOOTER_SIZE}" fill="${COLORS.accent}" ` +
-    `font-weight="700">Make your own ride at ${escapeXml(input.host)}</text>` +
+    `font-weight="700">${escapeXml(translate(locale, "pictures.storyFooter", { host: input.host }))}</text>` +
     `</svg>`
   );
 }

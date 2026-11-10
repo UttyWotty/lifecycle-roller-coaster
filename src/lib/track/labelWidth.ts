@@ -3,11 +3,16 @@
  * The track generators read it to keep neighbouring labels apart, and the scene layout reads it to draw them.
  * It is plain arithmetic on character counts, so it needs no fonts or browser measurement.
  */
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locales";
+import { translate } from "@/lib/i18n/messages";
 
 const PILL_PADDING = 14;
 const CHARACTER_WIDTH = 7;
-/** Shown in place of a missing date, on the ride and in the label size estimate. */
-export const UNKNOWN_DATE = "Date unknown";
+/**
+ * The English text for a missing date, which the label size estimate uses in every language, so a ride is laid out
+ * the same whatever language shows it. Every language's text for it is kept no longer than this one.
+ */
+export const UNKNOWN_DATE = translate(DEFAULT_LOCALE, "ride.dateUnknown");
 
 export function pillWidth(title: string, date: string): number {
   return Math.max(title.length, date.length) * CHARACTER_WIDTH + PILL_PADDING * 2;
@@ -16,4 +21,9 @@ export function pillWidth(title: string, date: string): number {
 /** The width of a stop's label, using the unknown-date text when the date is missing. */
 export function labelWidth(title: string, date: string | null): number {
   return pillWidth(title, date ?? UNKNOWN_DATE);
+}
+
+/** A stop's date as it is shown, or the language's words for a missing date; the locale defaults to English (DEFAULT_LOCALE). */
+export function shownDate(date: string | null, locale: Locale = DEFAULT_LOCALE): string {
+  return date ?? translate(locale, "ride.dateUnknown");
 }
