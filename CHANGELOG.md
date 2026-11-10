@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.15.2] - 2026-11-11
+
+### Changed
+
+- Updated TypeScript to 6.0.3 and Tailwind CSS to 4.3.5. Nothing changes for people using the app.
+
 ## [0.15.1] - 2026-11-11
 
 ### Fixed
