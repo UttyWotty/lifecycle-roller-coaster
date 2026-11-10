@@ -16,7 +16,13 @@ import { ride as enRide } from "./en/ride";
 import { share as enShare } from "./en/share";
 import { stats as enStats } from "./en/stats";
 import { story as enStory } from "./en/story";
+import { guess as enGuess } from "./en/guess";
+import { shared as enShared } from "./en/shared";
+import { together as enTogether } from "./en/together";
 import { fill, type Locale } from "./locales";
+import { guess as trGuess } from "./tr/guess";
+import { shared as trShared } from "./tr/shared";
+import { together as trTogether } from "./tr/together";
 import { common as trCommon } from "./tr/common";
 import { events as trEvents } from "./tr/events";
 import { landing as trLanding } from "./tr/landing";
@@ -45,6 +51,9 @@ const ENGLISH = {
   pictures: enPictures,
   share: enShare,
   narration: enNarration,
+  together: enTogether,
+  shared: enShared,
+  guess: enGuess,
 };
 
 type Messages = { [Group in keyof typeof ENGLISH]: Record<keyof (typeof ENGLISH)[Group], string> };
@@ -65,6 +74,9 @@ const MESSAGES: Readonly<Record<Locale, Messages>> = {
     pictures: trPictures,
     share: trShare,
     narration: trNarration,
+    together: trTogether,
+    shared: trShared,
+    guess: trGuess,
   },
 };
 

@@ -7,9 +7,10 @@
 
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
-import type { LifeEvent } from "@/lib/events/schema";
-import { FEELING_CHOICES, POINTS_PER_STOP, SIZE_CHOICES, scoreMessage, scoreOf, sizeOf, verdict } from "@/lib/guess/guessGame";
-import { UNKNOWN_DATE } from "@/lib/track/labelWidth";
+import { useLocale, useT, type Translate } from "@/components/I18n/useLocale";
+import type { EventSentiment, LifeEvent } from "@/lib/events/schema";
+import { FEELING_CHOICES, POINTS_PER_STOP, SIZE_CHOICES, scoreMessage, scoreOf, sizeOf, verdict, type StopSize } from "@/lib/guess/guessGame";
+import type { MessageKey } from "@/lib/i18n/messages";
 import type { GuessGame } from "./useGuessGame";
 
 interface GuessPanelProps {
@@ -21,11 +22,28 @@ interface GuessPanelProps {
 
 const PRIMARY_CLASS = "min-h-11 rounded-full bg-accent px-6 py-2 font-semibold text-on-accent disabled:opacity-50";
 const CHOICE_CLASS = `${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`;
-const SIZE_OPTIONS = SIZE_CHOICES.map(({ value, name, range }) => ({ value, name: `${name} (${range})` }));
-const RIGHT = "Right";
-const WRONG = "Not quite";
-const COPIED = "Score copied. Paste it anywhere to challenge your friends.";
-const SHARE_FAILED = "Sharing is blocked here.";
+const NO_STATUS = "";
+/** Button names, and the lower-case words the reveal sentence uses, for each feeling and size. */
+const FEELING_NAMES: Readonly<Record<EventSentiment, MessageKey>> = {
+  positive: "guess.feelingPositive",
+  negative: "guess.feelingNegative",
+  neutral: "guess.feelingNeutral",
+};
+const FEELING_WORDS: Readonly<Record<EventSentiment, MessageKey>> = {
+  positive: "guess.feltPositive",
+  negative: "guess.feltNegative",
+  neutral: "guess.feltNeutral",
+};
+const SIZE_NAMES: Readonly<Record<StopSize, MessageKey>> = { small: "guess.sizeSmall", medium: "guess.sizeMedium", big: "guess.sizeBig" };
+const SIZE_WORDS: Readonly<Record<StopSize, MessageKey>> = { small: "guess.wasSmall", medium: "guess.wasMedium", big: "guess.wasBig" };
+
+function options<T extends string>(values: readonly T[], names: Readonly<Record<T, MessageKey>>, t: Translate): { value: T; name: string }[] {
+  return values.map((value) => ({ value, name: t(names[value]) }));
+}
+
+function rightOrWrong(isRight: boolean, t: Translate): string {
+  return t(isRight ? "guess.right" : "guess.wrong");
+}
 
 function Choices<T extends string>(props: {
   legend: string;
@@ -56,58 +74,59 @@ function Choices<T extends string>(props: {
 }
 
 function Truth({ event, game }: { event: LifeEvent; game: GuessGame }): ReactElement | null {
+  const t = useT();
   if (game.revealed === null) {
     return null;
   }
-  const feeling = FEELING_CHOICES.find(({ value }) => value === event.sentiment)?.name ?? event.sentiment;
-  const size = SIZE_CHOICES.find(({ value }) => value === sizeOf(event.impact))?.name ?? "";
+  const feeling = t(FEELING_WORDS[event.sentiment]);
+  const size = t(SIZE_WORDS[sizeOf(event.impact)]);
   return (
     <div aria-live="polite" className="flex flex-col gap-1 rounded-lg bg-accent/10 p-3">
-      <p className="font-semibold">
-        It felt {feeling.toLowerCase()}, and it was {size.toLowerCase()} ({event.impact} out of 10).
-      </p>
+      <p className="font-semibold">{t("guess.truth", { feeling, size, impact: event.impact })}</p>
       <p className="text-sm">
-        Feeling: {game.revealed.isFeelingRight ? RIGHT : WRONG}. Size: {game.revealed.isSizeRight ? RIGHT : WRONG}.
+        {t("guess.judged", { feeling: rightOrWrong(game.revealed.isFeelingRight, t), size: rightOrWrong(game.revealed.isSizeRight, t) })}
       </p>
     </div>
   );
 }
 
 function Score({ game, stopCount, title }: Omit<GuessPanelProps, "event">): ReactElement {
-  const [status, setStatus] = useState("");
+  const t = useT();
+  const locale = useLocale();
+  const [status, setStatus] = useState(NO_STATUS);
   const score = scoreOf(game.results);
   const best = stopCount * POINTS_PER_STOP;
 
   async function share(): Promise<void> {
-    const text = scoreMessage(title, score, best, window.location.href);
+    const text = scoreMessage(title, score, best, window.location.href, locale);
     try {
       if (typeof navigator.share === "function") {
         await navigator.share({ text });
         return;
       }
       await navigator.clipboard.writeText(text);
-      setStatus(COPIED);
+      setStatus(t("guess.copied"));
     } catch {
-      setStatus(typeof navigator.share === "function" ? "" : SHARE_FAILED);
+      setStatus(typeof navigator.share === "function" ? NO_STATUS : t("guess.shareFailed"));
     }
   }
 
   return (
     <div aria-live="polite" className="flex flex-col gap-2">
-      <p className="text-sm text-muted">Your score</p>
+      <p className="text-sm text-muted">{t("guess.yourScore")}</p>
       <p className="text-3xl font-bold">
         {score} / {best}
       </p>
-      <p className="text-lg font-semibold">{verdict(score, best)}</p>
+      <p className="text-lg font-semibold">{verdict(score, best, locale)}</p>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={() => void share()} className={PRIMARY_CLASS}>
-          Share my score
+          {t("guess.shareScore")}
         </button>
         <button type="button" onClick={game.start} className={SECONDARY_BUTTON_CLASS}>
-          Play again
+          {t("guess.playAgain")}
         </button>
         <button type="button" onClick={game.stop} className={SECONDARY_BUTTON_CLASS}>
-          Done
+          {t("guess.done")}
         </button>
       </div>
       <p role="status" className="text-sm">
@@ -118,6 +137,7 @@ function Score({ game, stopCount, title }: Omit<GuessPanelProps, "event">): Reac
 }
 
 export function GuessPanel({ game, event, stopCount, title }: GuessPanelProps): ReactElement {
+  const t = useT();
   const isLocked = game.revealed !== null;
   const heading = useRef<HTMLHeadingElement>(null);
   const after = useRef<HTMLDivElement>(null);
@@ -130,17 +150,22 @@ export function GuessPanel({ game, event, stopCount, title }: GuessPanelProps): 
     }
   }, [isLocked]);
   return (
-    <section aria-label="Guess my ride" className="flex flex-col gap-3 rounded-lg border-2 border-accent p-4">
+    <section aria-label={t("guess.region")} className="flex flex-col gap-3 rounded-lg border-2 border-accent p-4">
       {event !== null && (
         <>
           <p className="text-sm text-muted">
-            Stop {game.index + 1} of {stopCount} · {event.date ?? UNKNOWN_DATE} · Score {scoreOf(game.results)}
+            {t("guess.progress", {
+              number: game.index + 1,
+              count: stopCount,
+              date: event.date ?? t("ride.dateUnknown"),
+              score: scoreOf(game.results),
+            })}
           </p>
           <h2 ref={heading} tabIndex={-1} className="wrap-anywhere text-xl font-semibold outline-none">
             {event.title}
           </h2>
-          <Choices legend="How did it feel?" options={FEELING_CHOICES} chosen={game.feeling} isLocked={isLocked} onChoose={game.chooseFeeling} />
-          <Choices legend="How big was it?" options={SIZE_OPTIONS} chosen={game.size} isLocked={isLocked} onChoose={game.chooseSize} />
+          <Choices legend={t("guess.feelingQuestion")} options={options(FEELING_CHOICES, FEELING_NAMES, t)} chosen={game.feeling} isLocked={isLocked} onChoose={game.chooseFeeling} />
+          <Choices legend={t("guess.sizeQuestion")} options={options(SIZE_CHOICES, SIZE_NAMES, t)} chosen={game.size} isLocked={isLocked} onChoose={game.chooseSize} />
           <Truth event={event} game={game} />
         </>
       )}
@@ -151,15 +176,15 @@ export function GuessPanel({ game, event, stopCount, title }: GuessPanelProps): 
           <div className="flex flex-wrap gap-2">
             {isLocked ? (
               <button type="button" onClick={game.next} className={PRIMARY_CLASS}>
-                Next stop
+                {t("guess.nextStop")}
               </button>
             ) : (
               <button type="button" onClick={game.reveal} disabled={game.feeling === null || game.size === null} className={PRIMARY_CLASS}>
-                Reveal
+                {t("guess.reveal")}
               </button>
             )}
             <button type="button" onClick={game.stop} className={SECONDARY_BUTTON_CLASS}>
-              Stop guessing
+              {t("guess.stop")}
             </button>
           </div>
         )}

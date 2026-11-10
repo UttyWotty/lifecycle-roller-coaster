@@ -7,6 +7,7 @@
 
 import { useState, type ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { useLocale, useT } from "@/components/I18n/useLocale";
 import { shareTargets } from "@/lib/share/shareTargets";
 import { namesInWords } from "@/lib/together/names";
 
@@ -14,32 +15,33 @@ interface TogetherShareProps {
   names: readonly string[];
 }
 
-const NOTE =
-  "Anyone with this link can see every ride in it: event titles, dates, how each felt and mattered, chapter names and titles. Descriptions and stories are never in it.";
+const NO_STATUS = "";
 
 export function TogetherShare({ names }: TogetherShareProps): ReactElement {
-  const [status, setStatus] = useState("");
+  const t = useT();
+  const locale = useLocale();
+  const [status, setStatus] = useState(NO_STATUS);
   const link = window.location.href;
-  const message = `Take a ride through ${namesInWords(names.map((name) => `"${name}"`))} together.`;
+  const message = t("together.shareMessage", { names: namesInWords(names.map((name) => `"${name}"`), locale) });
 
   async function copy(): Promise<void> {
     try {
       await navigator.clipboard.writeText(link);
-      setStatus("Link copied. Paste it anywhere to share this ride together.");
+      setStatus(t("together.linkCopied"));
     } catch {
-      setStatus("Copying is blocked here. Copy the address from your browser instead.");
+      setStatus(t("together.copyFailed"));
     }
   }
 
   return (
-    <section aria-label="Share this ride together" className="flex flex-col gap-2 rounded-lg border border-muted p-4">
-      <h2 className="font-semibold">Share this ride together</h2>
-      <p className="text-sm">{NOTE}</p>
+    <section aria-label={t("together.shareHeading")} className="flex flex-col gap-2 rounded-lg border border-muted p-4">
+      <h2 className="font-semibold">{t("together.shareHeading")}</h2>
+      <p className="text-sm">{t("together.shareNote")}</p>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={() => void copy()} className={SECONDARY_BUTTON_CLASS}>
-          Copy link
+          {t("share.copyLink")}
         </button>
-        {shareTargets(link, message).map((target) => (
+        {shareTargets(link, message, locale).map((target) => (
           <a
             key={target.name}
             href={target.url}

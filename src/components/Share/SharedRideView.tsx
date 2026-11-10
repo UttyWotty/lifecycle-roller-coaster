@@ -27,13 +27,8 @@ import { RideTogetherWithMine } from "@/components/Together/TogetherEntry";
 import { decodeSharedRide, type SharedRide } from "@/lib/share/sharedRide";
 import { RIDE_STYLES, type RideStyle } from "@/lib/track/types";
 
-const SHARED_NOTE = "Someone shared this ride with you. It lives only in this link and is not stored anywhere.";
-const BROKEN_TITLE = "This ride link does not work";
-const BROKEN_DETAILS = "It may have been cut short when it was copied. Ask for the link again, or make a ride of your own.";
-const UNTITLED = "A shared ride";
 const PRIMARY_LINK_CLASS = "inline-flex min-h-11 items-center rounded-full bg-accent px-6 py-2 font-semibold text-on-accent";
 const NO_FRAGMENT = "";
-const GUESS_INVITE = "Think you know this ride? Guess how each stop felt and how big it was, before it is revealed.";
 const PRIMARY_BUTTON_CLASS = "min-h-11 rounded-full bg-accent px-6 py-2 font-semibold text-on-accent";
 const GAME_KEY = "guess";
 const RIDE_KEY = "ride";
@@ -44,13 +39,14 @@ function subscribeToHash(onChange: () => void): () => void {
 }
 
 function MakeYourOwn(): ReactElement {
+  const t = useT();
   return (
     <div className="flex flex-wrap gap-2">
       <Link href="/story" className={PRIMARY_LINK_CLASS}>
-        Make my own ride
+        {t("shared.makeOwn")}
       </Link>
       <Link href="/sample" className={`${SECONDARY_BUTTON_CLASS} inline-flex items-center`}>
-        Try a sample life
+        {t("landing.trySample")}
       </Link>
     </div>
   );
@@ -75,8 +71,8 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
   const guessing = game.isPlaying ? ride.events.find(({ id }) => id === guessIds[game.index]) ?? null : null;
   return (
     <section className="flex flex-col gap-4">
-      <h1 className="wrap-anywhere text-3xl font-bold">{ride.title.trim() || UNTITLED}</h1>
-      <p className="rounded-lg border border-muted p-4 text-sm">{SHARED_NOTE}</p>
+      <h1 className="wrap-anywhere text-3xl font-bold">{ride.title.trim() || t("shared.untitled")}</h1>
+      <p className="rounded-lg border border-muted p-4 text-sm">{t("shared.note")}</p>
       <RideLookBar
         style={shownStyle}
         styles={game.isPlaying ? GUESS_STYLES : RIDE_STYLES}
@@ -86,10 +82,10 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
       />
       {!game.isPlaying && guessIds.length > 0 && (
         <div className="flex flex-col gap-2 rounded-lg border border-muted p-4">
-          <p className="font-semibold">{GUESS_INVITE}</p>
+          <p className="font-semibold">{t("shared.guessInvite")}</p>
           <div>
             <button type="button" onClick={game.start} className={PRIMARY_BUTTON_CLASS}>
-              Guess my ride
+              {t("shared.guessStart")}
             </button>
           </div>
         </div>
@@ -133,11 +129,12 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
 export function SharedRideView(): ReactElement {
   const fragment = useSyncExternalStore(subscribeToHash, () => window.location.hash, () => NO_FRAGMENT);
   const ride = useMemo(() => decodeSharedRide(fragment), [fragment]);
+  const t = useT();
   if (ride === null) {
     return (
       <section className="flex flex-col gap-4">
-        <h1 className="text-3xl font-bold">{BROKEN_TITLE}</h1>
-        <p>{BROKEN_DETAILS}</p>
+        <h1 className="text-3xl font-bold">{t("shared.brokenTitle")}</h1>
+        <p>{t("shared.brokenDetails")}</p>
         <MakeYourOwn />
       </section>
     );
