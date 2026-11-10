@@ -16,6 +16,8 @@ interface StopMarkerProps {
   isStation: boolean;
   isSelected: boolean;
   isTall: boolean;
+  /** A stop still to come, drawn a little softer and announced as such. */
+  isFuture: boolean;
   palette: ScenePalette | null;
   onSelect?: () => void;
 }
@@ -30,6 +32,8 @@ const LABEL_GAP = 26;
 const DATE_LINE_GAP = 17;
 const LABEL_HALO_WIDTH = 6;
 const ACTIVATION_KEYS = ["Enter", " "];
+const FUTURE_OPACITY = 0.8;
+const FUTURE_NAME = "still to come";
 
 /** Paints a background-coloured outline behind text, so nothing runs through a label. */
 export const LABEL_HALO = {
@@ -40,7 +44,7 @@ export const LABEL_HALO = {
 } as const satisfies CSSProperties;
 
 export function StopMarker(props: StopMarkerProps): ReactElement {
-  const { stop, isStation, isSelected, isTall, palette, onSelect } = props;
+  const { stop, isStation, isSelected, isTall, isFuture, palette, onSelect } = props;
   const radius = markerRadius(stop);
   const isAbove = stop.labelSide === "above";
   const titleY = isAbove ? stop.y - radius - LABEL_GAP : stop.y + radius + LABEL_GAP;
@@ -57,7 +61,7 @@ export function StopMarker(props: StopMarkerProps): ReactElement {
   const interactiveProps = onSelect && {
     role: "button",
     tabIndex: 0,
-    "aria-label": `${stop.title}, ${date}, ${stop.sentiment}, impact ${stop.impact}`,
+    "aria-label": `${stop.title}, ${date}${isFuture ? `, ${FUTURE_NAME}` : ""}, ${stop.sentiment}, impact ${stop.impact}`,
     "aria-pressed": isSelected,
     onClick: onSelect,
     onKeyDown: handleKeyDown,
@@ -65,7 +69,7 @@ export function StopMarker(props: StopMarkerProps): ReactElement {
   };
 
   return (
-    <g {...interactiveProps}>
+    <g {...interactiveProps} opacity={isFuture ? FUTURE_OPACITY : undefined} data-future={isFuture || undefined}>
       <circle cx={stop.x} cy={stop.y} r={HIT_RADIUS} fill="transparent" />
       {isSelected && (
         <circle

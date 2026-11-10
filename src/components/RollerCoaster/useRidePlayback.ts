@@ -16,6 +16,7 @@ import {
   type Timeline,
 } from "@/lib/ride/ridePlayback";
 import { FINISH_CUE, cueForStep, stepIndexAt } from "@/lib/ride/rideSounds";
+import { pastStops } from "@/lib/track/futureStops";
 import type { Track } from "@/lib/track/types";
 import type { RideSoundPlayer } from "./rideSoundPlayer";
 import { railSamples } from "./measureRail";
@@ -42,7 +43,7 @@ export interface RidePlayback {
 
 interface PlaybackOptions {
   track: Track;
-  /** The rail the cart rides, or null for styles without a cart. */
+  /** The rail the cart rides, up to today when the ride has stops to come, or null for styles without a cart. */
   railPath: string | null;
   scroller: RefObject<HTMLElement | null>;
   drawing: RefObject<HTMLElement | null>;
@@ -140,9 +141,9 @@ export function useRidePlayback({ track, railPath, scroller, drawing, sound }: P
   }
 
   function start(): void {
-    const samples = railSamples(railPath, track.stops);
+    const samples = railSamples(railPath, pastStops(track));
     const isInstant = window.matchMedia(REDUCED_MOTION_QUERY).matches;
-    const timeline = buildTimeline(samples, track.stops, { trackHeight: track.height, isInstant });
+    const timeline = buildTimeline(samples, pastStops(track), { trackHeight: track.height, isInstant });
     sound?.stop();
     elapsed.current = 0;
     shownStop.current = NO_STOP;
@@ -167,7 +168,7 @@ export function useRidePlayback({ track, railPath, scroller, drawing, sound }: P
   function next(): void {
     if (isActive) {
       const target = (stopIndex ?? NO_STOP) + 1;
-      jumpTo(target < track.stops.length ? stopStartTime(ride.timeline, target) : ride.timeline.duration);
+      jumpTo(target < pastStops(track).length ? stopStartTime(ride.timeline, target) : ride.timeline.duration);
     }
   }
 

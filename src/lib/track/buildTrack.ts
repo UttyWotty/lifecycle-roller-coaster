@@ -6,7 +6,7 @@
 import type { EventSentiment, LifeEvent } from "@/lib/events/schema";
 import { labelWidth } from "./labelWidth";
 import { labelClearances, MIN_GAP_SHARE, stopPositions, type LabelPlacement } from "./stopSpacing";
-import type { RideStyle, StopLayout, Track, TrackPoint, TrackStop } from "./types";
+import type { RailSegment, RideStyle, StopLayout, Track, TrackPoint, TrackStop } from "./types";
 
 interface CoasterShape {
   style: RideStyle;
@@ -166,15 +166,28 @@ function loopCurves({ x, y }: TrackPoint, radius: number): string {
 }
 
 /** Joins points with curves that are level at each point, so every peak and valley looks smooth. */
-function smoothPath(points: readonly PathPoint[], shape: CoasterShape): string {
-  const [first, ...rest] = points;
-  const curves = rest.map((point, index) => {
+function railSegments(points: readonly PathPoint[], shape: CoasterShape): RailSegment[] {
+  return points.slice(1).map((point, index) => {
     const previous = points[index];
     const reach = curveReach(previous, point, shape);
-    const curve = `C${previous.x + reach} ${previous.y} ${point.x - reach} ${point.y} ${point.x} ${point.y}`;
-    return point.loopRadius > NO_LOOP ? `${curve} ${loopCurves(point, point.loopRadius)}` : curve;
+    return {
+      start: { x: previous.x, y: previous.y },
+      control1: { x: previous.x + reach, y: previous.y },
+      control2: { x: point.x - reach, y: point.y },
+      end: { x: point.x, y: point.y },
+      loop: point.loopRadius > NO_LOOP ? loopCurves(point, point.loopRadius) : "",
+    };
   });
-  return [`M${first.x} ${first.y}`, ...curves].join(" ");
+}
+
+/** Path commands for one rail segment and the loop after it. */
+export function segmentPath({ control1, control2, end, loop }: RailSegment): string {
+  const curve = `C${control1.x} ${control1.y} ${control2.x} ${control2.y} ${end.x} ${end.y}`;
+  return loop === "" ? curve : `${curve} ${loop}`;
+}
+
+function smoothPath(start: TrackPoint, segments: readonly RailSegment[]): string {
+  return [`M${start.x} ${start.y}`, ...segments.map(segmentPath)].join(" ");
 }
 
 /** Traces the same curves as smoothPath as a list of points, leaving out loops. */
@@ -235,10 +248,8 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape, layout:
     loopRadius: shape.hasLoops && stop.isMajor ? loopRadius(stop.impact) : NO_LOOP,
   }));
   const points = [start, ...stops, end];
-  const path = smoothPath(
-    [{ ...start, loopRadius: NO_LOOP }, ...stopPoints, { ...end, loopRadius: NO_LOOP }],
-    shape,
-  );
+  const segments = railSegments([{ ...start, loopRadius: NO_LOOP }, ...stopPoints, { ...end, loopRadius: NO_LOOP }], shape);
+  const path = smoothPath(start, segments);
   return {
     style: shape.style,
     width: Math.max(end.x + PARKING_ROOM, layout?.minWidth ?? 0),
@@ -251,6 +262,8 @@ function buildCoaster(events: readonly LifeEvent[], shape: CoasterShape, layout:
     contentOffset: 0,
     title: null,
     chapterBands: [],
+    railSegments: segments,
+    future: null,
   };
 }
 

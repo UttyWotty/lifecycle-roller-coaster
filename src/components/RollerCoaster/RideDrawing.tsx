@@ -12,6 +12,7 @@ import { sceneModeFor } from "@/components/Scene/sceneModes";
 import type { LifeReport } from "@/lib/events/insights";
 import type { LifeEvent } from "@/lib/events/schema";
 import type { Scene } from "@/lib/scene/composeRide";
+import { pastStops } from "@/lib/track/futureStops";
 import type { Track } from "@/lib/track/types";
 import { railPathOf } from "./measureRail";
 import { RideItPanel } from "./RideItPanel";
@@ -47,7 +48,8 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
   const railPath = railPathOf(track);
   const hasCart = scene !== null && railPath !== null;
   const sounds = useRideSounds();
-  const playback = useRidePlayback({ track, railPath: hasCart ? railPath : null, scroller, drawing, sound: sounds.player });
+  const ridePath = track.future?.pastRail ?? railPath;
+  const playback = useRidePlayback({ track, railPath: hasCart ? ridePath : null, scroller, drawing, sound: sounds.player });
   const isRiding = playback.status !== null;
   const { silence } = sounds;
 
@@ -107,7 +109,8 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           status={playback.status}
           event={ridingEvent}
           stopNumber={(playback.stopIndex ?? 0) + 1}
-          stopCount={track.stops.length}
+          stopCount={pastStops(track).length}
+          comingUp={track.future === null ? [] : track.stops.slice(track.future.fromIndex)}
           report={report}
           onTogglePause={playback.togglePause}
           onNext={playback.next}
