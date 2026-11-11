@@ -380,6 +380,17 @@ test.describe("ride styles and titles", () => {
     await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
   });
 
+  test("the river trip runs as water through green banks, with a canoe", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "River trip", exact: true }).check();
+    await expect(page.getByTestId("river-bank")).toHaveCount(1);
+    await expect(page.getByTestId("river-tree").first()).toBeAttached();
+    const details = page.locator('[data-testid="river-spray"], [data-testid="river-lily-pad"]');
+    await expect(details.first()).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
+
   test("each art mode draws its own backdrop and structure", async ({ page }) => {
     await openRide(page);
     const drawing = page.locator('svg[role="group"]');
