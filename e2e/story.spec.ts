@@ -4,6 +4,7 @@
  * They also confirm the privacy promises: nothing is sent early, stored or kept after a reload.
  */
 import { expect, test, type Page } from "@playwright/test";
+import { RIDE_THEMES } from "../src/lib/scene/themes";
 import { SECRET, STORY, button, hasPageOverflow, openReview, storyBox } from "./helpers";
 
 test("landing page leads to the story editor", async ({ page }) => {
@@ -123,7 +124,7 @@ test("returning to the story keeps the events", async ({ page }) => {
 test("the landing page shows every theme, leading to a sample", async ({ page }) => {
   await page.goto("/");
   const gallery = page.getByRole("region", { name: "Themes" });
-  await expect(gallery.getByRole("link")).toHaveCount(14);
+  await expect(gallery.getByRole("link")).toHaveCount(RIDE_THEMES.length);
   expect(await hasPageOverflow(page)).toBe(false);
   await gallery.getByRole("link", { name: "Nightmare Mode" }).click();
   await expect(page.getByRole("heading", { name: "Your ride" })).toBeVisible();

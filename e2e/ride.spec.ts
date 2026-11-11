@@ -355,6 +355,19 @@ test.describe("ride styles and titles", () => {
     await expect(page.getByTestId("mode-structure")).toHaveCount(1);
   });
 
+  test("the garden grows a vine whose stops bloom, thorn or sprout by feeling", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Growing garden", exact: true }).check();
+    const stops = await page.locator('svg g[role="button"]').count();
+    const blooms = page.locator('[data-testid="garden-flower"], [data-testid="garden-thorns"], [data-testid="garden-sprout"]');
+    await expect(blooms).toHaveCount(stops);
+    await expect(page.getByTestId("garden-leaf").first()).toBeAttached();
+    await expect(page.getByTestId("garden-cane")).toHaveCount(stops);
+    await expect(page.locator('[data-testid^="garden-season-"]').first()).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
+
   test("each art mode draws its own backdrop and structure", async ({ page }) => {
     await openRide(page);
     const drawing = page.locator('svg[role="group"]');
