@@ -17,6 +17,7 @@ import { Boat, OceanBackdrop, OceanRail, OceanStructure } from "./modes/OceanWor
 import { PosterBackdrop, PosterRail, PosterStructure } from "./modes/PosterMode";
 import { Canoe, RiverBackdrop, RiverRail, RiverStructure } from "./modes/RiverWorld";
 import { Rocket, SpaceBackdrop, SpaceRail, SpaceStructure } from "./modes/SpaceWorld";
+import { PaperPlane, StorybookBackdrop, StorybookRail, StorybookStructure } from "./modes/StorybookWorld";
 import { ToyBackdrop, ToyRail, ToyStructure } from "./modes/ToyMode";
 import { Rail, type RailProps } from "./Rail";
 import { StandardCart, type VehicleProps } from "./RideCart";
@@ -44,6 +45,7 @@ const MODES: Readonly<Partial<Record<SceneryKind, SceneMode>>> = {
   garden: { Backdrop: GardenBackdrop, Structure: GardenStructure, Rail: GardenRail, Vehicle: Ladybug },
   constellation: { Backdrop: ConstellationBackdrop, Structure: ConstellationStructure, Rail: ConstellationRail, Vehicle: Comet },
   river: { Backdrop: RiverBackdrop, Structure: RiverStructure, Rail: RiverRail, Vehicle: Canoe },
+  storybook: { Backdrop: StorybookBackdrop, Structure: StorybookStructure, Rail: StorybookRail, Vehicle: PaperPlane },
 };
 
 export function sceneModeFor(kind: SceneryKind): SceneMode {
