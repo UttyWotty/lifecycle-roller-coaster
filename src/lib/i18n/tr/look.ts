@@ -34,6 +34,7 @@ export const look: Record<keyof typeof english, string> = {
   riverTheme: "Nehir gezisi",
   storybookTheme: "Masal kitabı",
   comicTheme: "Çizgi roman",
+  pixelTheme: "8-Bit Hayat",
   sunnyTheme: "Güneşli gün",
   sunsetTheme: "Altın gün batımı",
   nightTheme: "Yıldızlı gece",

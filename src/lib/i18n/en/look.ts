@@ -24,6 +24,7 @@ export const look = {
   minimalTheme: "Minimal Mode",
   posterTheme: "Retro Mode",
   comicTheme: "Comic Book",
+  pixelTheme: "8-Bit Life",
   spaceTheme: "Space mission",
   oceanTheme: "Ocean voyage",
   mountainTheme: "Mountain trek",

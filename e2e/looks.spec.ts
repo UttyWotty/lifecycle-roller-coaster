@@ -27,4 +27,22 @@ test.describe("new looks", () => {
       await expect(bursts.nth(index)).toHaveAttribute("data-mood", /^(drop|climb)$/);
     }
   });
+
+  test("8-Bit Life stacks block pillars on grass and flies banners only over big moves", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "8-Bit Life", exact: true }).check();
+    const stops = await page.locator('svg g[role="button"]').count();
+    await expect(page.getByTestId("pixel-pillar").first()).toBeAttached();
+    await expect(page.getByTestId("pixel-grass")).toHaveCount(1);
+    await expect(page.getByTestId("pixel-cloud").first()).toBeAttached();
+    const banners = page.getByTestId("pixel-banner");
+    const count = await banners.count();
+    expect(count).toBeLessThan(stops);
+    for (let index = 0; index < count; index += 1) {
+      const mood = await banners.nth(index).getAttribute("data-mood");
+      await expect(banners.nth(index)).toHaveText(mood === "climb" ? "LEVEL UP!" : "CHECKPOINT");
+    }
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
 });

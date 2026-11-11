@@ -18,6 +18,7 @@ import { Boat, OceanBackdrop, OceanRail, OceanStructure } from "./modes/OceanWor
 import { PosterBackdrop, PosterRail, PosterStructure } from "./modes/PosterMode";
 import { Canoe, RiverBackdrop, RiverRail, RiverStructure } from "./modes/RiverWorld";
 import { Rocket, SpaceBackdrop, SpaceRail, SpaceStructure } from "./modes/SpaceWorld";
+import { PixelBackdrop, PixelRail, PixelStructure } from "./modes/PixelMode";
 import { PaperPlane, StorybookBackdrop, StorybookRail, StorybookStructure } from "./modes/StorybookWorld";
 import { ToyBackdrop, ToyRail, ToyStructure } from "./modes/ToyMode";
 import { Rail, type RailProps } from "./Rail";
@@ -47,6 +48,7 @@ const MODES: Readonly<Partial<Record<SceneryKind, SceneMode>>> = {
   constellation: { Backdrop: ConstellationBackdrop, Structure: ConstellationStructure, Rail: ConstellationRail, Vehicle: Comet },
   river: { Backdrop: RiverBackdrop, Structure: RiverStructure, Rail: RiverRail, Vehicle: Canoe },
   comic: { Backdrop: ComicBackdrop, Structure: ComicStructure, Rail: ComicRail, Vehicle: StandardCart },
+  pixel: { Backdrop: PixelBackdrop, Structure: PixelStructure, Rail: PixelRail, Vehicle: PixelCart },
   storybook: { Backdrop: StorybookBackdrop, Structure: StorybookStructure, Rail: StorybookRail, Vehicle: PaperPlane },
 };
 
