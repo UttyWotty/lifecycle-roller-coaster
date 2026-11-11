@@ -8,6 +8,7 @@ import type { Scene } from "@/lib/scene/composeRide";
 import type { ScenePalette, SceneryKind } from "@/lib/scene/themes";
 import type { Track } from "@/lib/track/types";
 import { ArcadeBackdrop, ArcadeRail, ArcadeStructure, PixelCart } from "./modes/ArcadeWorld";
+import { ComicBackdrop, ComicRail, ComicStructure } from "./modes/ComicMode";
 import { Comet, ConstellationBackdrop, ConstellationRail, ConstellationStructure } from "./modes/ConstellationWorld";
 import { GardenBackdrop, GardenRail, GardenStructure, Ladybug } from "./modes/GardenWorld";
 import { LineBackdrop, LineRail, LineStructure } from "./modes/LineMode";
@@ -45,6 +46,7 @@ const MODES: Readonly<Partial<Record<SceneryKind, SceneMode>>> = {
   garden: { Backdrop: GardenBackdrop, Structure: GardenStructure, Rail: GardenRail, Vehicle: Ladybug },
   constellation: { Backdrop: ConstellationBackdrop, Structure: ConstellationStructure, Rail: ConstellationRail, Vehicle: Comet },
   river: { Backdrop: RiverBackdrop, Structure: RiverStructure, Rail: RiverRail, Vehicle: Canoe },
+  comic: { Backdrop: ComicBackdrop, Structure: ComicStructure, Rail: ComicRail, Vehicle: StandardCart },
   storybook: { Backdrop: StorybookBackdrop, Structure: StorybookStructure, Rail: StorybookRail, Vehicle: PaperPlane },
 };
 

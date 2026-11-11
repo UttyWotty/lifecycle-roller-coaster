@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **Comic Book art mode:** your life as a comic strip. Each chapter is a bright panel with halftone dots and a thick black frame, every stop speaks from a speech bubble, the track is inked in bold black and red, and the biggest drops and climbs burst out of the sky with POW! and WOW!. It has its own bouncy tune, and like every look it is drawn in code and free.
+
 - **Random ride:** one press redraws your ride in a surprise style, theme and character, always in a theme you are not already in. Your events stay exactly as they are, and since every look is drawn in your browser from the same events, trying looks never sends your story anywhere or costs anything.
 
 ## [0.16.0] - 2026-11-11

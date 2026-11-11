@@ -23,6 +23,7 @@ export const look = {
   nightmareTheme: "Nightmare Mode",
   minimalTheme: "Minimal Mode",
   posterTheme: "Retro Mode",
+  comicTheme: "Comic Book",
   spaceTheme: "Space mission",
   oceanTheme: "Ocean voyage",
   mountainTheme: "Mountain trek",
