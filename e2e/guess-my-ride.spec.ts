@@ -5,7 +5,7 @@
  * played as a coaster, and keyboard focus follows the game.
  */
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { button } from "./helpers";
+import { button, openFoldOuts } from "./helpers";
 
 async function sampleLink(browser: Browser): Promise<string> {
   const page = await (await browser.newContext()).newPage();
@@ -22,6 +22,7 @@ function panel(page: Page) {
 test("a full game hides each stop until it is guessed, then scores and shares", async ({ page, browser }) => {
   const link = await sampleLink(browser);
   await page.goto(link);
+  await openFoldOuts(page);
   await page.evaluate(() => {
     Object.defineProperty(navigator, "share", { value: undefined, configurable: true });
     const copied: string[] = [];
@@ -58,6 +59,7 @@ test("a full game hides each stop until it is guessed, then scores and shares", 
 test("a metro map is played as a coaster and comes back after the game", async ({ page, browser }) => {
   const link = await sampleLink(browser);
   await page.goto(link);
+  await openFoldOuts(page);
   await page.getByRole("radio", { name: "Metro map" }).check();
   await button(page, "Guess my ride").click();
   await expect(page.getByRole("radio", { name: "Metro map" })).toHaveCount(0);
@@ -70,6 +72,7 @@ test("a metro map is played as a coaster and comes back after the game", async (
 test("keyboard players keep their place through a reveal", async ({ page, browser }) => {
   const link = await sampleLink(browser);
   await page.goto(link);
+  await openFoldOuts(page);
   await button(page, "Guess my ride").click();
   await button(page, "Hard").click();
   await button(page, "Small (1 to 3)").click();

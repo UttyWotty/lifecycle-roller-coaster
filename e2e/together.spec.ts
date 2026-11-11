@@ -4,7 +4,7 @@
  * They also confirm the pair link works in a fresh browser, carries no descriptions, and broken links are handled kindly.
  */
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { button, openRide } from "./helpers";
+import { EMPTY_STORAGE, button, openRide } from "./helpers";
 
 async function sampleLink(browser: Browser): Promise<string> {
   const page = await (await browser.newContext()).newPage();
@@ -72,7 +72,7 @@ test("the pair link opens in a fresh browser and carries no descriptions", async
   for (const payload of payloads) {
     expect(Object.keys(JSON.parse(payload)).sort()).toEqual(["c", "e", "h", "r", "s", "t", "v"]);
   }
-  const fresh = await (await browser.newContext()).newPage();
+  const fresh = await (await browser.newContext({ storageState: EMPTY_STORAGE })).newPage();
   await fresh.goto(pairLink);
   await expect(fresh.getByRole("heading", { name: "Riding together" })).toBeVisible();
   expect(await fresh.evaluate(() => window.localStorage.length)).toBe(0);

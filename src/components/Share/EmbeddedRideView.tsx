@@ -8,6 +8,7 @@
 import { useMemo, useRef, useState, useSyncExternalStore, type ReactElement } from "react";
 import { RideDrawing } from "@/components/RollerCoaster/RideDrawing";
 import { useToday } from "@/components/RollerCoaster/useToday";
+import { SHARED_FOLD_OUTS } from "@/components/FoldOut/foldOutChoices";
 import { useT } from "@/components/I18n/useLocale";
 import { composeRide } from "@/lib/scene/composeRide";
 import { decodeSharedRide, type SharedRide } from "@/lib/share/sharedRide";
@@ -62,6 +63,7 @@ function EmbeddedRide({ ride, fragment }: { ride: SharedRide; fragment: string }
         onSelect={setSelectedId}
         onFitToScreenChange={setFitToScreen}
         curtain={null}
+        rideOptions={SHARED_FOLD_OUTS.rideOptions}
       />
       <MakeYourOwn fragment={fragment} />
     </section>

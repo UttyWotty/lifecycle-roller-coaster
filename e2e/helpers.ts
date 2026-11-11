@@ -24,6 +24,33 @@ export function rideStop(page: Page, title: string): Locator {
   return page.locator('svg g[role="button"]').filter({ hasText: title });
 }
 
+/**
+ * Opens every folded-away section on a ride page, as a user would by clicking each one, and Make it yours.
+ * Most tests start with every section already open (see OPEN_SECTIONS in playwright.config.ts); this is for tests
+ * that begin as a first-time visitor or clear the device's storage.
+ */
+/** A browser with nothing stored, like a visitor who has never opened the app. */
+export const EMPTY_STORAGE = { cookies: [], origins: [] };
+
+/** Empties this browser's storage, so a test can check that a page stores nothing at all. */
+export async function clearStorage(page: Page): Promise<void> {
+  await page.goto("/");
+  await page.evaluate(() => window.localStorage.clear());
+}
+
+export async function openFoldOuts(page: Page): Promise<void> {
+  await page.getByTestId("fold-out").first().waitFor();
+  const closed = page.locator("details:not([open]) > summary");
+  while ((await closed.count()) > 0) {
+    await closed.first().click();
+  }
+  /** The only collapsed toggle button on a ride page, found that way so this works in every language. */
+  const makeItYours = page.locator('button[aria-expanded="false"]');
+  if ((await makeItYours.count()) > 0) {
+    await makeItYours.click();
+  }
+}
+
 export async function openRide(page: Page): Promise<void> {
   await page.goto("/story");
   await storyBox(page).fill(STORY);

@@ -1,5 +1,6 @@
 /**
- * The interactive ride drawing with its controls: Ride it, Ride again, Sound, Music, Narrate, Non-stop and Fit to screen.
+ * The interactive ride drawing with its controls: Ride it and Fit to screen, with Sound, Music, Narrate, Non-stop and
+ * Ride again folded away under Ride options so the row stays short.
  * It owns Ride it playback, laying the moving cart over the drawing and the story card under it.
  * While a ride runs, the stop the cart has reached is highlighted; otherwise the user's selection is.
  */
@@ -7,6 +8,7 @@
 
 import { useEffect, useRef, useState, type ReactElement, type RefObject } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { FoldOut } from "@/components/FoldOut/FoldOut";
 import { useLocale, useT } from "@/components/I18n/useLocale";
 import { PlaybackCart } from "@/components/Scene/PlaybackCart";
 import { sceneModeFor } from "@/components/Scene/sceneModes";
@@ -25,6 +27,7 @@ import { useNarrateRide, useNarration } from "./useNarration";
 import { useNonStop } from "./useNonStop";
 import { useRideMusic } from "./useRideMusic";
 import { useRideSounds } from "./useRideSounds";
+import type { DeviceChoice } from "./deviceChoice";
 
 interface RideDrawingProps {
   track: Track;
@@ -37,6 +40,8 @@ interface RideDrawingProps {
   svgRef: RefObject<SVGSVGElement | null>;
   onSelect: (id: string) => void;
   onFitToScreenChange: (fitToScreen: boolean) => void;
+  /** Where the Ride options fold-out's open state lives: on the device for the user's own ride, or page-only. */
+  rideOptions: DeviceChoice;
   /** Guess my ride's curtain, or null when no game is on; a game hides the ride's own controls. */
   curtain: Curtain | null;
 }
@@ -51,7 +56,7 @@ const CURTAIN_VIEW_SHARE = 0.7;
 const RIDING_CLASS = "ride-it-active";
 
 export function RideDrawing(props: RideDrawingProps): ReactElement {
-  const { track, scene, label, events, report, fitToScreen, selectedId, svgRef, onSelect, onFitToScreenChange, curtain } = props;
+  const { track, scene, label, events, report, fitToScreen, selectedId, svgRef, onSelect, onFitToScreenChange, curtain, rideOptions } = props;
   const isGuessing = curtain !== null;
   const t = useT();
   const locale = useLocale();
@@ -153,7 +158,7 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
           onExit={playback.exit}
         />
       )}
-      <div className={isGuessing ? "hidden" : "flex flex-wrap gap-2"}>
+      <div className={isGuessing ? "hidden" : "flex flex-wrap items-start gap-2"}>
         {!isRiding && (
           <button
             type="button"
@@ -167,49 +172,6 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
             {t("ride.rideIt")}
           </button>
         )}
-        {hasCart && !isRiding && (
-          <button
-            type="button"
-            onClick={() => setRideNumber((number) => number + 1)}
-            className={`${SECONDARY_BUTTON_CLASS} motion-reduce:hidden`}
-          >
-            {t("ride.rideAgain")}
-          </button>
-        )}
-        <button
-          type="button"
-          aria-pressed={sounds.isOn}
-          onClick={sounds.toggle}
-          className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
-        >
-          {t("ride.sound")}
-        </button>
-        <button
-          type="button"
-          aria-pressed={music.isOn}
-          onClick={music.toggle}
-          className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
-        >
-          {t("ride.music")}
-        </button>
-        {narration.isSupported && (
-          <button
-            type="button"
-            aria-pressed={narration.isOn}
-            onClick={narration.toggle}
-            className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
-          >
-            {t("ride.narrate")}
-          </button>
-        )}
-        <button
-          type="button"
-          aria-pressed={nonStop.isOn}
-          onClick={nonStop.toggle}
-          className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
-        >
-          {t("ride.nonStop")}
-        </button>
         <button
           type="button"
           aria-pressed={fitToScreen}
@@ -218,6 +180,53 @@ export function RideDrawing(props: RideDrawingProps): ReactElement {
         >
           {t("ride.fitToScreen")}
         </button>
+        <FoldOut label={t("ride.rideOptions")} choice={rideOptions} className="">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              aria-pressed={sounds.isOn}
+              onClick={sounds.toggle}
+              className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
+            >
+              {t("ride.sound")}
+            </button>
+            <button
+              type="button"
+              aria-pressed={music.isOn}
+              onClick={music.toggle}
+              className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
+            >
+              {t("ride.music")}
+            </button>
+            {narration.isSupported && (
+              <button
+                type="button"
+                aria-pressed={narration.isOn}
+                onClick={narration.toggle}
+                className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
+              >
+                {t("ride.narrate")}
+              </button>
+            )}
+            <button
+              type="button"
+              aria-pressed={nonStop.isOn}
+              onClick={nonStop.toggle}
+              className={`${SECONDARY_BUTTON_CLASS} aria-pressed:border-accent aria-pressed:font-semibold`}
+            >
+              {t("ride.nonStop")}
+            </button>
+            {hasCart && !isRiding && (
+              <button
+                type="button"
+                onClick={() => setRideNumber((number) => number + 1)}
+                className={`${SECONDARY_BUTTON_CLASS} motion-reduce:hidden`}
+              >
+                {t("ride.rideAgain")}
+              </button>
+            )}
+          </div>
+        </FoldOut>
       </div>
     </>
   );

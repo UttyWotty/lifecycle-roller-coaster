@@ -1,6 +1,7 @@
 /**
  * Read-only view of a ride someone shared, decoded from the link's fragment in the browser.
  * The viewer can ride it, change its style and theme for themselves and download it, but nothing is saved anywhere.
+ * As on the ride screen, the look choices and sharing start folded away, so the ride is what people see first.
  * A link that is broken or not a ride shows a friendly message instead.
  */
 "use client";
@@ -8,6 +9,8 @@
 import Link from "next/link";
 import { useMemo, useRef, useState, useSyncExternalStore, type ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
+import { FoldOut } from "@/components/FoldOut/FoldOut";
+import { SHARED_FOLD_OUTS } from "@/components/FoldOut/foldOutChoices";
 import { CategoryLegend } from "@/components/RollerCoaster/CategoryLegend";
 import { ExportButton } from "@/components/RollerCoaster/ExportButton";
 import { RideVideoButton } from "@/components/RollerCoaster/RideVideoButton";
@@ -31,6 +34,7 @@ const PRIMARY_LINK_CLASS = "inline-flex min-h-11 items-center rounded-full bg-ac
 const NO_FRAGMENT = "";
 const PRIMARY_BUTTON_CLASS = "min-h-11 rounded-full bg-accent px-6 py-2 font-semibold text-on-accent";
 const GAME_KEY = "guess";
+const LOOK_BAR_ID = "shared-ride-look";
 const RIDE_KEY = "ride";
 
 function subscribeToHash(onChange: () => void): () => void {
@@ -57,6 +61,7 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
   const [theme, setTheme] = useState<RideTheme>(ride.theme);
   const [fitToScreen, setFitToScreen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { isOn: isLookOpen, toggle: toggleLook } = SHARED_FOLD_OUTS.makeItYours.useChoice();
   const svg = useRef<SVGSVGElement>(null);
   const today = useToday();
   const t = useT();
@@ -73,13 +78,28 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
     <section className="flex flex-col gap-4">
       <h1 className="wrap-anywhere text-3xl font-bold">{ride.title.trim() || t("shared.untitled")}</h1>
       <p className="rounded-lg border border-muted p-4 text-sm">{t("shared.note")}</p>
-      <RideLookBar
-        style={shownStyle}
-        styles={game.isPlaying ? GUESS_STYLES : RIDE_STYLES}
-        theme={theme}
-        onStyleChange={setStyle}
-        onThemeChange={setTheme}
-      />
+      <div>
+        <button
+          type="button"
+          aria-expanded={isLookOpen}
+          aria-controls={isLookOpen ? LOOK_BAR_ID : undefined}
+          onClick={toggleLook}
+          className={`${SECONDARY_BUTTON_CLASS} font-semibold aria-expanded:border-accent`}
+        >
+          {t("ride.makeItYours")}
+        </button>
+      </div>
+      {isLookOpen && (
+        <div id={LOOK_BAR_ID} className="contents">
+          <RideLookBar
+            style={shownStyle}
+            styles={game.isPlaying ? GUESS_STYLES : RIDE_STYLES}
+            theme={theme}
+            onStyleChange={setStyle}
+            onThemeChange={setTheme}
+          />
+        </div>
+      )}
       {!game.isPlaying && guessIds.length > 0 && (
         <div className="flex flex-col gap-2 rounded-lg border border-muted p-4">
           <p className="font-semibold">{t("shared.guessInvite")}</p>
@@ -103,24 +123,27 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
         onSelect={setSelectedId}
         onFitToScreenChange={setFitToScreen}
         curtain={game.curtainOn(pastStops(track))}
+        rideOptions={SHARED_FOLD_OUTS.rideOptions}
       />
       {game.isPlaying ? (
         <GuessPanel game={game} event={guessing} stopCount={guessIds.length} title={ride.title} />
       ) : (
         <>
           {scene?.palette.kind !== "line" && <CategoryLegend events={ride.events} />}
-          <ExportButton
-            svg={svg}
-            width={track.width}
-            height={track.height}
-            story={{ drawing: storyDrawingOf(track, scene), title: ride.title, events: ride.events }}
-            shareRide={{ ...ride, style, theme }}
-          />
-          <RideVideoButton svg={svg} track={track} events={ride.events} title={ride.title} isMonochrome={scene?.palette.kind === "line"} sceneryKind={scene?.palette.kind ?? null} />
-          <LifeStatsPanel events={splitFuture(ride.events, today).past} />
+          <FoldOut label={t("ride.shareSection")} choice={SHARED_FOLD_OUTS.share} className="w-full">
+            <ExportButton
+              svg={svg}
+              width={track.width}
+              height={track.height}
+              story={{ drawing: storyDrawingOf(track, scene), title: ride.title, events: ride.events }}
+              shareRide={{ ...ride, style, theme }}
+            />
+            <RideVideoButton svg={svg} track={track} events={ride.events} title={ride.title} isMonochrome={scene?.palette.kind === "line"} sceneryKind={scene?.palette.kind ?? null} />
+          </FoldOut>
+          <RideTogetherWithMine theirs={ride} />
+          <LifeStatsPanel events={splitFuture(ride.events, today).past} foldOut={SHARED_FOLD_OUTS.stats} />
         </>
       )}
-      <RideTogetherWithMine theirs={ride} />
       <MakeYourOwn />
     </section>
   );
