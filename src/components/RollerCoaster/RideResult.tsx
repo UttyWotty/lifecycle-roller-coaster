@@ -31,6 +31,7 @@ import { LifeReportPanel } from "./LifeReportPanel";
 import { LifeStatsPanel } from "./LifeStatsPanel";
 import { RideControls } from "./RideControls";
 import { RideLensPicker } from "./RideLensPicker";
+import { RandomRideButton } from "./RandomRideButton";
 import { RideLookBar } from "./RideLookBar";
 import { RideDrawing } from "./RideDrawing";
 import { SavedRideNote } from "./SavedRideNote";
@@ -132,6 +133,14 @@ export function RideResult(props: RideResultProps): ReactElement {
           >
             {t("ride.makeItYours")}
           </button>
+          <RandomRideButton
+            look={{ style: rideStyle, theme: rideTheme, rider }}
+            onLookChange={(next) => {
+              onRideStyleChange(next.style);
+              onRideThemeChange(next.theme);
+              onRiderChange(next.rider);
+            }}
+          />
           {isSample && (
             <button type="button" onClick={onShowAnotherSample} className={SECONDARY_BUTTON_CLASS}>
               {t("ride.anotherSample")}
