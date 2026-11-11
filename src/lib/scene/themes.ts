@@ -15,6 +15,7 @@ export const RIDE_THEMES = [
   "ocean",
   "mountain",
   "arcade",
+  "garden",
   "sunny",
   "sunset",
   "night",
@@ -41,7 +42,8 @@ export type SceneryKind =
   | "space"
   | "ocean"
   | "mountain"
-  | "arcade";
+  | "arcade"
+  | "garden";
 
 export interface ScenePalette {
   kind: SceneryKind;
@@ -347,6 +349,27 @@ const ARCADE: ScenePalette = {
   floor: 0,
 };
 
+const GARDEN: ScenePalette = {
+  kind: "garden",
+  skyTop: "#bfe8fb",
+  skyBottom: "#fff4dc",
+  cloud: "#ffffff",
+  skylineFar: "#cfe9b8",
+  skylineNear: "#a9d48a",
+  steel: "#c9a36b",
+  steelDark: "#7a5a32",
+  rail: "#3f7d2c",
+  ground: "#6b4a2b",
+  title: "#2f5a22",
+  ink: "#24401a",
+  muted: "#55704a",
+  pill: "#fffdf5",
+  cart: "#e5484d",
+  hasStars: false,
+  orb: "#ffd65a",
+  floor: 0,
+};
+
 function englishName(theme: RideTheme): string {
   return translate(DEFAULT_LOCALE, `look.${theme}Theme`);
 }
@@ -360,6 +383,7 @@ export const RIDE_THEME_DETAILS: Readonly<Record<RideTheme, RideThemeDetails>> =
   ocean: { name: englishName("ocean"), group: "Worlds", palette: OCEAN },
   mountain: { name: englishName("mountain"), group: "Worlds", palette: MOUNTAIN },
   arcade: { name: englishName("arcade"), group: "Worlds", palette: ARCADE },
+  garden: { name: englishName("garden"), group: "Worlds", palette: GARDEN },
   sunny: { name: englishName("sunny"), group: "Scenes", palette: SUNNY },
   sunset: { name: englishName("sunset"), group: "Scenes", palette: SUNSET },
   night: { name: englishName("night"), group: "Scenes", palette: NIGHT },

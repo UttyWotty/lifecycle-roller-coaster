@@ -27,6 +27,7 @@ export const look = {
   oceanTheme: "Ocean voyage",
   mountainTheme: "Mountain trek",
   arcadeTheme: "Arcade level",
+  gardenTheme: "Growing garden",
   sunnyTheme: "Sunny day",
   sunsetTheme: "Golden sunset",
   nightTheme: "Starry night",

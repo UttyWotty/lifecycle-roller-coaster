@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **Growing garden world:** your life as a vine climbing garden canes. Good moments bloom into flowers, hard ones grow a ring of thorns and calm ones sprout leaves, each bigger for bigger moments. The ground changes season with each chapter, from spring to winter, and a ladybug carries your rider to its own gentle tune. Like every look, it is free and drawn in code.
+
 - **Send feedback:** a new page, linked from the footer and the end of the ride screen, to say how it was (Loved it, It was fine, Something was confusing) and share ideas or bugs in an optional message. Only your choice, your words, the language and the day are kept; your story, your events and who you are are never sent with it. It is protected against spam and limited so the free hosting can never run out.
 
 ### Changed
