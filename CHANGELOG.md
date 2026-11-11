@@ -4,6 +4,24 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-11-11
+
+### Added
+
+- **Storybook world:** your life as a paper theatre in a picture book. Every chapter is its own page with a fold where it turns, each stop hangs on a thread from a paper garland over cut-paper hills, clouds and trees, the track is a stitched red ribbon, and a paper aeroplane carries your rider to a light storybook tune.
+
+- **River trip world:** your life as a canoe trip down a river through green banks, under a warm afternoon sky. Steep stretches run as white-water rapids with a splash below each big drop, calm stretches carry lily pads and reeds, and an original paddling tune plays along.
+
+- **Your constellation world:** your life as a figure of stars across a midnight sky. Every moment is a star, bigger for bigger moments and warm gold, cool blue or white by how it felt; each chapter is its own figure, with a faint dotted bridge to the next, and a comet carries your rider to a slow, dreamy tune.
+
+- **Growing garden world:** your life as a vine climbing garden canes. Good moments bloom into flowers, hard ones grow a ring of thorns and calm ones sprout leaves, each bigger for bigger moments. The ground changes season with each chapter, from spring to winter, and a ladybug carries your rider to its own gentle tune. Like every look, it is free and drawn in code.
+
+- **Send feedback:** a new page, linked from the footer and the end of the ride screen, to say how it was (Loved it, It was fine, Something was confusing) and share ideas or bugs in an optional message. Only your choice, your words, the language and the day are kept; your story, your events and who you are are never sent with it. It is protected against spam and limited so the free hosting can never run out.
+
+### Changed
+
+- **A calmer ride screen:** your ride and Ride it now come first, and everything else is one tap away in sections you can open: Edit, Ride options (Sound, Music, Narrate, Non-stop, Ride again), Make it yours (style, theme, character, name and lens), Share (images, poster, video, link, embed and Ride together) and More about your ride (statistics). On a phone the drawing now starts on the first screen. Your own ride remembers which sections you left open; a shared ride's page still stores nothing on your device, and Ride together with my ride stays in view there.
+
 ## [0.15.3] - 2026-11-11
 
 ### Fixed

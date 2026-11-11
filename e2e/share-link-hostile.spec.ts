@@ -4,7 +4,7 @@
  * They also confirm private fields stay out of links after editing and inside a lens, and that the fragment never reaches the server.
  */
 import { expect, test, type Page } from "@playwright/test";
-import { button, openRide, SECRET } from "./helpers";
+import { button, clearStorage, openFoldOuts, openRide, SECRET } from "./helpers";
 
 const SAVED_KEY = "lifecycle-roller-coaster:rides";
 
@@ -47,6 +47,7 @@ test("hostile titles render as text, nothing is saved, the viewer's ride is unto
 });
 
 test("hostile and malformed fragments never throw or save", async ({ page }) => {
+  await clearStorage(page);
   const seen = await watch(page);
   const raw = JSON.stringify(GOOD);
   const fragments = [
@@ -89,8 +90,10 @@ test("private fields never enter a link, even after edits and in a lens", async 
 });
 
 test("shared page works on a phone: style, theme, export, no overflow", async ({ page }) => {
+  await clearStorage(page);
   const seen = await watch(page);
   await page.goto("/ride#" + pack(GOOD));
+  await openFoldOuts(page);
   await page.getByRole("radio", { name: /Metro/ }).check();
   await expect(page.locator('svg[role="group"]')).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);

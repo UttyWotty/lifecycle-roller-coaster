@@ -15,6 +15,10 @@ export const RIDE_THEMES = [
   "ocean",
   "mountain",
   "arcade",
+  "garden",
+  "constellation",
+  "river",
+  "storybook",
   "sunny",
   "sunset",
   "night",
@@ -41,7 +45,11 @@ export type SceneryKind =
   | "space"
   | "ocean"
   | "mountain"
-  | "arcade";
+  | "arcade"
+  | "garden"
+  | "constellation"
+  | "river"
+  | "storybook";
 
 export interface ScenePalette {
   kind: SceneryKind;
@@ -347,6 +355,90 @@ const ARCADE: ScenePalette = {
   floor: 0,
 };
 
+const GARDEN: ScenePalette = {
+  kind: "garden",
+  skyTop: "#bfe8fb",
+  skyBottom: "#fff4dc",
+  cloud: "#ffffff",
+  skylineFar: "#cfe9b8",
+  skylineNear: "#a9d48a",
+  steel: "#c9a36b",
+  steelDark: "#7a5a32",
+  rail: "#3f7d2c",
+  ground: "#6b4a2b",
+  title: "#2f5a22",
+  ink: "#24401a",
+  muted: "#55704a",
+  pill: "#fffdf5",
+  cart: "#e5484d",
+  hasStars: false,
+  orb: "#ffd65a",
+  floor: 0,
+};
+
+const CONSTELLATION: ScenePalette = {
+  kind: "constellation",
+  skyTop: "#070b1f",
+  skyBottom: "#1c2457",
+  cloud: "#c7d2fe",
+  skylineFar: "#1c2457",
+  skylineNear: "#1c2457",
+  steel: "#fde68a",
+  steelDark: "#93c5fd",
+  rail: "#c7d2fe",
+  ground: "#070b1f",
+  title: "#fef3c7",
+  ink: "#141a3a",
+  muted: "#4b5280",
+  pill: "#f5f3ff",
+  cart: "#fde68a",
+  hasStars: true,
+  orb: "#fef9c3",
+  floor: 0,
+};
+
+const RIVER: ScenePalette = {
+  kind: "river",
+  skyTop: "#9fd8f0",
+  skyBottom: "#fff1d6",
+  cloud: "#ffffff",
+  skylineFar: "#b7dba0",
+  skylineNear: "#8cc97a",
+  steel: "#5f9e45",
+  steelDark: "#3f6b2a",
+  rail: "#2f8fd8",
+  ground: "#4a7a33",
+  title: "#1f3b52",
+  ink: "#1f3b52",
+  muted: "#4b6478",
+  pill: "#ffffff",
+  cart: "#c2410c",
+  hasStars: false,
+  orb: "#ffe08a",
+  floor: 0,
+};
+
+const STORYBOOK: ScenePalette = {
+  kind: "storybook",
+  skyTop: "#f6eedc",
+  skyBottom: "#efe2c4",
+  cloud: "#ffffff",
+  skylineFar: "#c9b6e4",
+  skylineNear: "#9ccfa0",
+  steel: "#8a7a66",
+  steelDark: "#5c4b3b",
+  rail: "#d9483b",
+  ground: "#e9b872",
+  title: "#3b2f2a",
+  ink: "#3b2f2a",
+  muted: "#7a6a5a",
+  pill: "#fffaf0",
+  cart: "#ffffff",
+  hasStars: false,
+  orb: "#f2a65a",
+  floor: 0,
+};
+
 function englishName(theme: RideTheme): string {
   return translate(DEFAULT_LOCALE, `look.${theme}Theme`);
 }
@@ -360,6 +452,10 @@ export const RIDE_THEME_DETAILS: Readonly<Record<RideTheme, RideThemeDetails>> =
   ocean: { name: englishName("ocean"), group: "Worlds", palette: OCEAN },
   mountain: { name: englishName("mountain"), group: "Worlds", palette: MOUNTAIN },
   arcade: { name: englishName("arcade"), group: "Worlds", palette: ARCADE },
+  garden: { name: englishName("garden"), group: "Worlds", palette: GARDEN },
+  constellation: { name: englishName("constellation"), group: "Worlds", palette: CONSTELLATION },
+  river: { name: englishName("river"), group: "Worlds", palette: RIVER },
+  storybook: { name: englishName("storybook"), group: "Worlds", palette: STORYBOOK },
   sunny: { name: englishName("sunny"), group: "Scenes", palette: SUNNY },
   sunset: { name: englishName("sunset"), group: "Scenes", palette: SUNSET },
   night: { name: englishName("night"), group: "Scenes", palette: NIGHT },

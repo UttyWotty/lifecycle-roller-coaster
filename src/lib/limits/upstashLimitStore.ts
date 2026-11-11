@@ -3,50 +3,28 @@
  * It sends INCRBY and EXPIRE in one REST pipeline call, so each increment is a single round trip.
  * Any network, auth or reply problem becomes LimitStoreError, and the caller then refuses to spend.
  */
+import { UpstashError, runPipeline, type UpstashSettings } from "@/lib/upstash/upstashPipeline";
 import { LimitStoreError, type LimitStore } from "./limitStore";
 
-export interface UpstashSettings {
-  url: string;
-  token: string;
-}
+export type { UpstashSettings };
 
-interface PipelineReply {
-  result?: unknown;
-  error?: string;
-}
-
-const PIPELINE_PATH = "/pipeline";
-/** A slow store must not hold a reading open; past this the request is refused instead. */
-const STORE_TIMEOUT_MS = 3000;
-
-export function createUpstashLimitStore({ url, token }: UpstashSettings): LimitStore {
-  const endpoint = `${url.replace(/\/+$/, "")}${PIPELINE_PATH}`;
+export function createUpstashLimitStore(settings: UpstashSettings): LimitStore {
   return {
     async increment(key: string, amount: number, ttlSeconds: number): Promise<number> {
-      let replies: unknown;
+      let counter: unknown;
       try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify([
-            ["INCRBY", key, String(amount)],
-            ["EXPIRE", key, String(ttlSeconds)],
-          ]),
-          signal: AbortSignal.timeout(STORE_TIMEOUT_MS),
-          cache: "no-store",
-        });
-        if (!response.ok) {
-          throw new LimitStoreError(`Limit store answered ${response.status}`);
-        }
-        replies = await response.json();
+        const [reply] = await runPipeline(settings, [
+          ["INCRBY", key, String(amount)],
+          ["EXPIRE", key, String(ttlSeconds)],
+        ]);
+        counter = reply?.result;
       } catch (error) {
-        throw error instanceof LimitStoreError ? error : new LimitStoreError("Limit store unreachable");
+        throw new LimitStoreError(error instanceof UpstashError ? error.message : "Limit store unreachable");
       }
-      const [counter] = Array.isArray(replies) ? (replies as PipelineReply[]) : [];
-      if (typeof counter?.result !== "number") {
+      if (typeof counter !== "number") {
         throw new LimitStoreError("Limit store sent an unexpected reply");
       }
-      return counter.result;
+      return counter;
     },
   };
 }

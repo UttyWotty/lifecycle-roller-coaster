@@ -269,6 +269,8 @@ test.describe("ride styles and titles", () => {
   test("the look bar sits right above the drawing, so a choice and its result stay in view", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await openRide(page);
+    /** Someone choosing a look has opened Make it yours, not the Edit menu as well. */
+    await page.locator("summary", { hasText: "Edit" }).click();
     const bar = await page.getByTestId("ride-look-bar").boundingBox();
     const drawing = await page.locator('svg[role="group"]').boundingBox();
     const title = await page.getByLabel("Name your ride").boundingBox();
@@ -351,6 +353,53 @@ test.describe("ride styles and titles", () => {
     }
     await page.getByRole("radio", { name: "Arcade level", exact: true }).check();
     await expect(page.getByTestId("mode-structure")).toHaveCount(1);
+  });
+
+  test("the garden grows a vine whose stops bloom, thorn or sprout by feeling", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Growing garden", exact: true }).check();
+    const stops = await page.locator('svg g[role="button"]').count();
+    const blooms = page.locator('[data-testid="garden-flower"], [data-testid="garden-thorns"], [data-testid="garden-sprout"]');
+    await expect(blooms).toHaveCount(stops);
+    await expect(page.getByTestId("garden-leaf").first()).toBeAttached();
+    await expect(page.getByTestId("garden-cane")).toHaveCount(stops);
+    await expect(page.locator('[data-testid^="garden-season-"]').first()).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
+
+  test("the constellation turns every stop into a star joined by lines", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Your constellation", exact: true }).check();
+    const stops = await page.locator('svg g[role="button"]').count();
+    await expect(page.getByTestId("constellation-star")).toHaveCount(stops);
+    const links = page.locator('[data-testid="constellation-line"], [data-testid="constellation-bridge"]');
+    await expect(links).toHaveCount(stops - 1);
+    await expect(page.getByTestId("constellation-moon")).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
+
+  test("the river trip runs as water through green banks, with a canoe", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "River trip", exact: true }).check();
+    await expect(page.getByTestId("river-bank")).toHaveCount(1);
+    await expect(page.getByTestId("river-tree").first()).toBeAttached();
+    const details = page.locator('[data-testid="river-spray"], [data-testid="river-lily-pad"]');
+    await expect(details.first()).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
+
+  test("the storybook hangs every stop on a thread over paper pages", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Storybook", exact: true }).check();
+    const stops = await page.locator('svg g[role="button"]').count();
+    await expect(page.getByTestId("storybook-thread")).toHaveCount(stops);
+    await expect(page.getByTestId("storybook-garland")).toHaveCount(1);
+    await expect(page.getByTestId("storybook-page").first()).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
   });
 
   test("each art mode draws its own backdrop and structure", async ({ page }) => {
