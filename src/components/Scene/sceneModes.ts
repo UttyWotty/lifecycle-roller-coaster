@@ -15,6 +15,7 @@ import { Hiker, MountainBackdrop, MountainRail, MountainStructure } from "./mode
 import { NeonBackdrop, NeonRail, NeonStructure } from "./modes/NeonMode";
 import { Boat, OceanBackdrop, OceanRail, OceanStructure } from "./modes/OceanWorld";
 import { PosterBackdrop, PosterRail, PosterStructure } from "./modes/PosterMode";
+import { Canoe, RiverBackdrop, RiverRail, RiverStructure } from "./modes/RiverWorld";
 import { Rocket, SpaceBackdrop, SpaceRail, SpaceStructure } from "./modes/SpaceWorld";
 import { ToyBackdrop, ToyRail, ToyStructure } from "./modes/ToyMode";
 import { Rail, type RailProps } from "./Rail";
@@ -42,6 +43,7 @@ const MODES: Readonly<Partial<Record<SceneryKind, SceneMode>>> = {
   arcade: { Backdrop: ArcadeBackdrop, Structure: ArcadeStructure, Rail: ArcadeRail, Vehicle: PixelCart },
   garden: { Backdrop: GardenBackdrop, Structure: GardenStructure, Rail: GardenRail, Vehicle: Ladybug },
   constellation: { Backdrop: ConstellationBackdrop, Structure: ConstellationStructure, Rail: ConstellationRail, Vehicle: Comet },
+  river: { Backdrop: RiverBackdrop, Structure: RiverStructure, Rail: RiverRail, Vehicle: Canoe },
 };
 
 export function sceneModeFor(kind: SceneryKind): SceneMode {

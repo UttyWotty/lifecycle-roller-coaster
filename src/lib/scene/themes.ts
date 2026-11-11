@@ -17,6 +17,7 @@ export const RIDE_THEMES = [
   "arcade",
   "garden",
   "constellation",
+  "river",
   "sunny",
   "sunset",
   "night",
@@ -45,7 +46,8 @@ export type SceneryKind =
   | "mountain"
   | "arcade"
   | "garden"
-  | "constellation";
+  | "constellation"
+  | "river";
 
 export interface ScenePalette {
   kind: SceneryKind;
@@ -393,6 +395,27 @@ const CONSTELLATION: ScenePalette = {
   floor: 0,
 };
 
+const RIVER: ScenePalette = {
+  kind: "river",
+  skyTop: "#9fd8f0",
+  skyBottom: "#fff1d6",
+  cloud: "#ffffff",
+  skylineFar: "#b7dba0",
+  skylineNear: "#8cc97a",
+  steel: "#5f9e45",
+  steelDark: "#3f6b2a",
+  rail: "#2f8fd8",
+  ground: "#4a7a33",
+  title: "#1f3b52",
+  ink: "#1f3b52",
+  muted: "#4b6478",
+  pill: "#ffffff",
+  cart: "#c2410c",
+  hasStars: false,
+  orb: "#ffe08a",
+  floor: 0,
+};
+
 function englishName(theme: RideTheme): string {
   return translate(DEFAULT_LOCALE, `look.${theme}Theme`);
 }
@@ -408,6 +431,7 @@ export const RIDE_THEME_DETAILS: Readonly<Record<RideTheme, RideThemeDetails>> =
   arcade: { name: englishName("arcade"), group: "Worlds", palette: ARCADE },
   garden: { name: englishName("garden"), group: "Worlds", palette: GARDEN },
   constellation: { name: englishName("constellation"), group: "Worlds", palette: CONSTELLATION },
+  river: { name: englishName("river"), group: "Worlds", palette: RIVER },
   sunny: { name: englishName("sunny"), group: "Scenes", palette: SUNNY },
   sunset: { name: englishName("sunset"), group: "Scenes", palette: SUNSET },
   night: { name: englishName("night"), group: "Scenes", palette: NIGHT },

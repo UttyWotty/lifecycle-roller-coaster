@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **River trip world:** your life as a canoe trip down a river through green banks, under a warm afternoon sky. Steep stretches run as white-water rapids with a splash below each big drop, calm stretches carry lily pads and reeds, and an original paddling tune plays along.
+
 - **Your constellation world:** your life as a figure of stars across a midnight sky. Every moment is a star, bigger for bigger moments and warm gold, cool blue or white by how it felt; each chapter is its own figure, with a faint dotted bridge to the next, and a comet carries your rider to a slow, dreamy tune.
 
 - **Growing garden world:** your life as a vine climbing garden canes. Good moments bloom into flowers, hard ones grow a ring of thorns and calm ones sprout leaves, each bigger for bigger moments. The ground changes season with each chapter, from spring to winter, and a ladybug carries your rider to its own gentle tune. Like every look, it is free and drawn in code.
