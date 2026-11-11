@@ -6,6 +6,7 @@
  */
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import { SECONDARY_BUTTON_CLASS } from "@/components/EventReview/fieldStyles";
 import { FoldOut } from "@/components/FoldOut/FoldOut";
@@ -208,6 +209,11 @@ export function RideResult(props: RideResultProps): ReactElement {
       {report && <LifeReportPanel report={report} isSample={isSample} />}
       <LifeStatsPanel events={happened} foldOut={FOLD_OUTS.stats} />
       <p className="text-sm text-muted">{t("ride.creativeNote")}</p>
+      <p className="text-sm">
+        <Link href="/feedback" className="font-semibold text-accent underline underline-offset-2">
+          {t("feedback.rideLink")}
+        </Link>
+      </p>
     </section>
   );
 }

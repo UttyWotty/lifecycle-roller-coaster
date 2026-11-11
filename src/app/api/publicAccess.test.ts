@@ -12,12 +12,12 @@ vi.mock("botid/server", () => ({ checkBotId }));
 const NO_STORE = { KV_REST_API_URL: "", KV_REST_API_TOKEN: "", UPSTASH_REDIS_REST_URL: "", UPSTASH_REDIS_REST_TOKEN: "" };
 const ADDRESS = "203.0.113.7";
 
-async function loadWith(env: Record<string, string>): Promise<typeof import("./publicAccess")> {
+async function loadWith(env: Record<string, string>): Promise<typeof import("@/app/api/publicAccess")> {
   vi.resetModules();
   for (const [name, value] of Object.entries({ ...NO_STORE, VERCEL: "", RATE_LIMIT_SECRET: "", DAILY_BUDGET_USD: "", ...env })) {
     vi.stubEnv(name, value);
   }
-  return import("./publicAccess");
+  return import("@/app/api/publicAccess");
 }
 
 afterEach(() => {

@@ -37,6 +37,7 @@ This is a playful, creative picture of a story. It is not a psychological assess
 - **Languages:** pick English or Turkish in the footer; a Turkish browser gets Turkish automatically. The AI writes your events and report in the language your story is written in.
 - **Saved on your device:** your ride is still there when you come back. **My rides** keeps up to 12 rides, such as your life, your career or a parent's story: start a **New ride**, open another, or delete one. Your story text is never saved, and Start over deletes the ride that is open.
 - **A calm ride screen:** at first you see your ride and Ride it. Everything else is one tap away: **Edit**, **Ride options** (Sound, Music, Narrate, Non-stop, Ride again), **Make it yours** (style, theme, character, name and lens), **Share** (images, poster, video, link, embed, Ride together) and **More about your ride** (statistics). Your own ride remembers which ones you left open; a shared ride's page stores nothing.
+- **Send feedback:** a link in the footer, and at the end of the ride screen, opens a short form: how was it, plus an optional message. Only your choice, your words, the language and the day are kept; your story, events and who you are are never sent with it.
 - **Fit to screen:** an optional toggle that shows a whole long ride at once, instead of scrolling sideways.
 - **Image export:** download a PNG that is created on your device.
 
@@ -195,6 +196,8 @@ Demo mode (`EXTRACTOR_MODE=fixture`) costs nothing, so it skips the limits.
 7. **Deploy production.** Redeploy `main` (Vercel deploys it automatically on each release). Generate one real ride and check the function log for the token count.
 
 8. **Turn on page counting (optional, free).** In the Vercel dashboard, open **Analytics**, select the project and press **Enable**, then redeploy `main`. The free plan counts up to 50,000 page views a month and pauses counting, never bills, if that runs out. The site only counts on the production deployment.
+
+9. **Read feedback.** Messages from the feedback page are kept in the same Upstash database, newest first, in the list `lrc:feedback` (only the newest 500). In the Upstash console, open the database's **Data Browser** and select that key. Each entry holds the reaction, the message, the language, the day and the release, and nothing about who sent it. Sending is limited to 3 messages an hour per visitor and 200 a day in total, so the free plan cannot be used up.
 
 To pause real readings at any time, set `DAILY_BUDGET_USD` to `0` and redeploy; sample lives keep working.
 
