@@ -6,7 +6,7 @@
 import type { LifeEvent } from "@/lib/events/schema";
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/locales";
 import { translate } from "@/lib/i18n/messages";
-import { cutsThrough, type Span } from "./storySpans";
+import { cutsThrough, type KeepWhole, type Span } from "./storySpans";
 
 export const STORY_WIDTH = 1080;
 export const STORY_HEIGHT = 1920;
@@ -14,6 +14,8 @@ const SIDE_MARGIN = 60;
 const HEADER_HEIGHT = 380;
 const FOOTER_HEIGHT = 200;
 const ROW_GAP = 36;
+/** How far beside a label, sign or name a cut is made, so its edge stays visible on its row. */
+const CUT_MARGIN = 6;
 const MAX_ROWS = 4;
 /** A row needs a few stops to read as a ride, so short rides stay on one row. */
 const MIN_STOPS_PER_ROW = 3;
@@ -55,8 +57,8 @@ export interface StoryDrawing {
   /** The drawing's own title strip at the top, which the card leaves out because it shows the title itself. */
   titleBand: number;
   stopXs: readonly number[];
-  /** Stretches a row cut should not pass through, such as stop labels and chapter names (see storySpans). */
-  keepWhole: readonly Span[];
+  /** Stretches a row cut should not pass through: the ride's words first, then scenery (see storySpans). */
+  keepWhole: KeepWhole;
 }
 
 /** Where the card's parts sit vertically: the first title baseline, the subtitle baseline, the drawing and the footer. */
@@ -102,20 +104,35 @@ function nearestTo(target: number, options: readonly number[]): number | null {
   );
 }
 
+/** Places to cut inside one gap between stops: its middle, and just past either side of anything that sits in the gap. */
+function gapCuts(left: number, right: number, keepWhole: readonly Span[]): number[] {
+  const edges = keepWhole.flatMap(({ from, to }) => [from - CUT_MARGIN, to + CUT_MARGIN]);
+  return [(left + right) / 2, ...edges.filter((x) => x > left && x < right)];
+}
+
+function splitsNone(spans: readonly Span[]): (cut: number) => boolean {
+  return (cut) => !spans.some((span) => cutsThrough(cut, span));
+}
+
 /**
- * Cuts the drawing into a number of rows of about equal width, each cut halfway between two neighbouring stops.
- * A cut that splits nothing in keepWhole is preferred; only when there is none does a cut go through a label or name.
+ * Cuts the drawing into a number of rows of about equal width, each cut between two neighbouring stops: halfway, or
+ * just beside a sign or label sitting there. The cut nearest the even split is taken from the first group that has
+ * one: cuts that split nothing, then cuts that keep every label and chapter name whole, then the halfway points.
  */
 export function storyRows(drawing: StoryDrawing, count: number): StoryRow[] {
   const xs = [...drawing.stopXs].sort((a, b) => a - b);
-  const candidates = xs.slice(1).map((x, index) => (xs[index] + x) / 2);
-  const isClean = (cut: number): boolean => !drawing.keepWhole.some((span) => cutsThrough(cut, span));
+  const { words, scenery } = drawing.keepWhole;
+  const everything = [...words, ...scenery];
+  const midpoints = xs.slice(1).map((x, index) => (xs[index] + x) / 2);
+  const options = xs.slice(1).flatMap((x, index) => gapCuts(xs[index], x, everything));
+  const wordsWhole = options.filter(splitsNone(words));
+  const groups = [wordsWhole.filter(splitsNone(scenery)), wordsWhole, midpoints];
   const cuts: number[] = [];
   for (let row = 1; row < count; row += 1) {
     const target = (drawing.width * row) / count;
     const previous = cuts.at(-1) ?? 0;
-    const options = candidates.filter((cut) => cut > previous);
-    const best = nearestTo(target, options.filter(isClean)) ?? nearestTo(target, options);
+    const later = (cut: number): boolean => cut > previous;
+    const best = groups.reduce<number | null>((found, group) => found ?? nearestTo(target, group.filter(later)), null);
     if (best === null) {
       break;
     }

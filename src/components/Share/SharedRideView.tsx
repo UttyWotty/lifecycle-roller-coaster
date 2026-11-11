@@ -113,7 +113,7 @@ function SharedRideContent({ ride }: { ride: SharedRide }): ReactElement {
             svg={svg}
             width={track.width}
             height={track.height}
-            story={{ drawing: storyDrawingOf(track), title: ride.title, events: ride.events }}
+            story={{ drawing: storyDrawingOf(track, scene), title: ride.title, events: ride.events }}
             shareRide={{ ...ride, style, theme }}
           />
           <RideVideoButton svg={svg} track={track} events={ride.events} title={ride.title} isMonochrome={scene?.palette.kind === "line"} sceneryKind={scene?.palette.kind ?? null} />

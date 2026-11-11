@@ -9,6 +9,7 @@ import { STORY_HEIGHT, STORY_TITLE_FONT, STORY_WIDTH, buildStoryCard, type Story
 import type { LifeEvent } from "@/lib/events/schema";
 import type { Locale } from "@/lib/i18n/locales";
 import { TITLE_BAND } from "@/lib/track/rideTitle";
+import type { Scene } from "@/lib/scene/composeRide";
 import type { Track } from "@/lib/track/types";
 import { RideExportError, SVG_DATA_PREFIX, drawToPng, loadImage, serializeForExport } from "./downloadRideImage";
 
@@ -24,8 +25,14 @@ export interface StoryPicture {
 }
 
 /** What the story picture needs to know about a drawn track. */
-export function storyDrawingOf(track: Track): StoryDrawing {
-  return { width: track.width, height: track.height, titleBand: track.title === null ? NO_TITLE_BAND : TITLE_BAND, stopXs: track.stops.map(({ x }) => x), keepWhole: keepWholeSpans(track) };
+export function storyDrawingOf(track: Track, scene: Scene | null): StoryDrawing {
+  return {
+    width: track.width,
+    height: track.height,
+    titleBand: track.title === null ? NO_TITLE_BAND : TITLE_BAND,
+    stopXs: track.stops.map(({ x }) => x),
+    keepWhole: keepWholeSpans(track, scene),
+  };
 }
 
 /** Measures title text with a canvas in the font the card draws it in, so wrapping matches the picture. */
