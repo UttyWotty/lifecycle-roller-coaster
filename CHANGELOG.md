@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-11-11
+
 ### Added
 
 - **Storybook world:** your life as a paper theatre in a picture book. Every chapter is its own page with a fold where it turns, each stop hangs on a thread from a paper garland over cut-paper hills, clouds and trees, the track is a stitched red ribbon, and a paper aeroplane carries your rider to a light storybook tune.
