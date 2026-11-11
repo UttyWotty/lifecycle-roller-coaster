@@ -19,7 +19,8 @@ export type SceneryKind =
   | "garden"
   | "constellation"
   | "river"
-  | "storybook";
+  | "storybook"
+  | "comic";
 
 export interface ScenePalette {
   kind: SceneryKind;
