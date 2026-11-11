@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **Storybook world:** your life as a paper theatre in a picture book. Every chapter is its own page with a fold where it turns, each stop hangs on a thread from a paper garland over cut-paper hills, clouds and trees, the track is a stitched red ribbon, and a paper aeroplane carries your rider to a light storybook tune.
+
 - **River trip world:** your life as a canoe trip down a river through green banks, under a warm afternoon sky. Steep stretches run as white-water rapids with a splash below each big drop, calm stretches carry lily pads and reeds, and an original paddling tune plays along.
 
 - **Your constellation world:** your life as a figure of stars across a midnight sky. Every moment is a star, bigger for bigger moments and warm gold, cool blue or white by how it felt; each chapter is its own figure, with a faint dotted bridge to the next, and a comet carries your rider to a slow, dreamy tune.

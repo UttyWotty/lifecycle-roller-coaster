@@ -391,6 +391,17 @@ test.describe("ride styles and titles", () => {
     await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
   });
 
+  test("the storybook hangs every stop on a thread over paper pages", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Storybook", exact: true }).check();
+    const stops = await page.locator('svg g[role="button"]').count();
+    await expect(page.getByTestId("storybook-thread")).toHaveCount(stops);
+    await expect(page.getByTestId("storybook-garland")).toHaveCount(1);
+    await expect(page.getByTestId("storybook-page").first()).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
+
   test("each art mode draws its own backdrop and structure", async ({ page }) => {
     await openRide(page);
     const drawing = page.locator('svg[role="group"]');

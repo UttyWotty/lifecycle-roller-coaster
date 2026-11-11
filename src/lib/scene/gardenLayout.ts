@@ -5,6 +5,7 @@
  */
 import type { EventSentiment } from "@/lib/events/schema";
 import type { ChapterBand, TrackPoint, TrackStop } from "@/lib/track/types";
+import { chapterSpans } from "./chapterSpans";
 
 export const SEASONS = ["spring", "summer", "autumn", "winter"] as const;
 export type Season = (typeof SEASONS)[number];
@@ -73,15 +74,10 @@ export function leafSpots(profile: readonly TrackPoint[], stops: readonly Pick<T
 
 /** The ground's seasons from left to right: one per chapter in order, stretched to meet, covering the whole width. */
 export function seasonBands(chapters: readonly ChapterBand[], width: number): SeasonBand[] {
-  const sorted = [...chapters].sort((a, b) => a.start - b.start);
-  if (sorted.length === 0) {
+  if (chapters.length === 0) {
     return [{ from: 0, to: width, season: DEFAULT_SEASON }];
   }
-  return sorted.map((chapter, index) => ({
-    from: index === 0 ? 0 : chapter.start,
-    to: index === sorted.length - 1 ? width : sorted[index + 1].start,
-    season: SEASONS[index % SEASONS.length],
-  }));
+  return chapterSpans(chapters, width).map(({ from, to, index }) => ({ from, to, season: SEASONS[index % SEASONS.length] }));
 }
 
 /** How each stop blooms: a flower for a good moment, thorns for a hard one, a sprout otherwise. */

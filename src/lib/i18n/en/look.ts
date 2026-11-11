@@ -30,6 +30,7 @@ export const look = {
   gardenTheme: "Growing garden",
   constellationTheme: "Your constellation",
   riverTheme: "River trip",
+  storybookTheme: "Storybook",
   sunnyTheme: "Sunny day",
   sunsetTheme: "Golden sunset",
   nightTheme: "Starry night",
