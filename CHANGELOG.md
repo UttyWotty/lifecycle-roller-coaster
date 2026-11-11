@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.15.3] - 2026-11-11
+
+### Fixed
+
+- The story picture now also keeps Nightmare Mode's neon signs, the balloon and the parachute whole where a long ride wraps onto the next row. When a ride is too crowded to keep everything whole, labels and chapter names win over scenery.
+
 ## [0.15.2] - 2026-11-11
 
 ### Changed

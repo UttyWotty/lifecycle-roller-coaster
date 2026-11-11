@@ -6,7 +6,8 @@
 import type { ReactElement } from "react";
 import type { Scene } from "@/lib/scene/composeRide";
 import type { ScenePalette } from "@/lib/scene/themes";
-import type { Track, TrackPoint } from "@/lib/track/types";
+import { SIGN_HEIGHT, SIGN_WIDTH, neonSignPositions } from "@/lib/scene/neonSigns";
+import type { Track } from "@/lib/track/types";
 import { DRAW_TEST_ID, type RailProps } from "../Rail";
 
 const SKY_ID = "neon-sky";
@@ -26,16 +27,6 @@ const SECOND_RAIL_DROP = 11;
 const POST_WIDTH = 5;
 const POST_SPREAD = 26;
 const REFLECTION_OPACITY = 0.75;
-const SIGN_MARKER_CLEARANCE = 60;
-/** How far under the rail each sign hangs, varied so they do not line up. */
-const SIGN_DROPS = [34, 96, 58, 130];
-const SIGN_GROUND_GAP = 24;
-/** The clear band of sky above the track, where every flag and loop stays below. */
-const SIGN_SKY_Y = -112;
-/** How far below its stop a label reaches, so signs can stay clear of it. */
-const BELOW_LABEL_REACH = 86;
-const SIGN_WIDTH = 74;
-const SIGN_HEIGHT = 30;
 const SIGN_WORDS = ["LIFE", "RIDE", "OPEN", "HIGHS", "LOWS"];
 
 function GlowDefs({ track, palette }: { track: Track; palette: ScenePalette }): ReactElement {
@@ -91,32 +82,10 @@ function Sign(props: { x: number; y: number; word: string; palette: ScenePalette
   );
 }
 
-/** Signs hang under the rail between stops, or in clear sky when a label is in the way. */
-function signPositions(track: Track, scene: Scene): TrackPoint[] {
-  if (track.style === "metro") {
-    return [];
-  }
-  const { balloon, parachute } = scene.scenery;
-  const markers = [balloon, parachute].flatMap((marker) => (marker ? [marker.x] : []));
-  return track.stops.slice(1).flatMap((stop, index) => {
-    const middle = (track.stops[index].x + stop.x) / 2;
-    const under = track.profile.filter(({ x }) => Math.abs(x - middle) <= SIGN_WIDTH);
-    const railBottom = Math.max(...under.map(({ y }) => y));
-    const y = railBottom + SIGN_DROPS[index % SIGN_DROPS.length];
-    const isTaken = markers.some((x) => Math.abs(x - middle) < SIGN_MARKER_CLEARANCE);
-    const fits = y + SIGN_HEIGHT + SIGN_GROUND_GAP <= track.groundY;
-    const isUnderLabel = [track.stops[index], stop].some(
-      (neighbour) => neighbour.labelSide === "below" && y < neighbour.y + BELOW_LABEL_REACH,
-    );
-    const signY = fits && !isUnderLabel ? y : SIGN_SKY_Y;
-    return isTaken ? [] : [{ x: middle - SIGN_WIDTH / 2, y: signY + track.contentOffset }];
-  });
-}
-
 export function NeonBackdrop({ scene, track }: { scene: Scene; track: Track }): ReactElement {
   const { palette, scenery } = scene;
   const horizon = track.contentOffset + track.groundY;
-  const signs = signPositions(track, scene);
+  const signs = neonSignPositions(track, scene.scenery);
   return (
     <g aria-hidden="true" data-testid="mode-backdrop">
       <GlowDefs track={track} palette={palette} />
