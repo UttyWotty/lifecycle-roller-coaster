@@ -20,7 +20,8 @@ export type SceneryKind =
   | "constellation"
   | "river"
   | "storybook"
-  | "comic";
+  | "comic"
+  | "pixel";
 
 export interface ScenePalette {
   kind: SceneryKind;

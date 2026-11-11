@@ -43,6 +43,7 @@ const SUPPORT_OPACITY = 0.3;
 const TITLE_FONTS: Readonly<Partial<Record<SceneryKind, { fontFamily: string; fontStyle?: string }>>> = {
   poster: { fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" },
   arcade: { fontFamily: "'Courier New', Courier, monospace" },
+  pixel: { fontFamily: "'Courier New', Courier, monospace" },
   comic: { fontFamily: "Impact, 'Arial Black', sans-serif", fontStyle: "italic" },
 };
 
