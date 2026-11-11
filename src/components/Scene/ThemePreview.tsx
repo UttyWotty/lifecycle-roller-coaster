@@ -30,6 +30,7 @@ const LOOKS: Readonly<Partial<Record<SceneryKind, PreviewLook>>> = {
   line: { railWidth: 1.5, postWidth: 1, postSpacing: 40 },
   poster: { railWidth: 4, postWidth: 1, postSpacing: 5 },
   garden: { railWidth: 6, postWidth: 2, postSpacing: 30 },
+  constellation: { railWidth: 1.5, postWidth: 0, postSpacing: 120, glow: "drop-shadow(0 0 3px #fde68a)" },
 };
 
 /** Height of the little rail at a point, close enough for placing posts under it. */
