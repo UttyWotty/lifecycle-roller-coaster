@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- **Random ride:** one press redraws your ride in a surprise style, theme and character, always in a theme you are not already in. Your events stay exactly as they are, and since every look is drawn in your browser from the same events, trying looks never sends your story anywhere or costs anything.
+
 ## [0.16.0] - 2026-11-11
 
 ### Added
