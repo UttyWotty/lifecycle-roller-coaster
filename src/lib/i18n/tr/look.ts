@@ -30,6 +30,7 @@ export const look: Record<keyof typeof english, string> = {
   mountainTheme: "Dağ yürüyüşü",
   arcadeTheme: "Atari bölümü",
   gardenTheme: "Büyüyen bahçe",
+  constellationTheme: "Senin takımyıldızın",
   sunnyTheme: "Güneşli gün",
   sunsetTheme: "Altın gün batımı",
   nightTheme: "Yıldızlı gece",

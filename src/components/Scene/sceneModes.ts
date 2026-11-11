@@ -8,6 +8,7 @@ import type { Scene } from "@/lib/scene/composeRide";
 import type { ScenePalette, SceneryKind } from "@/lib/scene/themes";
 import type { Track } from "@/lib/track/types";
 import { ArcadeBackdrop, ArcadeRail, ArcadeStructure, PixelCart } from "./modes/ArcadeWorld";
+import { Comet, ConstellationBackdrop, ConstellationRail, ConstellationStructure } from "./modes/ConstellationWorld";
 import { GardenBackdrop, GardenRail, GardenStructure, Ladybug } from "./modes/GardenWorld";
 import { LineBackdrop, LineRail, LineStructure } from "./modes/LineMode";
 import { Hiker, MountainBackdrop, MountainRail, MountainStructure } from "./modes/MountainWorld";
@@ -40,6 +41,7 @@ const MODES: Readonly<Partial<Record<SceneryKind, SceneMode>>> = {
   mountain: { Backdrop: MountainBackdrop, Structure: MountainStructure, Rail: MountainRail, Vehicle: Hiker },
   arcade: { Backdrop: ArcadeBackdrop, Structure: ArcadeStructure, Rail: ArcadeRail, Vehicle: PixelCart },
   garden: { Backdrop: GardenBackdrop, Structure: GardenStructure, Rail: GardenRail, Vehicle: Ladybug },
+  constellation: { Backdrop: ConstellationBackdrop, Structure: ConstellationStructure, Rail: ConstellationRail, Vehicle: Comet },
 };
 
 export function sceneModeFor(kind: SceneryKind): SceneMode {

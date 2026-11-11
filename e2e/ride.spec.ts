@@ -368,6 +368,18 @@ test.describe("ride styles and titles", () => {
     await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
   });
 
+  test("the constellation turns every stop into a star joined by lines", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Your constellation", exact: true }).check();
+    const stops = await page.locator('svg g[role="button"]').count();
+    await expect(page.getByTestId("constellation-star")).toHaveCount(stops);
+    const links = page.locator('[data-testid="constellation-line"], [data-testid="constellation-bridge"]');
+    await expect(links).toHaveCount(stops - 1);
+    await expect(page.getByTestId("constellation-moon")).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
+
   test("each art mode draws its own backdrop and structure", async ({ page }) => {
     await openRide(page);
     const drawing = page.locator('svg[role="group"]');
