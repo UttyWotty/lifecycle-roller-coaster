@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- **Send feedback:** a new page, linked from the footer and the end of the ride screen, to say how it was (Loved it, It was fine, Something was confusing) and share ideas or bugs in an optional message. Only your choice, your words, the language and the day are kept; your story, your events and who you are are never sent with it. It is protected against spam and limited so the free hosting can never run out.
+
 ### Changed
 
 - **A calmer ride screen:** your ride and Ride it now come first, and everything else is one tap away in sections you can open: Edit, Ride options (Sound, Music, Narrate, Non-stop, Ride again), Make it yours (style, theme, character, name and lens), Share (images, poster, video, link, embed and Ride together) and More about your ride (statistics). On a phone the drawing now starts on the first screen. Your own ride remembers which sections you left open; a shared ride's page still stores nothing on your device, and Ride together with my ride stays in view there.

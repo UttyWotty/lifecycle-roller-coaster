@@ -1,10 +1,11 @@
 /**
- * Server adapter that turns the environment and the incoming request into public-use protection.
- * It picks the limit store, hashes the visitor's address into an id, and runs Vercel's bot check.
- * On Vercel a missing store fails closed, so a misconfigured deployment can never spend tokens unchecked.
+ * Server adapter that turns the environment and the incoming request into public-use protection for every route.
+ * It picks the limit and feedback stores, hashes the visitor's address into an id, and runs Vercel's bot check.
+ * On Vercel a missing store fails closed, so a misconfigured deployment can never spend tokens or lose feedback.
  */
 import { createHmac } from "node:crypto";
 import { checkBotId } from "botid/server";
+import { createMemoryFeedbackStore, createUpstashFeedbackStore, unconfiguredFeedbackStore, type FeedbackStore } from "@/lib/feedback/feedbackStore";
 import { LimitStoreError, type LimitStore } from "@/lib/limits/limitStore";
 import { createMemoryLimitStore } from "@/lib/limits/memoryLimitStore";
 import { createUpstashLimitStore } from "@/lib/limits/upstashLimitStore";
@@ -39,6 +40,21 @@ function chooseStore(): LimitStore {
 }
 
 export const limitStore = chooseStore();
+
+function chooseFeedbackStore(): FeedbackStore {
+  if (STORE_URL !== "" && STORE_TOKEN !== "") {
+    return createUpstashFeedbackStore({ url: STORE_URL, token: STORE_TOKEN });
+  }
+  return IS_VERCEL ? unconfiguredFeedbackStore : createMemoryFeedbackStore();
+}
+
+export const feedbackStore = chooseFeedbackStore();
+
+/** Vercel sets the deployed commit; local runs say so instead. */
+const COMMIT = process.env.VERCEL_GIT_COMMIT_SHA ?? "";
+const LOCAL_BUILD = "local";
+const SHORT_COMMIT_LENGTH = 7;
+export const BUILD = COMMIT === "" ? LOCAL_BUILD : COMMIT.slice(0, SHORT_COMMIT_LENGTH);
 
 /**
  * The client address as Vercel reports it. Vercel overwrites these headers, so a visitor cannot set them there.
