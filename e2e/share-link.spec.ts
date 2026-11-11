@@ -4,7 +4,7 @@
  * They also confirm the social buttons carry the link, broken links are handled kindly, and nothing is saved.
  */
 import { expect, test, type Page } from "@playwright/test";
-import { button, openRide, SECRET, storedRide } from "./helpers";
+import { EMPTY_STORAGE, button, openFoldOuts, openRide, SECRET, storedRide } from "./helpers";
 
 async function shareLink(page: Page): Promise<string> {
   await button(page, "Share a link").click();
@@ -25,9 +25,10 @@ test("a shared link opens the same ride in a fresh browser", async ({ page, brow
   const link = await shareLink(page);
   expect(link).toMatch(/\/ride#r=[A-Za-z0-9_-]+$/);
 
-  const fresh = await (await browser.newContext()).newPage();
+  const fresh = await (await browser.newContext({ storageState: EMPTY_STORAGE })).newPage();
   await fresh.goto(link);
   await expect(fresh.getByRole("heading", { name: "Shared and sound" })).toBeVisible();
+  await openFoldOuts(fresh);
   await expect(fresh.getByRole("radio", { name: /Loop-the-loops/ })).toBeChecked();
   expect(await stopTitles(fresh)).toEqual(titles);
   expect(await fresh.evaluate(() => window.localStorage.length)).toBe(0);
@@ -68,7 +69,7 @@ test("a lens shares only its events and title", async ({ page, browser }) => {
   await openRide(page);
   await page.getByRole("radio", { name: "2020s", exact: true }).check();
   const link = await shareLink(page);
-  const fresh = await (await browser.newContext()).newPage();
+  const fresh = await (await browser.newContext({ storageState: EMPTY_STORAGE })).newPage();
   await fresh.goto(link);
   await expect(fresh.getByRole("heading", { name: "My 2020s" })).toBeVisible();
   await expect(fresh.locator('svg[role="group"] g[role="button"]')).toHaveCount(2);
@@ -88,7 +89,7 @@ test("a broken link shows a friendly message", async ({ page }) => {
 test("a shared ride can be ridden", async ({ page, browser }) => {
   await openRide(page);
   const link = await shareLink(page);
-  const fresh = await (await browser.newContext()).newPage();
+  const fresh = await (await browser.newContext({ storageState: EMPTY_STORAGE })).newPage();
   await fresh.goto(link);
   await button(fresh, "Ride it").click();
   await button(fresh, "Next").click();

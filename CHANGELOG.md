@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Changed
+
+- **A calmer ride screen:** your ride and Ride it now come first, and everything else is one tap away in sections you can open: Edit, Ride options (Sound, Music, Narrate, Non-stop, Ride again), Make it yours (style, theme, character, name and lens), Share (images, poster, video, link, embed and Ride together) and More about your ride (statistics). On a phone the drawing now starts on the first screen. Your own ride remembers which sections you left open; a shared ride's page still stores nothing on your device, and Ride together with my ride stays in view there.
+
 ## [0.15.3] - 2026-11-11
 
 ### Fixed

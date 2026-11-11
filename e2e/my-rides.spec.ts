@@ -4,7 +4,7 @@
  * They also confirm Delete asks first, deleting the open ride starts a new one, and a reload reopens the last ride.
  */
 import { expect, test, type Page } from "@playwright/test";
-import { button, openRide, SHELF_KEY, storyBox } from "./helpers";
+import { button, openFoldOuts, openRide, SHELF_KEY, storyBox } from "./helpers";
 
 const OLD_KEY = "lifecycle-roller-coaster:ride";
 
@@ -39,6 +39,8 @@ test("an older single save moves onto the shelf", async ({ page }) => {
     window.localStorage.setItem(oldKey, text);
   }, [OLD_KEY, ride]);
   await page.reload();
+  await page.getByRole("heading", { name: "Your ride" }).waitFor();
+  await openFoldOuts(page);
   await expect(page.getByLabel("Name your ride")).toHaveValue("Kept from before");
   await expect(myRides(page).getByText("Kept from before")).toBeVisible();
   expect(await page.evaluate((key) => window.localStorage.getItem(key), OLD_KEY)).toBeNull();

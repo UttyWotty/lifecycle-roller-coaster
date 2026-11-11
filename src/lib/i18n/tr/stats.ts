@@ -7,6 +7,7 @@ import type { stats as english } from "../en/stats";
 
 export const stats: Record<keyof typeof english, string> = {
   heading: "Hayat istatistikleri",
+  more: "Trenin hakkında daha fazlası",
   moments: "Anlar",
   bigMoments: "Büyük anlar",
   bigChanges: "Büyük değişimler",

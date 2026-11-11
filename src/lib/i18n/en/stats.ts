@@ -5,6 +5,7 @@
  */
 export const stats = {
   heading: "Life statistics",
+  more: "More about your ride",
   moments: "Moments",
   bigMoments: "Big moments",
   bigChanges: "Big changes",

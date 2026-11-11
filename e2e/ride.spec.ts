@@ -269,6 +269,8 @@ test.describe("ride styles and titles", () => {
   test("the look bar sits right above the drawing, so a choice and its result stay in view", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await openRide(page);
+    /** Someone choosing a look has opened Make it yours, not the Edit menu as well. */
+    await page.locator("summary", { hasText: "Edit" }).click();
     const bar = await page.getByTestId("ride-look-bar").boundingBox();
     const drawing = await page.locator('svg[role="group"]').boundingBox();
     const title = await page.getByLabel("Name your ride").boundingBox();
