@@ -167,7 +167,7 @@ export function RideResult(props: RideResultProps): ReactElement {
         svg={svg}
         width={track.width}
         height={track.height}
-        story={{ drawing: storyDrawingOf(track), title: drawingTitle, events: lensEvents }}
+        story={{ drawing: storyDrawingOf(track, scene), title: drawingTitle, events: lensEvents }}
         shareRide={shareable}
       />
       <RideVideoButton svg={svg} track={track} events={lensEvents} title={drawingTitle} isMonochrome={scene?.palette.kind === "line"} sceneryKind={scene?.palette.kind ?? null} />

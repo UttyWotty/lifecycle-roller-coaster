@@ -21,9 +21,11 @@ import {
   type StoryDrawing,
 } from "./storyCard";
 
-function drawing(width: number, stopCount: number, keepWhole: StoryDrawing["keepWhole"] = []): StoryDrawing {
+type Spans = StoryDrawing["keepWhole"]["words"];
+
+function drawing(width: number, stopCount: number, words: Spans = [], scenery: Spans = []): StoryDrawing {
   const spacing = (width - 200) / Math.max(stopCount - 1, 1);
-  return { width, height: 600, titleBand: 72, stopXs: Array.from({ length: stopCount }, (_, i) => 100 + i * spacing), keepWhole };
+  return { width, height: 600, titleBand: 72, stopXs: Array.from({ length: stopCount }, (_, i) => 100 + i * spacing), keepWhole: { words, scenery } };
 }
 
 function event(date: string | null): LifeEvent {
@@ -65,9 +67,25 @@ describe("storyRows", () => {
     expect(rows[0].toX <= blocked.from || rows[0].toX >= blocked.to).toBe(true);
   });
 
+  it("cuts just beside a sign hanging halfway between two stops", () => {
+    const plain = storyRows(drawing(3000, 10), 2);
+    const sign = { from: plain[0].toX - 37, to: plain[0].toX + 37 };
+    const [first] = storyRows(drawing(3000, 10, [], [sign]), 2);
+    expect([sign.from - 6, sign.to + 6]).toContain(first.toX);
+  });
+
+  it("splits a sign rather than a label when it cannot keep both whole", () => {
+    const plain = storyRows(drawing(3000, 10), 2);
+    const label = { from: plain[0].toX - 40, to: plain[0].toX + 40 };
+    const everywhere = { from: 0, to: 3000 };
+    const [first] = storyRows(drawing(3000, 10, [label], [everywhere]), 2);
+    expect(first.toX <= label.from || first.toX >= label.to).toBe(true);
+  });
+
   it("still cuts through a label when every gap is covered", () => {
     const everywhere = { from: 0, to: 3000 };
     expect(storyRows(drawing(3000, 10, [everywhere]), 2)).toEqual(storyRows(drawing(3000, 10), 2));
+    expect(storyRows(drawing(3000, 10, [everywhere], [everywhere]), 2)).toEqual(storyRows(drawing(3000, 10), 2));
   });
 
   it("makes fewer rows when there are not enough gaps between stops", () => {
