@@ -66,4 +66,15 @@ test.describe("new looks", () => {
     await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
     await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
   });
+
+  test("Building blocks stacks brick columns on a studded baseplate with a brick cart", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Building blocks", exact: true }).check();
+    await expect(page.getByTestId("brick-column").first()).toBeAttached();
+    await expect(page.getByTestId("brick-baseplate")).toHaveCount(1);
+    await expect(page.getByTestId("brick-tree").first()).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").getByTestId("brick-cart")).toHaveCount(1);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
 });

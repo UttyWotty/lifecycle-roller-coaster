@@ -27,6 +27,7 @@ export const look = {
   pixelTheme: "8-Bit Life",
   dreamTheme: "Dreamland",
   watercolorTheme: "Watercolor",
+  brickTheme: "Building blocks",
   spaceTheme: "Space mission",
   oceanTheme: "Ocean voyage",
   mountainTheme: "Mountain trek",

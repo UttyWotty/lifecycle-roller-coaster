@@ -9,6 +9,7 @@ import type { ScenePalette, SceneryKind } from "@/lib/scene/themes";
 import type { Track } from "@/lib/track/types";
 import { ArcadeBackdrop, ArcadeRail, ArcadeStructure, PixelCart } from "./modes/ArcadeWorld";
 import { ComicBackdrop, ComicRail, ComicStructure } from "./modes/ComicMode";
+import { BrickBackdrop, BrickCart, BrickRail, BrickStructure } from "./modes/BrickMode";
 import { Comet, ConstellationBackdrop, ConstellationRail, ConstellationStructure } from "./modes/ConstellationWorld";
 import { DreamBackdrop, DreamRail, DreamStructure, JellyCart } from "./modes/DreamMode";
 import { GardenBackdrop, GardenRail, GardenStructure, Ladybug } from "./modes/GardenWorld";
@@ -53,6 +54,7 @@ const MODES: Readonly<Partial<Record<SceneryKind, SceneMode>>> = {
   pixel: { Backdrop: PixelBackdrop, Structure: PixelStructure, Rail: PixelRail, Vehicle: PixelCart },
   dream: { Backdrop: DreamBackdrop, Structure: DreamStructure, Rail: DreamRail, Vehicle: JellyCart },
   watercolor: { Backdrop: WatercolorBackdrop, Structure: WatercolorStructure, Rail: WatercolorRail, Vehicle: StandardCart },
+  brick: { Backdrop: BrickBackdrop, Structure: BrickStructure, Rail: BrickRail, Vehicle: BrickCart },
   storybook: { Backdrop: StorybookBackdrop, Structure: StorybookStructure, Rail: StorybookRail, Vehicle: PaperPlane },
 };
 

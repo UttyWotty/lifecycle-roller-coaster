@@ -23,7 +23,8 @@ export type SceneryKind =
   | "comic"
   | "pixel"
   | "dream"
-  | "watercolor";
+  | "watercolor"
+  | "brick";
 
 export interface ScenePalette {
   kind: SceneryKind;
