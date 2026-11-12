@@ -133,6 +133,11 @@ export const THEME_TUNES: Readonly<Record<SceneryKind, Tune>> = {
     melody: "4 - 7 . 9 - 7 . 4 - 2 . 0 - - . 2 - 4 . 7 - 9 . 12 - 9 . 7 - - .",
     bass: "0 . . . 9 . . .",
   },
+  brick: {
+    tempo: 120, root: 523.25, melodyWave: "triangle", bassWave: "square",
+    melody: "0 . 2 . 4 . 0 . 5 . 4 . 2 - . . 7 . 5 . 4 . 2 . 0 . 2 . 0 - . .",
+    bass: "0 . 5 . 7 . 5 .",
+  },
   arcade: {
     tempo: 150, root: 659.25, melodyWave: "square", bassWave: "square",
     melody: "0 7 12 7 0 7 12 7 3 8 15 8 3 8 15 8 5 10 17 10 5 10 17 10 7 . 12 . 7 . . .",
