@@ -56,4 +56,14 @@ test.describe("new looks", () => {
     await expect(page.getByTestId("ride-cart-moving").getByTestId("dream-cart")).toHaveCount(1);
     await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
   });
+
+  test("Watercolor paints hill washes, soft clouds and paper grain", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Watercolor", exact: true }).check();
+    await expect(page.getByTestId("watercolor-hill")).toHaveCount(3);
+    await expect(page.getByTestId("watercolor-cloud").first()).toBeAttached();
+    await expect(page.getByTestId("watercolor-paper")).toHaveCount(1);
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
 });

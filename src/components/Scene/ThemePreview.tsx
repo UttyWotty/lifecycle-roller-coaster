@@ -35,6 +35,7 @@ const LOOKS: Readonly<Partial<Record<SceneryKind, PreviewLook>>> = {
   comic: { railWidth: 6, postWidth: 3, postSpacing: 20 },
   pixel: { railWidth: 6, postWidth: 8, postSpacing: 24 },
   dream: { railWidth: 9, postWidth: 4, postSpacing: 30 },
+  watercolor: { railWidth: 3, postWidth: 1.5, postSpacing: 26 },
   constellation: { railWidth: 1.5, postWidth: 0, postSpacing: 120, glow: "drop-shadow(0 0 3px #fde68a)" },
 };
 
