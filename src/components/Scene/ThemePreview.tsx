@@ -38,6 +38,7 @@ const LOOKS: Readonly<Partial<Record<SceneryKind, PreviewLook>>> = {
   watercolor: { railWidth: 3, postWidth: 1.5, postSpacing: 26 },
   brick: { railWidth: 5, postWidth: 9, postSpacing: 26 },
   surreal: { railWidth: 3, postWidth: 1, postSpacing: 22 },
+  trackmap: { railWidth: 1.5, postWidth: 0, postSpacing: 120 },
   constellation: { railWidth: 1.5, postWidth: 0, postSpacing: 120, glow: "drop-shadow(0 0 3px #fde68a)" },
 };
 

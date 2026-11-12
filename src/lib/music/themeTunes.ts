@@ -143,6 +143,11 @@ export const THEME_TUNES: Readonly<Record<SceneryKind, Tune>> = {
     melody: "0 - - 6 - - 3 - 10 - - . 8 - 6 - 0 - - 1 - - 6 - 5 - - . 3 - - .",
     bass: "0 . . . 6 . . .",
   },
+  trackmap: {
+    tempo: 104, root: 440, melodyWave: "triangle", bassWave: "sine",
+    melody: "0 . . 7 . . 12 . 10 . . 7 . . 3 . 5 . . 7 . . 10 . 12 . . 15 . . 12 .",
+    bass: "0 . . . 3 . . .",
+  },
   arcade: {
     tempo: 150, root: 659.25, melodyWave: "square", bassWave: "square",
     melody: "0 7 12 7 0 7 12 7 3 8 15 8 3 8 15 8 5 10 17 10 5 10 17 10 7 . 12 . 7 . . .",

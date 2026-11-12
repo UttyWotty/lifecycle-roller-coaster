@@ -89,4 +89,15 @@ test.describe("new looks", () => {
     await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
     await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
   });
+
+  test("Track map prints a white line on black with a spec sheet under it", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Track map", exact: true }).check();
+    await expect(page.getByTestId("trackmap-frame")).toHaveCount(1);
+    await expect(page.getByTestId("trackmap-spec")).toHaveCount(1);
+    await expect(page.getByTestId("trackmap-fact").first()).toHaveAttribute("data-fact", "years");
+    await expect(page.getByTestId("trackmap-fact").first()).toContainText("YEARS");
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
 });

@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **Track map art mode:** your life printed as a minimalist ride poster, one thin white line on black inside a fine frame. Under it runs a spec sheet like a ride's fact plate: the years it spans, its stops, its highest and lowest moments and how many big moves it has, in your language.
+
 - **Surreal dream art mode:** your life ridden across a quiet dream plain under a deep teal sky, where things are not quite right. Boulders float high above their own shadows, doorways stand alone in the sand, white wisps drift past, and a rust ladder track rides on spindly stilts whose long evening shadows stretch back toward the horizon, to a slow, wandering tune.
 
 - **Building blocks art mode:** your life built as a toy-brick model on a studded green baseplate. The red rail runs on a ladder of grey ties over columns of stacked white and grey bricks, brick trees and brick clouds stand around it, and a studded brick cart carries your rider. The bricks are generic toys drawn in code, after no brand.

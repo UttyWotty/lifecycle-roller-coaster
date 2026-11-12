@@ -24,6 +24,7 @@ import { PixelBackdrop, PixelRail, PixelStructure } from "./modes/PixelMode";
 import { PaperPlane, StorybookBackdrop, StorybookRail, StorybookStructure } from "./modes/StorybookWorld";
 import { WatercolorBackdrop, WatercolorRail, WatercolorStructure } from "./modes/WatercolorMode";
 import { SurrealBackdrop, SurrealRail, SurrealStructure } from "./modes/SurrealMode";
+import { TrackMapBackdrop, TrackMapRail, TrackMapStructure } from "./modes/TrackMapMode";
 import { ToyBackdrop, ToyRail, ToyStructure } from "./modes/ToyMode";
 import { Rail, type RailProps } from "./Rail";
 import { StandardCart, type VehicleProps } from "./RideCart";
@@ -57,6 +58,7 @@ const MODES: Readonly<Partial<Record<SceneryKind, SceneMode>>> = {
   watercolor: { Backdrop: WatercolorBackdrop, Structure: WatercolorStructure, Rail: WatercolorRail, Vehicle: StandardCart },
   brick: { Backdrop: BrickBackdrop, Structure: BrickStructure, Rail: BrickRail, Vehicle: BrickCart },
   surreal: { Backdrop: SurrealBackdrop, Structure: SurrealStructure, Rail: SurrealRail, Vehicle: StandardCart },
+  trackmap: { Backdrop: TrackMapBackdrop, Structure: TrackMapStructure, Rail: TrackMapRail, Vehicle: StandardCart },
   storybook: { Backdrop: StorybookBackdrop, Structure: StorybookStructure, Rail: StorybookRail, Vehicle: PaperPlane },
 };
 
