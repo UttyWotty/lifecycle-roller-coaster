@@ -1,5 +1,5 @@
 /**
- * Palettes for the Art modes group: whole art directions such as Classic Ride, Nightmare Mode, Retro Mode, Comic Book, 8-Bit Life, Dreamland, Watercolor, Building blocks and Surreal dream.
+ * Palettes for the Art modes group: whole art directions such as Classic Ride, Nightmare Mode, Retro Mode, Comic Book, 8-Bit Life, Dreamland, Watercolor, Building blocks, Surreal dream and Track map.
  * Colours are fixed hex values rather than page variables, so a scene looks the same on screen and in exports.
  * The theme registry in themes.ts maps each theme id to one of these palettes.
  */
@@ -213,4 +213,25 @@ export const SURREAL: ScenePalette = {
   hasStars: false,
   orb: null,
   floor: 0,
+};
+
+export const TRACKMAP: ScenePalette = {
+  kind: "trackmap",
+  skyTop: "#0a0a0a",
+  skyBottom: "#0a0a0a",
+  cloud: "#27272a",
+  skylineFar: "#18181b",
+  skylineNear: "#18181b",
+  steel: "#52525b",
+  steelDark: "#0a0a0a",
+  rail: "#fafafa",
+  ground: "#18181b",
+  title: "#fafafa",
+  ink: "#fafafa",
+  muted: "#a1a1aa",
+  pill: "#0a0a0a",
+  cart: "#fafafa",
+  hasStars: false,
+  orb: null,
+  floor: 84,
 };
