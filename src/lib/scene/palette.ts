@@ -26,7 +26,8 @@ export type SceneryKind =
   | "watercolor"
   | "brick"
   | "surreal"
-  | "trackmap";
+  | "trackmap"
+  | "iso";
 
 export interface ScenePalette {
   kind: SceneryKind;

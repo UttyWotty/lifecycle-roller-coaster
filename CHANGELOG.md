@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **Isometric model art mode:** your life built as a small 3D model on a tiled slab, like a toy ride on a desk. The rail is a solid ribbon with depth, even around loops, the supports are box pillars with shaded sides, and painted boxes stand around the slab.
+
 - **Track map art mode:** your life printed as a minimalist ride poster, one thin white line on black inside a fine frame. Under it runs a spec sheet like a ride's fact plate: the years it spans, its stops, its highest and lowest moments and how many big moves it has, in your language.
 
 - **Surreal dream art mode:** your life ridden across a quiet dream plain under a deep teal sky, where things are not quite right. Boulders float high above their own shadows, doorways stand alone in the sand, white wisps drift past, and a rust ladder track rides on spindly stilts whose long evening shadows stretch back toward the horizon, to a slow, wandering tune.

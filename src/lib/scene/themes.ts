@@ -6,7 +6,7 @@
 import { DEFAULT_LOCALE } from "@/lib/i18n/locales";
 import { translate } from "@/lib/i18n/messages";
 import type { ScenePalette } from "./palette";
-import { BRICK, CLASSIC, COMIC, DREAM, MINIMAL, NIGHTMARE, PIXEL, POSTER, SURREAL, TRACKMAP, WATERCOLOR } from "./palettes/artModes";
+import { BRICK, CLASSIC, COMIC, DREAM, ISO, MINIMAL, NIGHTMARE, PIXEL, POSTER, SURREAL, TRACKMAP, WATERCOLOR } from "./palettes/artModes";
 import { HAUNTED, NIGHT, RETRO, SUNNY, SUNSET } from "./palettes/scenes";
 import { ARCADE, CONSTELLATION, GARDEN, MOUNTAIN, OCEAN, RIVER, SPACE, STORYBOOK } from "./palettes/worlds";
 
@@ -22,6 +22,7 @@ export const RIDE_THEMES = [
   "brick",
   "surreal",
   "trackmap",
+  "iso",
   "space",
   "ocean",
   "mountain",
@@ -70,6 +71,7 @@ export const RIDE_THEME_DETAILS: Readonly<Record<RideTheme, RideThemeDetails>> =
   brick: { name: englishName("brick"), group: "Art modes", palette: BRICK },
   surreal: { name: englishName("surreal"), group: "Art modes", palette: SURREAL },
   trackmap: { name: englishName("trackmap"), group: "Art modes", palette: TRACKMAP },
+  iso: { name: englishName("iso"), group: "Art modes", palette: ISO },
   space: { name: englishName("space"), group: "Worlds", palette: SPACE },
   ocean: { name: englishName("ocean"), group: "Worlds", palette: OCEAN },
   mountain: { name: englishName("mountain"), group: "Worlds", palette: MOUNTAIN },

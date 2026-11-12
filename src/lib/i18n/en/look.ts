@@ -30,6 +30,7 @@ export const look = {
   brickTheme: "Building blocks",
   surrealTheme: "Surreal dream",
   trackmapTheme: "Track map",
+  isoTheme: "Isometric model",
   specYears: "Years",
   specStops: "Stops",
   specHighest: "Highest",
