@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **Dreamland art mode:** your life as a puffy balloon ride floating on a bank of clouds, under soft pastel rainbows and twinkling sparkles. The track is a glossy pink tube on mint legs, a smiling jelly cart carries your rider, and a slow, dreamy tune plays along.
+
 - **8-Bit Life art mode:** your life as a bright daytime pixel adventure, with blocky clouds, stepped green hills and a rail resting on stacked stone blocks. Big climbs fly a LEVEL UP! banner and big drops a CHECKPOINT banner, a place to catch your breath rather than a game over. Labels are square, a pixel cart carries your rider, and a chiptune plays along. All of it is original, taken from no existing game.
 
 - **Comic Book art mode:** your life as a comic strip. Each chapter is a bright panel with halftone dots and a thick black frame, every stop speaks from a speech bubble, the track is inked in bold black and red, and the biggest drops and climbs burst out of the sky with POW! and WOW!. It has its own bouncy tune, and like every look it is drawn in code and free.

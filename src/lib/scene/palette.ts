@@ -21,7 +21,8 @@ export type SceneryKind =
   | "river"
   | "storybook"
   | "comic"
-  | "pixel";
+  | "pixel"
+  | "dream";
 
 export interface ScenePalette {
   kind: SceneryKind;

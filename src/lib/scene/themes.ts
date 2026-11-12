@@ -6,7 +6,7 @@
 import { DEFAULT_LOCALE } from "@/lib/i18n/locales";
 import { translate } from "@/lib/i18n/messages";
 import type { ScenePalette } from "./palette";
-import { CLASSIC, COMIC, MINIMAL, NIGHTMARE, PIXEL, POSTER } from "./palettes/artModes";
+import { CLASSIC, COMIC, DREAM, MINIMAL, NIGHTMARE, PIXEL, POSTER } from "./palettes/artModes";
 import { HAUNTED, NIGHT, RETRO, SUNNY, SUNSET } from "./palettes/scenes";
 import { ARCADE, CONSTELLATION, GARDEN, MOUNTAIN, OCEAN, RIVER, SPACE, STORYBOOK } from "./palettes/worlds";
 
@@ -17,6 +17,7 @@ export const RIDE_THEMES = [
   "poster",
   "comic",
   "pixel",
+  "dream",
   "space",
   "ocean",
   "mountain",
@@ -60,6 +61,7 @@ export const RIDE_THEME_DETAILS: Readonly<Record<RideTheme, RideThemeDetails>> =
   poster: { name: englishName("poster"), group: "Art modes", palette: POSTER },
   comic: { name: englishName("comic"), group: "Art modes", palette: COMIC },
   pixel: { name: englishName("pixel"), group: "Art modes", palette: PIXEL },
+  dream: { name: englishName("dream"), group: "Art modes", palette: DREAM },
   space: { name: englishName("space"), group: "Worlds", palette: SPACE },
   ocean: { name: englishName("ocean"), group: "Worlds", palette: OCEAN },
   mountain: { name: englishName("mountain"), group: "Worlds", palette: MOUNTAIN },

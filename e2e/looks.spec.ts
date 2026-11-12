@@ -45,4 +45,15 @@ test.describe("new looks", () => {
     await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
     await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
   });
+
+  test("Dreamland floats a jelly cart on a cloud floor under rainbows and sparkles", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Dreamland", exact: true }).check();
+    await expect(page.getByTestId("dream-cloud-floor")).toHaveCount(1);
+    await expect(page.getByTestId("dream-rainbow").first()).toBeAttached();
+    await expect(page.getByTestId("dream-sparkle").first()).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").getByTestId("dream-cart")).toHaveCount(1);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
 });

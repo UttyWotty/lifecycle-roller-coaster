@@ -1,5 +1,5 @@
 /**
- * Palettes for the Art modes group: whole art directions such as Classic Ride, Nightmare Mode, Retro Mode, Comic Book and 8-Bit Life.
+ * Palettes for the Art modes group: whole art directions such as Classic Ride, Nightmare Mode, Retro Mode, Comic Book, 8-Bit Life and Dreamland.
  * Colours are fixed hex values rather than page variables, so a scene looks the same on screen and in exports.
  * The theme registry in themes.ts maps each theme id to one of these palettes.
  */
@@ -127,6 +127,27 @@ export const PIXEL: ScenePalette = {
   pill: "#ffffff",
   cart: "#e5484d",
   hasStars: false,
+  orb: null,
+  floor: 0,
+};
+
+export const DREAM: ScenePalette = {
+  kind: "dream",
+  skyTop: "#e9dcff",
+  skyBottom: "#ffe3ef",
+  cloud: "#ffffff",
+  skylineFar: "#cdb4ff",
+  skylineNear: "#ffc6e0",
+  steel: "#a8eadb",
+  steelDark: "#6cc4b0",
+  rail: "#ff8fc0",
+  ground: "#ffffff",
+  title: "#7a4b9c",
+  ink: "#4a2f63",
+  muted: "#7d6a90",
+  pill: "#ffffff",
+  cart: "#ffb3d1",
+  hasStars: true,
   orb: null,
   floor: 0,
 };

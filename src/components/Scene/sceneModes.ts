@@ -10,6 +10,7 @@ import type { Track } from "@/lib/track/types";
 import { ArcadeBackdrop, ArcadeRail, ArcadeStructure, PixelCart } from "./modes/ArcadeWorld";
 import { ComicBackdrop, ComicRail, ComicStructure } from "./modes/ComicMode";
 import { Comet, ConstellationBackdrop, ConstellationRail, ConstellationStructure } from "./modes/ConstellationWorld";
+import { DreamBackdrop, DreamRail, DreamStructure, JellyCart } from "./modes/DreamMode";
 import { GardenBackdrop, GardenRail, GardenStructure, Ladybug } from "./modes/GardenWorld";
 import { LineBackdrop, LineRail, LineStructure } from "./modes/LineMode";
 import { Hiker, MountainBackdrop, MountainRail, MountainStructure } from "./modes/MountainWorld";
@@ -49,6 +50,7 @@ const MODES: Readonly<Partial<Record<SceneryKind, SceneMode>>> = {
   river: { Backdrop: RiverBackdrop, Structure: RiverStructure, Rail: RiverRail, Vehicle: Canoe },
   comic: { Backdrop: ComicBackdrop, Structure: ComicStructure, Rail: ComicRail, Vehicle: StandardCart },
   pixel: { Backdrop: PixelBackdrop, Structure: PixelStructure, Rail: PixelRail, Vehicle: PixelCart },
+  dream: { Backdrop: DreamBackdrop, Structure: DreamStructure, Rail: DreamRail, Vehicle: JellyCart },
   storybook: { Backdrop: StorybookBackdrop, Structure: StorybookStructure, Rail: StorybookRail, Vehicle: PaperPlane },
 };
 
