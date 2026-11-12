@@ -77,4 +77,16 @@ test.describe("new looks", () => {
     await expect(page.getByTestId("ride-cart-moving").getByTestId("brick-cart")).toHaveCount(1);
     await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
   });
+
+  test("Surreal dream floats boulders over a plain with doorways, wisps and long shadows", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Surreal dream", exact: true }).check();
+    await expect(page.getByTestId("surreal-plain")).toHaveCount(1);
+    await expect(page.getByTestId("surreal-rock").first()).toBeAttached();
+    await expect(page.getByTestId("surreal-door").first()).toBeAttached();
+    await expect(page.getByTestId("surreal-wisp")).toHaveCount(2);
+    await expect(page.getByTestId("surreal-shadow").first()).toBeAttached();
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
 });

@@ -38,6 +38,7 @@ export const look: Record<keyof typeof english, string> = {
   dreamTheme: "Düş diyarı",
   watercolorTheme: "Suluboya",
   brickTheme: "Yapı blokları",
+  surrealTheme: "Gerçeküstü rüya",
   sunnyTheme: "Güneşli gün",
   sunsetTheme: "Altın gün batımı",
   nightTheme: "Yıldızlı gece",

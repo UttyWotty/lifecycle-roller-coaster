@@ -28,6 +28,7 @@ export const look = {
   dreamTheme: "Dreamland",
   watercolorTheme: "Watercolor",
   brickTheme: "Building blocks",
+  surrealTheme: "Surreal dream",
   spaceTheme: "Space mission",
   oceanTheme: "Ocean voyage",
   mountainTheme: "Mountain trek",
