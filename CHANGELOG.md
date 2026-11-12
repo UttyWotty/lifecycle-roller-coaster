@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-11-12
+
 ### Added
 
 - **Isometric model art mode:** your life built as a small 3D model on a tiled slab, like a toy ride on a desk. The rail is a solid ribbon with depth, even around loops, the supports are box pillars with shaded sides, and painted boxes stand around the slab.
