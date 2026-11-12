@@ -100,4 +100,15 @@ test.describe("new looks", () => {
     await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
     await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
   });
+
+  test("Isometric model stands box pillars and a solid rail on a tiled slab", async ({ page }) => {
+    await openRide(page);
+    await page.getByRole("radio", { name: "Isometric model", exact: true }).check();
+    await expect(page.getByTestId("iso-slab")).toHaveCount(1);
+    await expect(page.getByTestId("iso-pillar").first()).toBeAttached();
+    await expect(page.getByTestId("iso-box").first()).toBeAttached();
+    await expect(page.getByTestId("iso-rail-depth")).toHaveCount(1);
+    await expect(page.getByTestId("sky-balloon")).toHaveCount(0);
+    await expect(page.getByTestId("ride-cart-moving").locator("[data-rider]")).toHaveCount(1);
+  });
 });

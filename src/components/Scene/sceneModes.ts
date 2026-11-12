@@ -13,6 +13,7 @@ import { BrickBackdrop, BrickCart, BrickRail, BrickStructure } from "./modes/Bri
 import { Comet, ConstellationBackdrop, ConstellationRail, ConstellationStructure } from "./modes/ConstellationWorld";
 import { DreamBackdrop, DreamRail, DreamStructure, JellyCart } from "./modes/DreamMode";
 import { GardenBackdrop, GardenRail, GardenStructure, Ladybug } from "./modes/GardenWorld";
+import { IsoBackdrop, IsoRail, IsoStructure } from "./modes/IsoMode";
 import { LineBackdrop, LineRail, LineStructure } from "./modes/LineMode";
 import { Hiker, MountainBackdrop, MountainRail, MountainStructure } from "./modes/MountainWorld";
 import { NeonBackdrop, NeonRail, NeonStructure } from "./modes/NeonMode";
@@ -59,6 +60,7 @@ const MODES: Readonly<Partial<Record<SceneryKind, SceneMode>>> = {
   brick: { Backdrop: BrickBackdrop, Structure: BrickStructure, Rail: BrickRail, Vehicle: BrickCart },
   surreal: { Backdrop: SurrealBackdrop, Structure: SurrealStructure, Rail: SurrealRail, Vehicle: StandardCart },
   trackmap: { Backdrop: TrackMapBackdrop, Structure: TrackMapStructure, Rail: TrackMapRail, Vehicle: StandardCart },
+  iso: { Backdrop: IsoBackdrop, Structure: IsoStructure, Rail: IsoRail, Vehicle: StandardCart },
   storybook: { Backdrop: StorybookBackdrop, Structure: StorybookStructure, Rail: StorybookRail, Vehicle: PaperPlane },
 };
 

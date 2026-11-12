@@ -40,6 +40,7 @@ export const look: Record<keyof typeof english, string> = {
   brickTheme: "Yapı blokları",
   surrealTheme: "Gerçeküstü rüya",
   trackmapTheme: "Ray haritası",
+  isoTheme: "İzometrik maket",
   specYears: "Yıllar",
   specStops: "Duraklar",
   specHighest: "En yüksek",
