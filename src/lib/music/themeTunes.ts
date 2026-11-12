@@ -113,6 +113,46 @@ export const THEME_TUNES: Readonly<Record<SceneryKind, Tune>> = {
     melody: "0 . 0 . 7 . 7 . 9 . 9 . 7 - . . 5 . 5 . 4 . 4 . 2 . 2 . 0 - . .",
     bass: "0 . 5 . 7 . 0 .",
   },
+  comic: {
+    tempo: 144, root: 523.25, melodyWave: "square", bassWave: "triangle",
+    melody: "0 . 0 4 7 . 4 . 9 . 7 . 12 - . . 11 . 9 . 7 4 . 2 0 . 4 . 7 - . .",
+    bass: "0 0 . 7 5 5 . 7",
+  },
+  pixel: {
+    tempo: 128, root: 587.33, melodyWave: "square", bassWave: "triangle",
+    melody: "0 4 7 12 . 7 4 . 5 9 12 . 9 . 5 . 7 11 14 . 11 . 7 . 12 . 7 . 4 - . .",
+    bass: "0 . 0 7 5 . 5 7",
+  },
+  dream: {
+    tempo: 92, root: 783.99, melodyWave: "sine", bassWave: "sine",
+    melody: "0 . 4 . 7 . 11 - 9 . 7 . 4 - . . 2 . 5 . 9 . 12 - 11 . 7 . 4 - - .",
+    bass: "0 . . . 5 . . .",
+  },
+  watercolor: {
+    tempo: 76, root: 523.25, melodyWave: "sine", bassWave: "triangle",
+    melody: "4 - 7 . 9 - 7 . 4 - 2 . 0 - - . 2 - 4 . 7 - 9 . 12 - 9 . 7 - - .",
+    bass: "0 . . . 9 . . .",
+  },
+  brick: {
+    tempo: 120, root: 523.25, melodyWave: "triangle", bassWave: "square",
+    melody: "0 . 2 . 4 . 0 . 5 . 4 . 2 - . . 7 . 5 . 4 . 2 . 0 . 2 . 0 - . .",
+    bass: "0 . 5 . 7 . 5 .",
+  },
+  surreal: {
+    tempo: 70, root: 440, melodyWave: "sine", bassWave: "triangle",
+    melody: "0 - - 6 - - 3 - 10 - - . 8 - 6 - 0 - - 1 - - 6 - 5 - - . 3 - - .",
+    bass: "0 . . . 6 . . .",
+  },
+  trackmap: {
+    tempo: 104, root: 440, melodyWave: "triangle", bassWave: "sine",
+    melody: "0 . . 7 . . 12 . 10 . . 7 . . 3 . 5 . . 7 . . 10 . 12 . . 15 . . 12 .",
+    bass: "0 . . . 3 . . .",
+  },
+  iso: {
+    tempo: 112, root: 659.25, melodyWave: "triangle", bassWave: "triangle",
+    melody: "0 . 7 . 4 . 7 . 2 . 9 . 5 . 9 . 4 . 11 . 7 . 11 . 12 - 7 . 0 - . .",
+    bass: "0 . 0 . 5 . 7 .",
+  },
   arcade: {
     tempo: 150, root: 659.25, melodyWave: "square", bassWave: "square",
     melody: "0 7 12 7 0 7 12 7 3 8 15 8 3 8 15 8 5 10 17 10 5 10 17 10 7 . 12 . 7 . . .",

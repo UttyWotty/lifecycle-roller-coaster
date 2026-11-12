@@ -4,6 +4,28 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-11-12
+
+### Added
+
+- **Isometric model art mode:** your life built as a small 3D model on a tiled slab, like a toy ride on a desk. The rail is a solid ribbon with depth, even around loops, the supports are box pillars with shaded sides, and painted boxes stand around the slab.
+
+- **Track map art mode:** your life printed as a minimalist ride poster, one thin white line on black inside a fine frame. Under it runs a spec sheet like a ride's fact plate: the years it spans, its stops, its highest and lowest moments and how many big moves it has, in your language.
+
+- **Surreal dream art mode:** your life ridden across a quiet dream plain under a deep teal sky, where things are not quite right. Boulders float high above their own shadows, doorways stand alone in the sand, white wisps drift past, and a rust ladder track rides on spindly stilts whose long evening shadows stretch back toward the horizon, to a slow, wandering tune.
+
+- **Building blocks art mode:** your life built as a toy-brick model on a studded green baseplate. The red rail runs on a ladder of grey ties over columns of stacked white and grey bricks, brick trees and brick clouds stand around it, and a studded brick cart carries your rider. The bricks are generic toys drawn in code, after no brand.
+
+- **Watercolor art mode:** your life painted in soft washes on textured paper, like a page from a sketchbook. Rolling hills are layered washes with edges that bleed and pool like wet paint, clouds and warm colour blooms drift in the sky, and the track is a sepia ink line over a broad brush of colour, to a gentle, unhurried tune.
+
+- **Dreamland art mode:** your life as a puffy balloon ride floating on a bank of clouds, under soft pastel rainbows and twinkling sparkles. The track is a glossy pink tube on mint legs, a smiling jelly cart carries your rider, and a slow, dreamy tune plays along.
+
+- **8-Bit Life art mode:** your life as a bright daytime pixel adventure, with blocky clouds, stepped green hills and a rail resting on stacked stone blocks. Big climbs fly a LEVEL UP! banner and big drops a CHECKPOINT banner, a place to catch your breath rather than a game over. Labels are square, a pixel cart carries your rider, and a chiptune plays along. All of it is original, taken from no existing game.
+
+- **Comic Book art mode:** your life as a comic strip. Each chapter is a bright panel with halftone dots and a thick black frame, every stop speaks from a speech bubble, the track is inked in bold black and red, and the biggest drops and climbs burst out of the sky with POW! and WOW!. It has its own bouncy tune, and like every look it is drawn in code and free.
+
+- **Random ride:** one press redraws your ride in a surprise style, theme and character, always in a theme you are not already in. Your events stay exactly as they are, and since every look is drawn in your browser from the same events, trying looks never sends your story anywhere or costs anything.
+
 ## [0.16.0] - 2026-11-11
 
 ### Added

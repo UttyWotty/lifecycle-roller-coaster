@@ -2,11 +2,13 @@
  * How a stop looks in an illustrated theme: a hub on the rail, a flag on a pole and a label pill.
  * Poles alternate between two heights, so neighbouring labels sit clear of each other.
  * Metro stations and low stops skip the pole, and Minimal Mode draws an ink-outlined tag with an open circle, so a rail
- * passing behind a label reads as passing behind it rather than broken.
+ * passing behind a label reads as passing behind it rather than broken. Comic Book Mode turns the pill into a speech bubble,
+ * and 8-Bit Life squares it off.
  */
 import type { ReactElement } from "react";
 import { hasFlag as stopHasFlag, PILL_HEIGHT, pillTop as stopPillTop, pillWidth, POLE_HEIGHT, TALL_POLE_HEIGHT } from "@/lib/scene/labelLayout";
 import type { ScenePalette } from "@/lib/scene/themes";
+import { ComicBubbleTail } from "./modes/ComicMode";
 import { CATEGORY_COLORS } from "@/lib/track/categoryColors";
 import type { TrackStop } from "@/lib/track/types";
 
@@ -31,10 +33,14 @@ const TITLE_BASELINE = 19;
 const DATE_BASELINE = 34;
 const HUB_RING_WIDTH = 4;
 const STATION_RING_WIDTH = 4;
+const BUBBLE_EDGE_WIDTH = 3;
 
 export function SceneStopArt(props: SceneStopArtProps): ReactElement {
   const { stop, date, isStation, isTall, markerRadius, palette } = props;
   const isBare = palette.kind === "line";
+  const isBubble = palette.kind === "comic";
+  const isSquare = palette.kind === "pixel";
+  const isInked = isBubble || isSquare;
   const color = isBare ? palette.ink : CATEGORY_COLORS[stop.category];
   const options = { isStation, isBare };
   const hasFlag = stopHasFlag(stop, options);
@@ -44,7 +50,7 @@ export function SceneStopArt(props: SceneStopArtProps): ReactElement {
   const pillTop = stopPillTop(stop, isTall, options);
   return (
     <>
-      {hasFlag && (
+      {hasFlag && !isBubble && (
         <>
           <rect x={stop.x - POLE_WIDTH / 2} y={poleTop} width={POLE_WIDTH} height={poleHeight} fill={palette.pill} />
           <path
@@ -66,11 +72,12 @@ export function SceneStopArt(props: SceneStopArtProps): ReactElement {
         y={pillTop}
         width={width}
         height={PILL_HEIGHT}
-        rx={PILL_RADIUS}
+        rx={isSquare ? 0 : PILL_RADIUS}
         fill={palette.pill}
-        stroke={color}
-        strokeWidth={PILL_EDGE_WIDTH}
+        stroke={isInked ? palette.ink : color}
+        strokeWidth={isInked ? BUBBLE_EDGE_WIDTH : PILL_EDGE_WIDTH}
       />
+      {isBubble && <ComicBubbleTail stopX={stop.x} stopY={stop.y} pillTop={pillTop} pillHeight={PILL_HEIGHT} palette={palette} />}
       <text x={stop.x} y={pillTop + TITLE_BASELINE} textAnchor="middle" fontSize={TITLE_SIZE} fontWeight={700} fill={palette.ink}>
         {stop.title}
       </text>

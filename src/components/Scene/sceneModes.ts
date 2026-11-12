@@ -8,8 +8,12 @@ import type { Scene } from "@/lib/scene/composeRide";
 import type { ScenePalette, SceneryKind } from "@/lib/scene/themes";
 import type { Track } from "@/lib/track/types";
 import { ArcadeBackdrop, ArcadeRail, ArcadeStructure, PixelCart } from "./modes/ArcadeWorld";
+import { ComicBackdrop, ComicRail, ComicStructure } from "./modes/ComicMode";
+import { BrickBackdrop, BrickCart, BrickRail, BrickStructure } from "./modes/BrickMode";
 import { Comet, ConstellationBackdrop, ConstellationRail, ConstellationStructure } from "./modes/ConstellationWorld";
+import { DreamBackdrop, DreamRail, DreamStructure, JellyCart } from "./modes/DreamMode";
 import { GardenBackdrop, GardenRail, GardenStructure, Ladybug } from "./modes/GardenWorld";
+import { IsoBackdrop, IsoRail, IsoStructure } from "./modes/IsoMode";
 import { LineBackdrop, LineRail, LineStructure } from "./modes/LineMode";
 import { Hiker, MountainBackdrop, MountainRail, MountainStructure } from "./modes/MountainWorld";
 import { NeonBackdrop, NeonRail, NeonStructure } from "./modes/NeonMode";
@@ -17,7 +21,11 @@ import { Boat, OceanBackdrop, OceanRail, OceanStructure } from "./modes/OceanWor
 import { PosterBackdrop, PosterRail, PosterStructure } from "./modes/PosterMode";
 import { Canoe, RiverBackdrop, RiverRail, RiverStructure } from "./modes/RiverWorld";
 import { Rocket, SpaceBackdrop, SpaceRail, SpaceStructure } from "./modes/SpaceWorld";
+import { PixelBackdrop, PixelRail, PixelStructure } from "./modes/PixelMode";
 import { PaperPlane, StorybookBackdrop, StorybookRail, StorybookStructure } from "./modes/StorybookWorld";
+import { WatercolorBackdrop, WatercolorRail, WatercolorStructure } from "./modes/WatercolorMode";
+import { SurrealBackdrop, SurrealRail, SurrealStructure } from "./modes/SurrealMode";
+import { TrackMapBackdrop, TrackMapRail, TrackMapStructure } from "./modes/TrackMapMode";
 import { ToyBackdrop, ToyRail, ToyStructure } from "./modes/ToyMode";
 import { Rail, type RailProps } from "./Rail";
 import { StandardCart, type VehicleProps } from "./RideCart";
@@ -45,6 +53,14 @@ const MODES: Readonly<Partial<Record<SceneryKind, SceneMode>>> = {
   garden: { Backdrop: GardenBackdrop, Structure: GardenStructure, Rail: GardenRail, Vehicle: Ladybug },
   constellation: { Backdrop: ConstellationBackdrop, Structure: ConstellationStructure, Rail: ConstellationRail, Vehicle: Comet },
   river: { Backdrop: RiverBackdrop, Structure: RiverStructure, Rail: RiverRail, Vehicle: Canoe },
+  comic: { Backdrop: ComicBackdrop, Structure: ComicStructure, Rail: ComicRail, Vehicle: StandardCart },
+  pixel: { Backdrop: PixelBackdrop, Structure: PixelStructure, Rail: PixelRail, Vehicle: PixelCart },
+  dream: { Backdrop: DreamBackdrop, Structure: DreamStructure, Rail: DreamRail, Vehicle: JellyCart },
+  watercolor: { Backdrop: WatercolorBackdrop, Structure: WatercolorStructure, Rail: WatercolorRail, Vehicle: StandardCart },
+  brick: { Backdrop: BrickBackdrop, Structure: BrickStructure, Rail: BrickRail, Vehicle: BrickCart },
+  surreal: { Backdrop: SurrealBackdrop, Structure: SurrealStructure, Rail: SurrealRail, Vehicle: StandardCart },
+  trackmap: { Backdrop: TrackMapBackdrop, Structure: TrackMapStructure, Rail: TrackMapRail, Vehicle: StandardCart },
+  iso: { Backdrop: IsoBackdrop, Structure: IsoStructure, Rail: IsoRail, Vehicle: StandardCart },
   storybook: { Backdrop: StorybookBackdrop, Structure: StorybookStructure, Rail: StorybookRail, Vehicle: PaperPlane },
 };
 

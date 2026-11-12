@@ -32,6 +32,14 @@ const LOOKS: Readonly<Partial<Record<SceneryKind, PreviewLook>>> = {
   garden: { railWidth: 6, postWidth: 2, postSpacing: 30 },
   river: { railWidth: 8, postWidth: 0, postSpacing: 120 },
   storybook: { railWidth: 5, postWidth: 1, postSpacing: 28 },
+  comic: { railWidth: 6, postWidth: 3, postSpacing: 20 },
+  pixel: { railWidth: 6, postWidth: 8, postSpacing: 24 },
+  dream: { railWidth: 9, postWidth: 4, postSpacing: 30 },
+  watercolor: { railWidth: 3, postWidth: 1.5, postSpacing: 26 },
+  brick: { railWidth: 5, postWidth: 9, postSpacing: 26 },
+  surreal: { railWidth: 3, postWidth: 1, postSpacing: 22 },
+  trackmap: { railWidth: 1.5, postWidth: 0, postSpacing: 120 },
+  iso: { railWidth: 7, postWidth: 6, postSpacing: 24 },
   constellation: { railWidth: 1.5, postWidth: 0, postSpacing: 120, glow: "drop-shadow(0 0 3px #fde68a)" },
 };
 
