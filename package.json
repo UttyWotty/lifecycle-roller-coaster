@@ -14,10 +14,10 @@
     "test:e2e": "next build && playwright test"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "1.6.0",
+    "@anthropic-ai/sdk": "1.8.0",
     "@vercel/analytics": "2.0.1",
-    "botid": "1.5.12",
-    "next": "16.4.5",
+    "botid": "1.5.13",
+    "next": "16.4.6",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "server-only": "0.0.1",
@@ -30,7 +30,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^10",
-    "eslint-config-next": "16.4.5",
+    "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",
     "typescript": "^6",
     "vitest": "5.1.0"
